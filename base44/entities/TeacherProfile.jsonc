@@ -1,0 +1,82 @@
+{
+  "name": "TeacherProfile",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "default": "default"
+    },
+    "name": {
+      "type": "string",
+      "default": ""
+    },
+    "photo_asset_id": {
+      "type": "string",
+      "default": ""
+    },
+    "photo_url": {
+      "type": "string",
+      "default": ""
+    },
+    "organization": {
+      "type": "string",
+      "default": ""
+    },
+    "title_or_identity": {
+      "type": "string",
+      "default": ""
+    },
+    "project_role": {
+      "type": "string",
+      "default": ""
+    },
+    "short_bio": {
+      "type": "string",
+      "default": ""
+    },
+    "visible": {
+      "type": "boolean",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published"
+      ],
+      "default": "draft"
+    }
+  },
+  "required": [
+    "key"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.status": "published"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

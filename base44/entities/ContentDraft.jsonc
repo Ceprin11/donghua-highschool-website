@@ -1,0 +1,50 @@
+{
+  "name": "ContentDraft",
+  "type": "object",
+  "properties": {
+    "target_entity": {
+      "type": "string"
+    },
+    "target_id": {
+      "type": "string",
+      "default": ""
+    },
+    "target_key": {
+      "type": "string",
+      "default": ""
+    },
+    "payload": {
+      "type": "object",
+      "default": {}
+    },
+    "note": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "target_entity"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

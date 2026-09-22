@@ -1,0 +1,58 @@
+{
+  "name": "AdminLog",
+  "type": "object",
+  "properties": {
+    "actor_id": {
+      "type": "string",
+      "default": ""
+    },
+    "actor_email": {
+      "type": "string",
+      "default": ""
+    },
+    "action": {
+      "type": "string"
+    },
+    "entity": {
+      "type": "string",
+      "default": ""
+    },
+    "record_id": {
+      "type": "string",
+      "default": ""
+    },
+    "success": {
+      "type": "boolean",
+      "default": true
+    },
+    "detail": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "action"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

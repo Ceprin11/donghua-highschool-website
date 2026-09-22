@@ -1,0 +1,76 @@
+{
+  "name": "MediaAsset",
+  "type": "object",
+  "properties": {
+    "file_name": {
+      "type": "string"
+    },
+    "storage_key": {
+      "type": "string",
+      "default": ""
+    },
+    "file_url": {
+      "type": "string",
+      "default": ""
+    },
+    "mime_type": {
+      "type": "string",
+      "default": ""
+    },
+    "size": {
+      "type": "number",
+      "default": 0
+    },
+    "asset_kind": {
+      "type": "string",
+      "enum": [
+        "image",
+        "video",
+        "document",
+        "other"
+      ],
+      "default": "image"
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "source_note": {
+      "type": "string",
+      "default": ""
+    },
+    "access_visibility": {
+      "type": "string",
+      "enum": [
+        "public",
+        "private"
+      ],
+      "default": "public"
+    }
+  },
+  "required": [
+    "file_name"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
