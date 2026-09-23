@@ -56,11 +56,17 @@ jobs:
           ssh -i ~/.ssh/tencent_review \
             -o BatchMode=yes \
             -o StrictHostKeyChecking=accept-new \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=20 \
             ubuntu@118.89.188.169 \
             "bash -s -- '$DEPLOY_SHA'" <<'REMOTE'
           set -euo pipefail
           deploy_root=/opt/donghua-ai
           repo_dir="$deploy_root/repo"
+
+          if [ -d "$repo_dir" ] && ! git -C "$repo_dir" rev-parse --git-dir >/dev/null 2>&1; then
+            rm -rf "$repo_dir"
+          fi
 
           if [ ! -d "$repo_dir/.git" ]; then
             git clone https://github.com/Ceprin11/donghua-highschool-website.git "$repo_dir"
