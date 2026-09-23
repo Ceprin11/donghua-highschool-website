@@ -97,7 +97,7 @@ jobs:
           sudo install -m 700 -d "$deploy_root/backups"
           backup_name="$1-$(date -u +%Y%m%dT%H%M%SZ)"
           sudo docker stop --timeout 30 donghua-ai-app-1
-          if ! sudo docker compose -f deploy/compose.review.yml run --rm --no-deps --user 0 \
+          if ! sudo docker compose -f deploy/compose.review.yml run --rm --no-deps -T --interactive=false --user 0 \
             -v "$deploy_root/backups:/backups" \
             app node scripts/backup.mjs --stopped --out "/backups/$backup_name"; then
             sudo docker start donghua-ai-app-1
@@ -107,3 +107,11 @@ jobs:
           curl --fail --silent --show-error http://127.0.0.1/api/health
           printf '%s\n' "$1" > .deployed-revision
           REMOTE
+
+      - name: Check deployed revision and public service
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        run: |
+          deployed_sha=$(ssh -n -i ~/.ssh/tencent_review -o BatchMode=yes -o StrictHostKeyChecking=accept-new ubuntu@118.89.188.169 'cat /opt/donghua-ai/.deployed-revision')
+          test "$deployed_sha" = "$DEPLOY_SHA"
+          curl --fail --silent --show-error --retry 3 --retry-delay 3 http://118.89.188.169/api/health
