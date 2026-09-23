@@ -41,6 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: review
     steps:
+      - name: Check out the exact revision
+        uses: actions/checkout@v4
+
       - name: Configure deployment key
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
@@ -48,6 +51,19 @@ jobs:
           install -m 700 -d ~/.ssh
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/tencent_review
           chmod 600 ~/.ssh/tencent_review
+
+      - name: Package and upload the source
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        run: |
+          tar --exclude=.git -czf "$RUNNER_TEMP/site-source.tgz" .
+          scp -i ~/.ssh/tencent_review \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=20 \
+            "$RUNNER_TEMP/site-source.tgz" \
+            "ubuntu@118.89.188.169:/tmp/donghua-ai-$DEPLOY_SHA.tgz"
 
       - name: Deploy the exact commit
         env:
@@ -63,24 +79,22 @@ jobs:
           set -euo pipefail
           deploy_root=/opt/donghua-ai
           repo_dir="$deploy_root/repo"
+          next_dir="$deploy_root/repo-next"
+          archive_path="/tmp/donghua-ai-$1.tgz"
 
-          if [ -d "$repo_dir" ] && ! git -C "$repo_dir" rev-parse --git-dir >/dev/null 2>&1; then
-            rm -rf "$repo_dir"
-          fi
-
-          if [ ! -d "$repo_dir/.git" ]; then
-            git clone https://github.com/Ceprin11/donghua-highschool-website.git "$repo_dir"
-          fi
-
-          cd "$repo_dir"
-          git fetch --prune origin main
-          git checkout --detach "$1"
+          rm -rf "$next_dir"
+          mkdir -p "$next_dir"
+          tar -xzf "$archive_path" -C "$next_dir"
+          rm -f "$archive_path"
 
           model_store="$deploy_root/lab-assets/transformer-model-v2"
           test -f "$model_store/manifest.json"
-          rm -rf public/experiments/transformer/model-v2
-          mkdir -p public/experiments/transformer
-          cp -a "$model_store" public/experiments/transformer/model-v2
+          mkdir -p "$next_dir/public/experiments/transformer"
+          cp -a "$model_store" "$next_dir/public/experiments/transformer/model-v2"
+
+          rm -rf "$repo_dir"
+          mv "$next_dir" "$repo_dir"
+          cd "$repo_dir"
 
           sudo docker compose -f deploy/compose.review.yml up -d --build --wait --wait-timeout 240
           curl --fail --silent --show-error http://127.0.0.1/api/health
