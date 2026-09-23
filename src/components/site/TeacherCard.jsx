@@ -1,6 +1,7 @@
 import React from "react";
 import PlaceholderImage from "./PlaceholderImage";
 import { Image } from "@/components/ui/image";
+import { mediaUrl } from "@/services/apiClient";
 
 export default function TeacherCard({ teacher, layout = "row" }) {
   if (!teacher || !teacher.name) {
@@ -10,7 +11,7 @@ export default function TeacherCard({ teacher, layout = "row" }) {
       </div>
     );
   }
-  const photo = teacher.photo_url || "";
+  const photo = mediaUrl(teacher.photo_asset_id, teacher.photo_url);
   const isStack = layout === "stack";
   return (
     <div className={`flex ${isStack ? "flex-col" : "flex-col md:flex-row"} gap-6 md:gap-8 items-start`}>

@@ -1,0 +1,2659 @@
+diff --git a/package-lock.json b/package-lock.json
+index e9a5887..b778a49 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -8,6 +8,7 @@
+ 			"name": "transformer-explainer",
+ 			"version": "0.0.1",
+ 			"dependencies": {
++				"@fontsource/jersey-10": "5.2.8",
+ 				"@xenova/transformers": "^2.17.1",
+ 				"gsap": "^3.12.5",
+ 				"katex": "^0.16.10",
+@@ -48,7 +49,7 @@
+ 				"tailwindcss": "^3.4.1",
+ 				"tslib": "^2.4.1",
+ 				"typescript": "^5.0.0",
+-				"vite": "^5.4.21"
++				"vite": "6.4.1"
+ 			},
+ 			"engines": {
+ 				"node": ">=20.0.0",
+@@ -69,9 +70,9 @@
+ 			}
+ 		},
+ 		"node_modules/@esbuild/aix-ppc64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.21.5.tgz",
+-			"integrity": "sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.25.12.tgz",
++			"integrity": "sha512-Hhmwd6CInZ3dwpuGTF8fJG6yoWmsToE+vYgD4nytZVxcu1ulHpUQRAB1UJ8+N1Am3Mz4+xOByoQoSZf4D+CpkA==",
+ 			"cpu": [
+ 				"ppc64"
+ 			],
+@@ -82,13 +83,13 @@
+ 				"aix"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/android-arm": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/android-arm/-/android-arm-0.21.5.tgz",
+-			"integrity": "sha512-vCPvzSjpPHEi1siZdlvAlsPxXl7WbOVUBBAowWug4rJHb68Ox8KualB+1ocNvT5fjv6wpkX6o/iEpbDrf68zcg==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/android-arm/-/android-arm-0.25.12.tgz",
++			"integrity": "sha512-VJ+sKvNA/GE7Ccacc9Cha7bpS8nyzVv0jdVgwNDaR4gDMC/2TTRc33Ip8qrNYUcpkOHUT5OZ0bUcNNVZQ9RLlg==",
+ 			"cpu": [
+ 				"arm"
+ 			],
+@@ -99,13 +100,13 @@
+ 				"android"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/android-arm64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/android-arm64/-/android-arm64-0.21.5.tgz",
+-			"integrity": "sha512-c0uX9VAUBQ7dTDCjq+wdyGLowMdtR/GoC2U5IYk/7D1H1JYC0qseD7+11iMP2mRLN9RcCMRcjC4YMclCzGwS/A==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/android-arm64/-/android-arm64-0.25.12.tgz",
++			"integrity": "sha512-6AAmLG7zwD1Z159jCKPvAxZd4y/VTO0VkprYy+3N2FtJ8+BQWFXU+OxARIwA46c5tdD9SsKGZ/1ocqBS/gAKHg==",
+ 			"cpu": [
+ 				"arm64"
+ 			],
+@@ -116,13 +117,13 @@
+ 				"android"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/android-x64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/android-x64/-/android-x64-0.21.5.tgz",
+-			"integrity": "sha512-D7aPRUUNHRBwHxzxRvp856rjUHRFW1SdQATKXH2hqA0kAZb1hKmi02OpYRacl0TxIGz/ZmXWlbZgjwWYaCakTA==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/android-x64/-/android-x64-0.25.12.tgz",
++			"integrity": "sha512-5jbb+2hhDHx5phYR2By8GTWEzn6I9UqR11Kwf22iKbNpYrsmRB18aX/9ivc5cabcUiAT/wM+YIZ6SG9QO6a8kg==",
+ 			"cpu": [
+ 				"x64"
+ 			],
+@@ -133,13 +134,13 @@
+ 				"android"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/darwin-arm64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.21.5.tgz",
+-			"integrity": "sha512-DwqXqZyuk5AiWWf3UfLiRDJ5EDd49zg6O9wclZ7kUMv2WRFr4HKjXp/5t8JZ11QbQfUS6/cRCKGwYhtNAY88kQ==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.25.12.tgz",
++			"integrity": "sha512-N3zl+lxHCifgIlcMUP5016ESkeQjLj/959RxxNYIthIg+CQHInujFuXeWbWMgnTo4cp5XVHqFPmpyu9J65C1Yg==",
+ 			"cpu": [
+ 				"arm64"
+ 			],
+@@ -150,13 +151,13 @@
+ 				"darwin"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/darwin-x64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/darwin-x64/-/darwin-x64-0.21.5.tgz",
+-			"integrity": "sha512-se/JjF8NlmKVG4kNIuyWMV/22ZaerB+qaSi5MdrXtd6R08kvs2qCN4C09miupktDitvh8jRFflwGFBQcxZRjbw==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/darwin-x64/-/darwin-x64-0.25.12.tgz",
++			"integrity": "sha512-HQ9ka4Kx21qHXwtlTUVbKJOAnmG1ipXhdWTmNXiPzPfWKpXqASVcWdnf2bnL73wgjNrFXAa3yYvBSd9pzfEIpA==",
+ 			"cpu": [
+ 				"x64"
+ 			],
+@@ -167,13 +168,13 @@
+ 				"darwin"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/freebsd-arm64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/freebsd-arm64/-/freebsd-arm64-0.21.5.tgz",
+-			"integrity": "sha512-5JcRxxRDUJLX8JXp/wcBCy3pENnCgBR9bN6JsY4OmhfUtIHe3ZW0mawA7+RDAcMLrMIZaf03NlQiX9DGyB8h4g==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/freebsd-arm64/-/freebsd-arm64-0.25.12.tgz",
++			"integrity": "sha512-gA0Bx759+7Jve03K1S0vkOu5Lg/85dou3EseOGUes8flVOGxbhDDh/iZaoek11Y8mtyKPGF3vP8XhnkDEAmzeg==",
+ 			"cpu": [
+ 				"arm64"
+ 			],
+@@ -184,13 +185,13 @@
+ 				"freebsd"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/freebsd-x64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/freebsd-x64/-/freebsd-x64-0.21.5.tgz",
+-			"integrity": "sha512-J95kNBj1zkbMXtHVH29bBriQygMXqoVQOQYA+ISs0/2l3T9/kj42ow2mpqerRBxDJnmkUDCaQT/dfNXWX/ZZCQ==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/freebsd-x64/-/freebsd-x64-0.25.12.tgz",
++			"integrity": "sha512-TGbO26Yw2xsHzxtbVFGEXBFH0FRAP7gtcPE7P5yP7wGy7cXK2oO7RyOhL5NLiqTlBh47XhmIUXuGciXEqYFfBQ==",
+ 			"cpu": [
+ 				"x64"
+ 			],
+@@ -201,13 +202,13 @@
+ 				"freebsd"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/linux-arm": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/linux-arm/-/linux-arm-0.21.5.tgz",
+-			"integrity": "sha512-bPb5AHZtbeNGjCKVZ9UGqGwo8EUu4cLq68E95A53KlxAPRmUyYv2D6F0uUI65XisGOL1hBP5mTronbgo+0bFcA==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/linux-arm/-/linux-arm-0.25.12.tgz",
++			"integrity": "sha512-lPDGyC1JPDou8kGcywY0YILzWlhhnRjdof3UlcoqYmS9El818LLfJJc3PXXgZHrHCAKs/Z2SeZtDJr5MrkxtOw==",
+ 			"cpu": [
+ 				"arm"
+ 			],
+@@ -218,13 +219,13 @@
+ 				"linux"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/linux-arm64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/linux-arm64/-/linux-arm64-0.21.5.tgz",
+-			"integrity": "sha512-ibKvmyYzKsBeX8d8I7MH/TMfWDXBF3db4qM6sy+7re0YXya+K1cem3on9XgdT2EQGMu4hQyZhan7TeQ8XkGp4Q==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/linux-arm64/-/linux-arm64-0.25.12.tgz",
++			"integrity": "sha512-8bwX7a8FghIgrupcxb4aUmYDLp8pX06rGh5HqDT7bB+8Rdells6mHvrFHHW2JAOPZUbnjUpKTLg6ECyzvas2AQ==",
+ 			"cpu": [
+ 				"arm64"
+ 			],
+@@ -235,13 +236,13 @@
+ 				"linux"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/linux-ia32": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/linux-ia32/-/linux-ia32-0.21.5.tgz",
+-			"integrity": "sha512-YvjXDqLRqPDl2dvRODYmmhz4rPeVKYvppfGYKSNGdyZkA01046pLWyRKKI3ax8fbJoK5QbxblURkwK/MWY18Tg==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/linux-ia32/-/linux-ia32-0.25.12.tgz",
++			"integrity": "sha512-0y9KrdVnbMM2/vG8KfU0byhUN+EFCny9+8g202gYqSSVMonbsCfLjUO+rCci7pM0WBEtz+oK/PIwHkzxkyharA==",
+ 			"cpu": [
+ 				"ia32"
+ 			],
+@@ -252,13 +253,13 @@
+ 				"linux"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/linux-loong64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/linux-loong64/-/linux-loong64-0.21.5.tgz",
+-			"integrity": "sha512-uHf1BmMG8qEvzdrzAqg2SIG/02+4/DHB6a9Kbya0XDvwDEKCoC8ZRWI5JJvNdUjtciBGFQ5PuBlpEOXQj+JQSg==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/linux-loong64/-/linux-loong64-0.25.12.tgz",
++			"integrity": "sha512-h///Lr5a9rib/v1GGqXVGzjL4TMvVTv+s1DPoxQdz7l/AYv6LDSxdIwzxkrPW438oUXiDtwM10o9PmwS/6Z0Ng==",
+ 			"cpu": [
+ 				"loong64"
+ 			],
+@@ -269,13 +270,13 @@
+ 				"linux"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/linux-mips64el": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/linux-mips64el/-/linux-mips64el-0.21.5.tgz",
+-			"integrity": "sha512-IajOmO+KJK23bj52dFSNCMsz1QP1DqM6cwLUv3W1QwyxkyIWecfafnI555fvSGqEKwjMXVLokcV5ygHW5b3Jbg==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/linux-mips64el/-/linux-mips64el-0.25.12.tgz",
++			"integrity": "sha512-iyRrM1Pzy9GFMDLsXn1iHUm18nhKnNMWscjmp4+hpafcZjrr2WbT//d20xaGljXDBYHqRcl8HnxbX6uaA/eGVw==",
+ 			"cpu": [
+ 				"mips64el"
+ 			],
+@@ -286,13 +287,13 @@
+ 				"linux"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/linux-ppc64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/linux-ppc64/-/linux-ppc64-0.21.5.tgz",
+-			"integrity": "sha512-1hHV/Z4OEfMwpLO8rp7CvlhBDnjsC3CttJXIhBi+5Aj5r+MBvy4egg7wCbe//hSsT+RvDAG7s81tAvpL2XAE4w==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/linux-ppc64/-/linux-ppc64-0.25.12.tgz",
++			"integrity": "sha512-9meM/lRXxMi5PSUqEXRCtVjEZBGwB7P/D4yT8UG/mwIdze2aV4Vo6U5gD3+RsoHXKkHCfSxZKzmDssVlRj1QQA==",
+ 			"cpu": [
+ 				"ppc64"
+ 			],
+@@ -303,13 +304,13 @@
+ 				"linux"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/linux-riscv64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/linux-riscv64/-/linux-riscv64-0.21.5.tgz",
+-			"integrity": "sha512-2HdXDMd9GMgTGrPWnJzP2ALSokE/0O5HhTUvWIbD3YdjME8JwvSCnNGBnTThKGEB91OZhzrJ4qIIxk/SBmyDDA==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/linux-riscv64/-/linux-riscv64-0.25.12.tgz",
++			"integrity": "sha512-Zr7KR4hgKUpWAwb1f3o5ygT04MzqVrGEGXGLnj15YQDJErYu/BGg+wmFlIDOdJp0PmB0lLvxFIOXZgFRrdjR0w==",
+ 			"cpu": [
+ 				"riscv64"
+ 			],
+@@ -320,13 +321,13 @@
+ 				"linux"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/linux-s390x": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/linux-s390x/-/linux-s390x-0.21.5.tgz",
+-			"integrity": "sha512-zus5sxzqBJD3eXxwvjN1yQkRepANgxE9lgOW2qLnmr8ikMTphkjgXu1HR01K4FJg8h1kEEDAqDcZQtbrRnB41A==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/linux-s390x/-/linux-s390x-0.25.12.tgz",
++			"integrity": "sha512-MsKncOcgTNvdtiISc/jZs/Zf8d0cl/t3gYWX8J9ubBnVOwlk65UIEEvgBORTiljloIWnBzLs4qhzPkJcitIzIg==",
+ 			"cpu": [
+ 				"s390x"
+ 			],
+@@ -337,13 +338,13 @@
+ 				"linux"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/linux-x64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.21.5.tgz",
+-			"integrity": "sha512-1rYdTpyv03iycF1+BhzrzQJCdOuAOtaqHTWJZCWvijKD2N5Xu0TtVC8/+1faWqcP9iBCWOmjmhoH94dH82BxPQ==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.25.12.tgz",
++			"integrity": "sha512-uqZMTLr/zR/ed4jIGnwSLkaHmPjOjJvnm6TVVitAa08SLS9Z0VM8wIRx7gWbJB5/J54YuIMInDquWyYvQLZkgw==",
+ 			"cpu": [
+ 				"x64"
+ 			],
+@@ -354,13 +355,30 @@
+ 				"linux"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
++			}
++		},
++		"node_modules/@esbuild/netbsd-arm64": {
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/netbsd-arm64/-/netbsd-arm64-0.25.12.tgz",
++			"integrity": "sha512-xXwcTq4GhRM7J9A8Gv5boanHhRa/Q9KLVmcyXHCTaM4wKfIpWkdXiMog/KsnxzJ0A1+nD+zoecuzqPmCRyBGjg==",
++			"cpu": [
++				"arm64"
++			],
++			"dev": true,
++			"license": "MIT",
++			"optional": true,
++			"os": [
++				"netbsd"
++			],
++			"engines": {
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/netbsd-x64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/netbsd-x64/-/netbsd-x64-0.21.5.tgz",
+-			"integrity": "sha512-Woi2MXzXjMULccIwMnLciyZH4nCIMpWQAs049KEeMvOcNADVxo0UBIQPfSmxB3CWKedngg7sWZdLvLczpe0tLg==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/netbsd-x64/-/netbsd-x64-0.25.12.tgz",
++			"integrity": "sha512-Ld5pTlzPy3YwGec4OuHh1aCVCRvOXdH8DgRjfDy/oumVovmuSzWfnSJg+VtakB9Cm0gxNO9BzWkj6mtO1FMXkQ==",
+ 			"cpu": [
+ 				"x64"
+ 			],
+@@ -371,13 +389,30 @@
+ 				"netbsd"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
++			}
++		},
++		"node_modules/@esbuild/openbsd-arm64": {
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/openbsd-arm64/-/openbsd-arm64-0.25.12.tgz",
++			"integrity": "sha512-fF96T6KsBo/pkQI950FARU9apGNTSlZGsv1jZBAlcLL1MLjLNIWPBkj5NlSz8aAzYKg+eNqknrUJ24QBybeR5A==",
++			"cpu": [
++				"arm64"
++			],
++			"dev": true,
++			"license": "MIT",
++			"optional": true,
++			"os": [
++				"openbsd"
++			],
++			"engines": {
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/openbsd-x64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/openbsd-x64/-/openbsd-x64-0.21.5.tgz",
+-			"integrity": "sha512-HLNNw99xsvx12lFBUwoT8EVCsSvRNDVxNpjZ7bPn947b8gJPzeHWyNVhFsaerc0n3TsbOINvRP2byTZ5LKezow==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/openbsd-x64/-/openbsd-x64-0.25.12.tgz",
++			"integrity": "sha512-MZyXUkZHjQxUvzK7rN8DJ3SRmrVrke8ZyRusHlP+kuwqTcfWLyqMOE3sScPPyeIXN/mDJIfGXvcMqCgYKekoQw==",
+ 			"cpu": [
+ 				"x64"
+ 			],
+@@ -388,13 +423,30 @@
+ 				"openbsd"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
++			}
++		},
++		"node_modules/@esbuild/openharmony-arm64": {
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/openharmony-arm64/-/openharmony-arm64-0.25.12.tgz",
++			"integrity": "sha512-rm0YWsqUSRrjncSXGA7Zv78Nbnw4XL6/dzr20cyrQf7ZmRcsovpcRBdhD43Nuk3y7XIoW2OxMVvwuRvk9XdASg==",
++			"cpu": [
++				"arm64"
++			],
++			"dev": true,
++			"license": "MIT",
++			"optional": true,
++			"os": [
++				"openharmony"
++			],
++			"engines": {
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/sunos-x64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/sunos-x64/-/sunos-x64-0.21.5.tgz",
+-			"integrity": "sha512-6+gjmFpfy0BHU5Tpptkuh8+uw3mnrvgs+dSPQXQOv3ekbordwnzTVEb4qnIvQcYXq6gzkyTnoZ9dZG+D4garKg==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/sunos-x64/-/sunos-x64-0.25.12.tgz",
++			"integrity": "sha512-3wGSCDyuTHQUzt0nV7bocDy72r2lI33QL3gkDNGkod22EsYl04sMf0qLb8luNKTOmgF/eDEDP5BFNwoBKH441w==",
+ 			"cpu": [
+ 				"x64"
+ 			],
+@@ -405,13 +457,13 @@
+ 				"sunos"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/win32-arm64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/win32-arm64/-/win32-arm64-0.21.5.tgz",
+-			"integrity": "sha512-Z0gOTd75VvXqyq7nsl93zwahcTROgqvuAcYDUr+vOv8uHhNSKROyU961kgtCD1e95IqPKSQKH7tBTslnS3tA8A==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/win32-arm64/-/win32-arm64-0.25.12.tgz",
++			"integrity": "sha512-rMmLrur64A7+DKlnSuwqUdRKyd3UE7oPJZmnljqEptesKM8wx9J8gx5u0+9Pq0fQQW8vqeKebwNXdfOyP+8Bsg==",
+ 			"cpu": [
+ 				"arm64"
+ 			],
+@@ -422,13 +474,13 @@
+ 				"win32"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/win32-ia32": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/win32-ia32/-/win32-ia32-0.21.5.tgz",
+-			"integrity": "sha512-SWXFF1CL2RVNMaVs+BBClwtfZSvDgtL//G/smwAc5oVK/UPu2Gu9tIaRgFmYFFKrmg3SyAjSrElf0TiJ1v8fYA==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/win32-ia32/-/win32-ia32-0.25.12.tgz",
++			"integrity": "sha512-HkqnmmBoCbCwxUKKNPBixiWDGCpQGVsrQfJoVGYLPT41XWF8lHuE5N6WhVia2n4o5QK5M4tYr21827fNhi4byQ==",
+ 			"cpu": [
+ 				"ia32"
+ 			],
+@@ -439,13 +491,13 @@
+ 				"win32"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@esbuild/win32-x64": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.21.5.tgz",
+-			"integrity": "sha512-tQd/1efJuzPC6rCFwEvLtci/xNFcTZknmXs98FYDfGE4wP9ClFV98nyKrzJKVPMhdDnjzLhdUyMX4PsQAPjwIw==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.25.12.tgz",
++			"integrity": "sha512-alJC0uCZpTFrSL0CCDjcgleBXPnCrEAhTBILpeAp7M/OFgoqtAetfBzX0xM00MUsVVPpVjlPuMbREqnZCXaTnA==",
+ 			"cpu": [
+ 				"x64"
+ 			],
+@@ -456,7 +508,7 @@
+ 				"win32"
+ 			],
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			}
+ 		},
+ 		"node_modules/@eslint-community/eslint-utils": {
+@@ -574,6 +626,15 @@
+ 			"dev": true,
+ 			"license": "MIT"
+ 		},
++		"node_modules/@fontsource/jersey-10": {
++			"version": "5.2.8",
++			"resolved": "https://registry.npmjs.org/@fontsource/jersey-10/-/jersey-10-5.2.8.tgz",
++			"integrity": "sha512-5kjCLWNO/3n4zQ6fFvYratSSe61rgY/KRpQIayrblv6dW9jvOxAQXa8MJmWCJUHQlFK9GHH5bj/GSE7C6vgZHQ==",
++			"license": "OFL-1.1",
++			"funding": {
++				"url": "https://github.com/sponsors/ayuhito"
++			}
++		},
+ 		"node_modules/@huggingface/jinja": {
+ 			"version": "0.2.2",
+ 			"resolved": "https://registry.npmjs.org/@huggingface/jinja/-/jinja-0.2.2.tgz",
+@@ -3679,9 +3740,9 @@
+ 			"license": "MIT"
+ 		},
+ 		"node_modules/esbuild": {
+-			"version": "0.21.5",
+-			"resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.21.5.tgz",
+-			"integrity": "sha512-mg3OPMV4hXywwpoDxu3Qda5xCKQi+vCTZq8S9J/EpkhB2HzKXq4SNFZE3+NK93JYxc8VMSep+lOUSC/RVKaBqw==",
++			"version": "0.25.12",
++			"resolved": "https://registry.npmjs.org/esbuild/-/esbuild-0.25.12.tgz",
++			"integrity": "sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg==",
+ 			"dev": true,
+ 			"hasInstallScript": true,
+ 			"license": "MIT",
+@@ -3689,32 +3750,35 @@
+ 				"esbuild": "bin/esbuild"
+ 			},
+ 			"engines": {
+-				"node": ">=12"
++				"node": ">=18"
+ 			},
+ 			"optionalDependencies": {
+-				"@esbuild/aix-ppc64": "0.21.5",
+-				"@esbuild/android-arm": "0.21.5",
+-				"@esbuild/android-arm64": "0.21.5",
+-				"@esbuild/android-x64": "0.21.5",
+-				"@esbuild/darwin-arm64": "0.21.5",
+-				"@esbuild/darwin-x64": "0.21.5",
+-				"@esbuild/freebsd-arm64": "0.21.5",
+-				"@esbuild/freebsd-x64": "0.21.5",
+-				"@esbuild/linux-arm": "0.21.5",
+-				"@esbuild/linux-arm64": "0.21.5",
+-				"@esbuild/linux-ia32": "0.21.5",
+-				"@esbuild/linux-loong64": "0.21.5",
+-				"@esbuild/linux-mips64el": "0.21.5",
+-				"@esbuild/linux-ppc64": "0.21.5",
+-				"@esbuild/linux-riscv64": "0.21.5",
+-				"@esbuild/linux-s390x": "0.21.5",
+-				"@esbuild/linux-x64": "0.21.5",
+-				"@esbuild/netbsd-x64": "0.21.5",
+-				"@esbuild/openbsd-x64": "0.21.5",
+-				"@esbuild/sunos-x64": "0.21.5",
+-				"@esbuild/win32-arm64": "0.21.5",
+-				"@esbuild/win32-ia32": "0.21.5",
+-				"@esbuild/win32-x64": "0.21.5"
++				"@esbuild/aix-ppc64": "0.25.12",
++				"@esbuild/android-arm": "0.25.12",
++				"@esbuild/android-arm64": "0.25.12",
++				"@esbuild/android-x64": "0.25.12",
++				"@esbuild/darwin-arm64": "0.25.12",
++				"@esbuild/darwin-x64": "0.25.12",
++				"@esbuild/freebsd-arm64": "0.25.12",
++				"@esbuild/freebsd-x64": "0.25.12",
++				"@esbuild/linux-arm": "0.25.12",
++				"@esbuild/linux-arm64": "0.25.12",
++				"@esbuild/linux-ia32": "0.25.12",
++				"@esbuild/linux-loong64": "0.25.12",
++				"@esbuild/linux-mips64el": "0.25.12",
++				"@esbuild/linux-ppc64": "0.25.12",
++				"@esbuild/linux-riscv64": "0.25.12",
++				"@esbuild/linux-s390x": "0.25.12",
++				"@esbuild/linux-x64": "0.25.12",
++				"@esbuild/netbsd-arm64": "0.25.12",
++				"@esbuild/netbsd-x64": "0.25.12",
++				"@esbuild/openbsd-arm64": "0.25.12",
++				"@esbuild/openbsd-x64": "0.25.12",
++				"@esbuild/openharmony-arm64": "0.25.12",
++				"@esbuild/sunos-x64": "0.25.12",
++				"@esbuild/win32-arm64": "0.25.12",
++				"@esbuild/win32-ia32": "0.25.12",
++				"@esbuild/win32-x64": "0.25.12"
+ 			}
+ 		},
+ 		"node_modules/escalade": {
+@@ -4088,6 +4152,24 @@
+ 				"reusify": "^1.0.4"
+ 			}
+ 		},
++		"node_modules/fdir": {
++			"version": "6.5.0",
++			"resolved": "https://registry.npmjs.org/fdir/-/fdir-6.5.0.tgz",
++			"integrity": "sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg==",
++			"dev": true,
++			"license": "MIT",
++			"engines": {
++				"node": ">=12.0.0"
++			},
++			"peerDependencies": {
++				"picomatch": "^3 || ^4"
++			},
++			"peerDependenciesMeta": {
++				"picomatch": {
++					"optional": true
++				}
++			}
++		},
+ 		"node_modules/file-entry-cache": {
+ 			"version": "6.0.1",
+ 			"resolved": "https://registry.npmjs.org/file-entry-cache/-/file-entry-cache-6.0.1.tgz",
+@@ -5512,9 +5594,9 @@
+ 			"license": "ISC"
+ 		},
+ 		"node_modules/picomatch": {
+-			"version": "4.0.3",
+-			"resolved": "https://registry.npmjs.org/picomatch/-/picomatch-4.0.3.tgz",
+-			"integrity": "sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==",
++			"version": "4.0.7",
++			"resolved": "https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz",
++			"integrity": "sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==",
+ 			"dev": true,
+ 			"license": "MIT",
+ 			"engines": {
+@@ -5722,6 +5804,16 @@
+ 				}
+ 			}
+ 		},
++		"node_modules/postcss-load-config/node_modules/yaml": {
++			"version": "1.10.3",
++			"resolved": "https://registry.npmjs.org/yaml/-/yaml-1.10.3.tgz",
++			"integrity": "sha512-vIYeF1u3CjlhAFekPPAk2h/Kv4T3mAkMox5OymRiJQB0spDP10LHvt+K7G9Ny6NuuMAb25/6n1qyUjAcGNf/AA==",
++			"dev": true,
++			"license": "ISC",
++			"engines": {
++				"node": ">= 6"
++			}
++		},
+ 		"node_modules/postcss-nested": {
+ 			"version": "6.2.0",
+ 			"resolved": "https://registry.npmjs.org/postcss-nested/-/postcss-nested-6.2.0.tgz",
+@@ -7254,19 +7346,6 @@
+ 				"node": ">=8.10.0"
+ 			}
+ 		},
+-		"node_modules/tailwindcss/node_modules/yaml": {
+-			"version": "2.8.1",
+-			"resolved": "https://registry.npmjs.org/yaml/-/yaml-2.8.1.tgz",
+-			"integrity": "sha512-lcYcMxX2PO9XMGvAJkJ3OsNMw+/7FKes7/hgerGUYWIoWu5j/+YQqcZr5JnPZWzOsEBgMbSbiSTn/dv/69Mkpw==",
+-			"dev": true,
+-			"license": "ISC",
+-			"bin": {
+-				"yaml": "bin.mjs"
+-			},
+-			"engines": {
+-				"node": ">= 14.6"
+-			}
+-		},
+ 		"node_modules/tar-fs": {
+ 			"version": "3.1.1",
+ 			"resolved": "https://registry.npmjs.org/tar-fs/-/tar-fs-3.1.1.tgz",
+@@ -7331,6 +7410,23 @@
+ 				"node": ">=0.8"
+ 			}
+ 		},
++		"node_modules/tinyglobby": {
++			"version": "0.2.17",
++			"resolved": "https://registry.npmjs.org/tinyglobby/-/tinyglobby-0.2.17.tgz",
++			"integrity": "sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==",
++			"dev": true,
++			"license": "MIT",
++			"dependencies": {
++				"fdir": "^6.5.0",
++				"picomatch": "^4.0.4"
++			},
++			"engines": {
++				"node": ">=12.0.0"
++			},
++			"funding": {
++				"url": "https://github.com/sponsors/SuperchupuDev"
++			}
++		},
+ 		"node_modules/to-regex-range": {
+ 			"version": "5.0.1",
+ 			"resolved": "https://registry.npmjs.org/to-regex-range/-/to-regex-range-5.0.1.tgz",
+@@ -7520,21 +7616,24 @@
+ 			"license": "MIT"
+ 		},
+ 		"node_modules/vite": {
+-			"version": "5.4.21",
+-			"resolved": "https://registry.npmjs.org/vite/-/vite-5.4.21.tgz",
+-			"integrity": "sha512-o5a9xKjbtuhY6Bi5S3+HvbRERmouabWbyUcpXXUA1u+GNUKoROi9byOJ8M0nHbHYHkYICiMlqxkg1KkYmm25Sw==",
++			"version": "6.4.1",
++			"resolved": "https://registry.npmjs.org/vite/-/vite-6.4.1.tgz",
++			"integrity": "sha512-+Oxm7q9hDoLMyJOYfUYBuHQo+dkAloi33apOPP56pzj+vsdJDzr+j1NISE5pyaAuKL4A3UD34qd0lx5+kfKp2g==",
+ 			"dev": true,
+ 			"license": "MIT",
+ 			"dependencies": {
+-				"esbuild": "^0.21.3",
+-				"postcss": "^8.4.43",
+-				"rollup": "^4.20.0"
++				"esbuild": "^0.25.0",
++				"fdir": "^6.4.4",
++				"picomatch": "^4.0.2",
++				"postcss": "^8.5.3",
++				"rollup": "^4.34.9",
++				"tinyglobby": "^0.2.13"
+ 			},
+ 			"bin": {
+ 				"vite": "bin/vite.js"
+ 			},
+ 			"engines": {
+-				"node": "^18.0.0 || >=20.0.0"
++				"node": "^18.0.0 || ^20.0.0 || >=22.0.0"
+ 			},
+ 			"funding": {
+ 				"url": "https://github.com/vitejs/vite?sponsor=1"
+@@ -7543,19 +7642,25 @@
+ 				"fsevents": "~2.3.3"
+ 			},
+ 			"peerDependencies": {
+-				"@types/node": "^18.0.0 || >=20.0.0",
++				"@types/node": "^18.0.0 || ^20.0.0 || >=22.0.0",
++				"jiti": ">=1.21.0",
+ 				"less": "*",
+ 				"lightningcss": "^1.21.0",
+ 				"sass": "*",
+ 				"sass-embedded": "*",
+ 				"stylus": "*",
+ 				"sugarss": "*",
+-				"terser": "^5.4.0"
++				"terser": "^5.16.0",
++				"tsx": "^4.8.1",
++				"yaml": "^2.4.2"
+ 			},
+ 			"peerDependenciesMeta": {
+ 				"@types/node": {
+ 					"optional": true
+ 				},
++				"jiti": {
++					"optional": true
++				},
+ 				"less": {
+ 					"optional": true
+ 				},
+@@ -7576,6 +7681,12 @@
+ 				},
+ 				"terser": {
+ 					"optional": true
++				},
++				"tsx": {
++					"optional": true
++				},
++				"yaml": {
++					"optional": true
+ 				}
+ 			}
+ 		},
+@@ -7733,13 +7844,19 @@
+ 			"license": "ISC"
+ 		},
+ 		"node_modules/yaml": {
+-			"version": "1.10.2",
+-			"resolved": "https://registry.npmjs.org/yaml/-/yaml-1.10.2.tgz",
+-			"integrity": "sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==",
++			"version": "2.9.1",
++			"resolved": "https://registry.npmjs.org/yaml/-/yaml-2.9.1.tgz",
++			"integrity": "sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw==",
+ 			"dev": true,
+ 			"license": "ISC",
++			"bin": {
++				"yaml": "bin.mjs"
++			},
+ 			"engines": {
+-				"node": ">= 6"
++				"node": ">= 14.6"
++			},
++			"funding": {
++				"url": "https://github.com/sponsors/eemeli"
+ 			}
+ 		},
+ 		"node_modules/yocto-queue": {
+diff --git a/package.json b/package.json
+index d680935..8ffd34d 100644
+--- a/package.json
++++ b/package.json
+@@ -47,10 +47,11 @@
+ 		"tailwindcss": "^3.4.1",
+ 		"tslib": "^2.4.1",
+ 		"typescript": "^5.0.0",
+-		"vite": "^5.4.21"
++		"vite": "6.4.1"
+ 	},
+ 	"type": "module",
+ 	"dependencies": {
++		"@fontsource/jersey-10": "5.2.8",
+ 		"@xenova/transformers": "^2.17.1",
+ 		"gsap": "^3.12.5",
+ 		"katex": "^0.16.10",
+diff --git a/src/app.html b/src/app.html
+index 53fee17..f6ab34a 100644
+--- a/src/app.html
++++ b/src/app.html
+@@ -3,9 +3,6 @@
+ 	<head>
+ 		<meta charset="utf-8" />
+ 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+-		<link rel="preconnect" href="https://fonts.googleapis.com" />
+-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+-		<link href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap" rel="stylesheet" />
+ 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+ 		<title>Transformer Explainer: LLM Transformer Model Visually Explained</title>
+ 
+diff --git a/src/components/Embedding.svelte b/src/components/Embedding.svelte
+index 25d3258..e81a541 100644
+--- a/src/components/Embedding.svelte
++++ b/src/components/Embedding.svelte
+@@ -196,7 +196,7 @@
+ 				<!-- token id and embedding -->
+ 				<div class="column token-embedding embedding-detail">
+ 					<div class="subtitle flex items-center gap-1">
+-						<TextbookTooltip id="token-embedding"><span>Token<br />Embedding</span></TextbookTooltip
++						<TextbookTooltip id="token-embedding"><span>Token<br />嵌入 Embedding</span></TextbookTooltip
+ 						>
+ 						<!-- <HelpPopover
+ 							id="token-embedding"
+diff --git a/src/components/InputForm.svelte b/src/components/InputForm.svelte
+index 63b5b90..8ca0879 100644
+--- a/src/components/InputForm.svelte
++++ b/src/components/InputForm.svelte
+@@ -57,6 +57,7 @@
+ 	};
+ 
+ 	const handleSubmit = (e) => {
++		e?.preventDefault();
+ 		// Complete any running animation before starting new generation
+ 		completeCurrentAnimation();
+ 
+@@ -130,7 +131,7 @@
+ 	$: isLoading = $isFetchingModel || $isModelRunning;
+ 	$: disabled =
+ 		$isFetchingModel ||
+-		// $isModelRunning ||
++		$isModelRunning ||
+ 		$expandedBlock.id !== null ||
+ 		!!$weightPopover;
+ 	$: selectDisabled = $isModelRunning || $expandedBlock.id !== null || !!$weightPopover;
+@@ -147,7 +148,7 @@
+ 				class:selectDisabled
+ 				class="select-button inline-flex shrink-0 items-center justify-center border border-s-0 border-gray-200 bg-white px-3 py-2 text-center text-xs font-medium text-gray-900 first:rounded-s-lg first:border-s last:rounded-e-lg"
+ 			>
+-				Examples<ChevronDownOutline class="pointer-events-none h-4 w-4 text-gray-500" />
++				例句<ChevronDownOutline class="pointer-events-none h-4 w-4 text-gray-500" />
+ 			</button>
+ 			<Dropdown bind:open={dropdownOpen} class="example-dropdown">
+ 				{#each inputTextExample as text, index}
+@@ -180,7 +181,7 @@
+ 						bind:this={inputRef}
+ 						contenteditable={!disabled}
+ 						class="text-box"
+-						placeholder="Test your own input text"
++						placeholder="输入英文短句"
+ 						on:focus={onFocusInput}
+ 						on:input={onInput}
+ 						on:keydown={handleKeyDown}
+@@ -212,20 +213,20 @@
+ 				{/if}
+ 				{#if $isMobile}
+ 					<span class="helper-text"
+-						>Try the examples. Please use a desktop computer to input GPT-2 prompts directly.</span
++						>横向滑动查看网络，模型就绪后可输入短句。</span
+ 					>
+ 				{:else if $isLoaded && $isFetchingModel}
+ 					<span class="helper-text"
+-						>Try the examples while GPT-2 model is being downloaded (600MB)</span
++						>正在读取 GPT-2，期间可以查看预计算例句</span
+ 					>
+ 				{:else if exceedLimit}
+-					<span class="helper-text">You can enter up to {wordLimit} words.</span>
++					<span class="helper-text">最多输入 {wordLimit} 个单词。</span>
+ 				{/if}
+ 			</div>
+ 		</ButtonGroup>
+ 		<button
+ 			data-click="generate-btn"
+-			disabled={disabled || exceedLimit || exceedLimit}
++			disabled={disabled || exceedLimit}
+ 			class={classNames('generate-button rounded-lg text-center text-sm shadow-sm', {
+ 				disabled: disabled || exceedLimit,
+ 				active: !(disabled || exceedLimit)
+@@ -233,7 +234,7 @@
+ 			type="submit"
+ 			on:click={handleSubmit}
+ 		>
+-			Generate
++			生成
+ 		</button>
+ 	</form>
+ 	<div class="parameters" data-click="input-parameters">
+@@ -243,6 +244,13 @@
+ </div>
+ 
+ <style lang="scss">
++	@media(max-width:1000px) {
++		.input-area {flex-direction:column;padding:0;gap:24px;min-width:0;}
++		.input-area .input-form {width:100%;min-width:0;flex:initial;gap:6px;}
++		.input-area .input-form :global(.input-btn-group) {min-width:0;}
++		.parameters {justify-content:space-between;padding-bottom:5px;}
++		.helper-text {font-size:11px;}
++	}
+ 	.parameters {
+ 		display: flex;
+ 		gap: 1rem;
+@@ -378,4 +386,8 @@
+ 		border: 1px solid var(--predicted-color);
+ 		color: var(--predicted-color);
+ 	}
++	@media (max-width: 600px) {
++		.input-area { padding: 0; }
++		.input-area .parameters { flex-wrap: wrap; justify-content: flex-start; gap: 12px 20px; }
++	}
+ </style>
+diff --git a/src/components/Mlp.svelte b/src/components/Mlp.svelte
+index db0e510..8d2c56e 100644
+--- a/src/components/Mlp.svelte
++++ b/src/components/Mlp.svelte
+@@ -55,7 +55,7 @@
+ 		data-click="mlp-step-title"
+ 	>
+ 		<div class="w-max">
+-			<TextbookTooltip id="mlp">MLP</TextbookTooltip>
++			<TextbookTooltip id="mlp">前馈网络 MLP</TextbookTooltip>
+ 		</div>
+ 	</div>
+ 
+diff --git a/src/components/Sampling.svelte b/src/components/Sampling.svelte
+index e083529..b7f89e5 100644
+--- a/src/components/Sampling.svelte
++++ b/src/components/Sampling.svelte
+@@ -29,7 +29,7 @@
+ 		<div class="sampling-type">
+ 			<div class="title flex items-center gap-[2px]">
+ 				<TextbookTooltip id="sampling">
+-					<div>Sampling</div></TextbookTooltip
++					<div>采样</div></TextbookTooltip
+ 				>
+ 				<!-- <HelpPopover
+ 					id="sampling-help"
+@@ -98,6 +98,8 @@
+ 	}
+ 
+ 	:global(.type-btn) {
++		white-space: nowrap;
++		flex-shrink: 0;
+ 		font-size: 0.9rem;
+ 		cursor: pointer;
+ 		color: theme('colors.gray.900');
+diff --git a/src/components/Temperature.svelte b/src/components/Temperature.svelte
+index 9a128b3..14abbff 100644
+--- a/src/components/Temperature.svelte
++++ b/src/components/Temperature.svelte
+@@ -34,7 +34,7 @@
+ 	>
+ 		<div class="temperature-text flex items-center gap-[2px]">
+ 			<TextbookTooltip id="temperature">
+-				<div>Temperature</div></TextbookTooltip
++				<div>温度</div></TextbookTooltip
+ 			>
+ 			<!-- <HelpPopover id="temperature-help"  goTo="article-temperature">
+ 				{`Changes output \nprobability distribution \nand randomness \nof next token.`}
+diff --git a/src/components/Topbar.svelte b/src/components/Topbar.svelte
+index 037a7d8..c454807 100644
+--- a/src/components/Topbar.svelte
++++ b/src/components/Topbar.svelte
+@@ -90,6 +90,13 @@
+ </div>
+ 
+ <style lang="scss">
++	@media(max-width:1000px) {
++		.top-bar { flex-wrap:wrap; padding:10px; gap:8px; background:white; }
++		.top-bar .inputs { order:3; flex-basis:100%; min-width:0; }
++		.top-bar .logo, .top-bar .logo .small {font-size:1.4rem;}
++		.top-bar .icons {margin-left:auto;gap:6px;}
++		.top-bar .icons svg {width:18px;height:18px;}
++	}
+ 	.top-bar {
+ 		background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 60%, rgba(255, 255, 255, 0) 100%);
+ 		.input-wrapper {
+diff --git a/src/components/article/Article.svelte b/src/components/article/Article.svelte
+index 607b84c..a51c606 100644
+--- a/src/components/article/Article.svelte
++++ b/src/components/article/Article.svelte
+@@ -1,745 +1,225 @@
+ <script>
+-	import tailwindConfig from '../../../tailwind.config';
+-	import resolveConfig from 'tailwindcss/resolveConfig';
+ 	import Katex from '~/utils/Katex.svelte';
+ </script>
+ 
+-<div id="description">
++<div id="description" lang="zh-CN">
+ 	<div class="article-section" data-click="article-intro">
+-		<h1>What is a Transformer?</h1>
+-
+-		<p>
+-			Transformer is a neural network architecture that has fundamentally changed the approach to
+-			Artificial Intelligence. Transformer was first introduced in the seminal paper
+-			<a
+-				href="https://dl.acm.org/doi/10.5555/3295222.3295349"
+-				title="ACM Digital Library"
+-				target="_blank">"Attention is All You Need"</a
+-			>
+-			in 2017 and has since become the go-to architecture for deep learning models, powering text-generative
+-			models like OpenAI's <strong>GPT</strong>, Meta's <strong>Llama</strong>, and Google's
+-			<strong>Gemini</strong>. Beyond text, Transformer is also applied in
+-			<a
+-				href="https://huggingface.co/learn/audio-course/en/chapter3/introduction"
+-				title="Hugging Face"
+-				target="_blank">audio generation</a
+-			>,
+-			<a
+-				href="https://huggingface.co/learn/computer-vision-course/unit3/vision-transformers/vision-transformers-for-image-classification"
+-				title="Hugging Face"
+-				target="_blank">image recognition</a
+-			>,
+-			<a href="https://elifesciences.org/articles/82819" title="eLife"
+-				>protein structure prediction</a
+-			>, and even
+-			<a
+-				href="https://www.deeplearning.ai/the-batch/reinforcement-learning-plus-transformers-equals-efficiency/"
+-				title="Deep Learning AI"
+-				target="_blank">game playing</a
+-			>, demonstrating its versatility across numerous domains.
+-		</p>
+-		<p>
+-			Fundamentally, text-generative Transformer models operate on the principle of <strong
+-				>next-token prediction</strong
+-			>: given a text prompt from the user, what is the
+-			<em>most probable next token (a word or part of a word)</em> that will follow this input? The core
+-			innovation and power of Transformers lie in their use of self-attention mechanism, which allows
+-			them to process entire sequences and capture long-range dependencies more effectively than previous
+-			architectures.
+-		</p>
+-		<p>
+-			GPT-2 family of models are prominent examples of text-generative Transformers. Transformer
+-			Explainer is powered by the
+-			<a href="https://huggingface.co/openai-community/gpt2" title="Hugging Face" target="_blank"
+-				>GPT-2</a
+-			>
+-			(small) model which has 124 million parameters. While it is not the latest or most powerful Transformer
+-			model, it shares many of the same architectural components and principles found in the current
+-			state-of-the-art models making it an ideal starting point for understanding the basics.
+-		</p>
++		<h1>什么是 Transformer？</h1>
++		<p>Transformer 是一种神经网络架构，它改变了人工智能处理信息的方式。2017 年，研究者在论文
++			<a href="https://dl.acm.org/doi/10.5555/3295222.3295349" target="_blank" rel="noreferrer">《Attention Is All You Need》（注意力就是你所需要的一切）</a>
++			中首次提出这一架构。此后，它成为深度学习的重要基础，支撑着 OpenAI 的 <strong>GPT</strong>、Meta 的 <strong>Llama</strong> 和 Google 的 <strong>Gemini</strong> 等文本生成模型。它还被用于
++			<a href="https://huggingface.co/learn/audio-course/en/chapter3/introduction" target="_blank" rel="noreferrer">音频生成</a>、
++			<a href="https://huggingface.co/learn/computer-vision-course/unit3/vision-transformers/vision-transformers-for-image-classification" target="_blank" rel="noreferrer">图像识别</a>、
++			<a href="https://elifesciences.org/articles/82819" target="_blank" rel="noreferrer">蛋白质结构预测</a>和
++			<a href="https://www.deeplearning.ai/the-batch/reinforcement-learning-plus-transformers-equals-efficiency/" target="_blank" rel="noreferrer">游戏决策</a>等领域。</p>
++		<p>文本生成式 Transformer 的基本任务是<strong>预测下一个词元</strong>。给定一段输入，模型判断接下来最可能出现什么。词元（token）可以是一个词，也可以是词的一部分。Transformer 的核心是自注意力机制，它让模型能够分析整个输入序列，并捕捉相距较远的词元之间的关系。</p>
++		<p>GPT-2 系列是这类模型的典型代表。本实验使用
++			<a href="https://huggingface.co/openai-community/gpt2" target="_blank" rel="noreferrer">GPT-2 小型模型</a>，
++			包含约 1.24 亿个参数。它与许多后续模型共享关键的架构部件和计算原理，适合用来理解 Transformer 的基础。</p>
+ 	</div>
+ 
+ 	<div class="article-section" data-click="article-overview">
+-		<h1>Transformer Architecture</h1>
+-
+-		<p>
+-			Every text-generative Transformer consists of these <strong>three key components</strong>:
+-		</p>
++		<h1>Transformer 的整体结构</h1>
++		<p>本实验中的文本生成模型包含三个主要部分。</p>
+ 		<ol>
+-			<li>
+-				<strong class="bold-purple">Embedding</strong>: Text input is divided into smaller units
+-				called tokens, which can be words or subwords. These tokens are converted into numerical
+-				vectors called embeddings, which capture the semantic meaning of words.
+-			</li>
+-			<li>
+-				<strong class="bold-purple">Transformer Block</strong> is the fundamental building block of
+-				the model that processes and transforms the input data. Each block includes:
+-				<ul class="">
+-					<li>
+-						<strong>Attention Mechanism</strong>, the core component of the Transformer block. It
+-						allows tokens to communicate with other tokens, capturing contextual information and
+-						relationships between words.
+-					</li>
+-					<li>
+-						<strong>MLP (Multilayer Perceptron) Layer</strong>, a feed-forward network that operates
+-						on each token independently. While the goal of the attention layer is to route
+-						information between tokens, the goal of the MLP is to refine each token's
+-						representation.
+-					</li>
++			<li><strong class="bold-purple">嵌入层（Embedding）</strong>将输入文本拆分为词元，再把每个词元转换成数值向量，用这些向量表示词元的含义。</li>
++			<li><strong class="bold-purple">Transformer 模块（Transformer Block）</strong>逐步处理和更新这些向量。每个模块包含两个主要部分。
++				<ul>
++					<li><strong>注意力机制</strong>让词元之间交换信息，学习上下文和词元之间的关系。</li>
++					<li><strong>多层感知机（MLP）</strong>是一个前馈神经网络，它独立处理每个词元，进一步加工该词元的表示。</li>
+ 				</ul>
+ 			</li>
+-			<li>
+-				<strong class="bold-purple">Output Probabilities</strong>: The final linear and softmax
+-				layers transform the processed embeddings into probabilities, enabling the model to make
+-				predictions about the next token in a sequence.
+-			</li>
++			<li><strong class="bold-purple">输出概率（Output Probabilities）</strong>由最后的线性层和 softmax 层计算，表示词表中各个词元成为下一个词元的可能性。</li>
+ 		</ol>
+ 	</div>
+ 
+ 	<div class="article-section" id="embedding" data-click="article-embedding">
+-		<h2>Embedding</h2>
+-		<p>
+-			Let's say you want to generate text using a Transformer model. You add the prompt like this
+-			one: <code>“Data visualization empowers users to”</code>. This input needs to be converted
+-			into a format that the model can understand and process. That is where embedding comes in: it
+-			transforms the text into a numerical representation that the model can work with. To convert a
+-			prompt into embedding, we need to 1) tokenize the input, 2) obtain token embeddings, 3) add
+-			positional information, and finally 4) add up token and position encodings to get the final
+-			embedding. Let’s see how each of these steps is done.
+-		</p>
+-		<div class="figure">
+-			<img src="./article_assets/embedding.png" width="65%" />
+-		</div>
+-		<div class="figure-caption">
+-			Figure <span class="attention">1</span>. Expanding the Embedding layer view, showing how the
+-			input prompt is converted to a vector representation. The process involves
+-			<span class="fig-numbering">(1)</span> Tokenization, (2) Token Embedding, (3) Positional Encoding,
+-			and (4) Final Embedding.
+-		</div>
++		<h2>嵌入层</h2>
++		<p>假设输入一句尚未写完的话 <code>Data visualization empowers users to</code>，意思是“数据可视化使用户能够……”。模型需要先把文字转换成可以计算的数值。嵌入层分四步完成这一过程，依次是分词、查找词元嵌入、加入位置信息，以及将两种表示相加。</p>
++		<div class="figure"><img src="./article_assets/embedding.png" width="65%" alt="嵌入层展开图，展示分词、词元嵌入、位置编码和最终嵌入四个步骤" /></div>
++		<div class="figure-caption">图 1　输入文本转换为向量的过程。图中 Tokenization 表示分词，Token Embedding 表示词元嵌入，Positional Encoding 表示位置编码，Final Embedding 表示最终嵌入。</div>
+ 		<div class="article-subsection">
+-			<h3>Step 1: Tokenization</h3>
+-			<p>
+-				Tokenization is the process of breaking down the input text into smaller, more manageable
+-				pieces called tokens. These tokens can be a word or a subword. The words <code>"Data"</code>
+-				and <code>"visualization"</code> correspond to unique tokens, while the word
+-				<code>"empowers"</code>
+-				is split into two tokens. The full vocabulary of tokens is decided before training the model:
+-				GPT-2's vocabulary has <code>50,257</code> unique tokens. Now that we split our input text into
+-				tokens with distinct IDs, we can obtain their vector representation from embeddings.
+-			</p>
++			<h3>第一步　分词</h3>
++			<p>分词将文本拆成较小的词元。词元可能对应一个完整的词，也可能只对应词的一部分。在图中的例子里，<code>Data</code> 和 <code>visualization</code> 分别对应一个词元，而 <code>empowers</code> 被拆成两个词元。词表在模型训练前确定，GPT-2 的词表包含 <code>50,257</code> 个不同的词元。分词后，每个词元都有一个编号，模型可以据此查找它的向量。</p>
+ 		</div>
+ 		<div class="article-subsection" id="article-token-embedding">
+-			<h3>Step 2. Token Embedding</h3>
+-			<p>
+-				GPT-2 (small) represents each token in the vocabulary as a 768-dimensional vector; the
+-				dimension of the vector depends on the model. These embedding vectors are stored in a matrix
+-				of shape <code>(50,257, 768)</code>, containing approximately 39 million parameters! This
+-				extensive matrix allows the model to assign semantic meaning to each token, in the sense
+-				that tokens with similar usage or meaning in language are placed close together in this
+-				high-dimensional space, while dissimilar tokens are farther apart.
+-			</p>
++			<h3>第二步　词元嵌入</h3>
++			<p>GPT-2 小型模型用一个 <code>768</code> 维向量表示每个词元。所有向量组成一个形状为 <code>(50,257, 768)</code> 的矩阵，仅这部分就包含约 3,900 万个参数。模型在训练中学习这些向量，让用法或含义相近的词元能够具有相近的表示。不同模型使用的向量维度可以不同。</p>
+ 		</div>
+ 		<div class="article-subsection" id="article-positional-embedding">
+-			<h3>Step 3. Positional Encoding</h3>
+-			<p>
+-				The Embedding layer also encodes information about each token's position in the input
+-				prompt. Different models use various methods for positional encoding. GPT-2 trains its own
+-				positional encoding matrix from scratch, integrating it directly into the training process.
+-			</p>
+-
+-			<!-- <div class="article-subsection-l2">
+-	<h4>Alternative Positional Encoding Approach <strong class='attention'>[POTENTIALLY COLLAPSIBLE]</strong></h4>
+-	<p>
+-	  Other models, like the original Transformer and BERT,
+-	  use sinusoidal functions for positional encoding.
+-
+-	  This sinusoidal encoding is deterministic and designed to reflect
+-	  the absolute as well as the relative position of each token.
+-	</p>
+-	<p>
+-	  Each position in a sequence is assigned a unique mathematical
+-	  representation using a combination of sine and cosine functions.
+-
+-	  For a given position, the sine function represents even dimensions,
+-	  and the cosine function represents odd dimensions within the positional encoding vector.
+-
+-	  This periodic nature ensures that each position has a consistent encoding,
+-	  independent of the surrounding context.
+-	</p>
+-
+-	<p>
+-	  Here’s how it works:
+-	</p>
+-
+-	<span class='attention'>
+-	  SINUSOIDAL POSITIONAL ENCODING EQUATION
+-	</span>
+-
+-	<ul>
+-	  <li>
+-		<strong>Sine Function</strong>: Used for even indices of the embedding vector.
+-	  </li>
+-	  <li>
+-		<strong>Cosine Function</strong>: Used for odd indices of the embedding vector.
+-	</ul>
+-
+-	<p>
+-	  Hover over individual encoding values in the matrix above to
+-	  see how it's calculated using the sins and cosine functions.
+-	</p>
+-  </div> -->
++			<h3>第三步　位置编码</h3>
++			<p>模型还需要知道每个词元在输入中的位置。相同的词元出现在不同位置，可能产生不同的含义。不同模型采用不同的位置表示方法，GPT-2 使用可学习的位置嵌入矩阵，并在模型训练过程中一起更新它。</p>
+ 		</div>
+ 		<div class="article-subsection">
+-			<h3>Step 4. Final Embedding</h3>
+-			<p>
+-				Finally, we sum the token and positional encodings to get the final embedding
+-				representation. This combined representation captures both the semantic meaning of the
+-				tokens and their position in the input sequence.
+-			</p>
++			<h3>第四步　最终嵌入</h3>
++			<p>把词元嵌入和对应的位置嵌入逐项相加，就得到送入 Transformer 模块的向量。这个向量同时包含词元本身的信息和它在序列中的位置信息。</p>
+ 		</div>
+ 	</div>
+ 
+ 	<div class="article-section" data-click="article-transformer-block">
+-		<h2>Transformer Block</h2>
+-
+-		<p>
+-			The core of the Transformer's processing lies in the Transformer block, which comprises
+-			multi-head self-attention and a Multi-Layer Perceptron layer. Most models consist of multiple
+-			such blocks that are stacked sequentially one after the other. The token representations
+-			evolve through layers, from the first block to the last one, allowing the model to build up an
+-			intricate understanding of each token. This layered approach leads to higher-order
+-			representations of the input. The GPT-2 (small) model we are examining consists of <code
+-				>12</code
+-			> such blocks.
+-		</p>
++		<h2>Transformer 模块</h2>
++		<p>Transformer 模块由多头自注意力和多层感知机组成。模型通常将多个这样的模块依次叠加。词元的表示经过一层又一层处理，逐渐包含更丰富的上下文信息和更复杂的特征。本实验使用的 GPT-2 小型模型共有 <code>12</code> 个 Transformer 模块。</p>
+ 	</div>
+ 
+ 	<div class="article-section" id="self-attention" data-click="article-attention">
+-		<h3>Multi-Head Self-Attention</h3>
+-		<p>
+-			The self-attention mechanism enables the model to capture relationships among tokens in a
+-			sequence, so that each token’s representation is influenced by the others. Multiple attention
+-			heads allow the model to consider these relationships from different perspectives; for
+-			example, one head may capture short-range syntactic links while another tracks broader
+-			semantic context. In the following section, we will walk through how multi-head self-attention
+-			is computed step by step.
+-		</p>
++		<h3>多头自注意力</h3>
++		<p>自注意力帮助模型识别序列中词元之间的关系，让一个词元的表示受到其他相关词元的影响。多个注意力头可以从不同角度处理这些关系。例如，一个头可能关注邻近词元的语法联系，另一个头可能关注更远处的语义信息。下面分步说明它的计算过程。</p>
+ 		<div class="article-subsection-l2">
+-			<h4>Step 1: Query, Key, and Value Matrices</h4>
+-
+-			<div class="figure pt-10">
+-				<img src="./article_assets/QKV.png" width="80%" />
+-				<div class="text-xs">
+-					<Katex
+-						displayMode
+-						math={`
+-		QKV_{ij} = ( \\sum_{d=1}^{768} \\text{Embedding}_{i,d} \\cdot \\text{Weights}_{d,j}) + \\text{Bias}_j
+-		`}
+-					/>
+-				</div>
+-			</div>
+-			<div class="figure-caption">
+-				Figure <span class="attention">2</span>. Computing Query, Key, and Value matrices from the
+-				original embedding.
++			<h4>第一步　查询、键和值矩阵</h4>
++			<div class="figure">
++				<img src="./article_assets/QKV.png" width="80%" alt="从嵌入向量计算查询 Q、键 K 和值 V 的矩阵乘法示意图" />
++				<div class="formula"><Katex displayMode math={"QKV_{ij} = ( \\sum_{d=1}^{768} \\text{Embedding}_{i,d} \\cdot \\text{Weights}_{d,j}) + \\text{Bias}_j"} /></div>
+ 			</div>
+-
+-			<p>
+-				Each token's embedding vector is transformed into three vectors:
+-				<span class="q-color">Query (Q)</span>,
+-				<span class="k-color">Key (K)</span>, and
+-				<span class="v-color">Value (V)</span>. These vectors are derived by multiplying the input
+-				embedding matrix with learned weight matrices for
+-				<span class="q-color">Q</span>,
+-				<span class="k-color">K</span>, and
+-				<span class="v-color">V</span>. Here's a web search analogy to help us build some intuition
+-				behind these matrices:
+-			</p>
++			<div class="figure-caption">图 2　用输入嵌入计算 Q、K、V。公式中的 Embedding 是嵌入，Weights 是权重，Bias 是偏置。i 表示词元的位置，j 表示输出维度，d 遍历输入的 768 个维度。</div>
++			<p>每个词元的向量经过三组可学习的线性变换，分别得到<span class="q-color">查询（Query，Q）</span>、<span class="k-color">键（Key，K）</span>和<span class="v-color">值（Value，V）</span>。每组变换都包含矩阵乘法和偏置相加。可以用搜索网页来理解它们的分工。</p>
+ 			<ul>
+-				<li>
+-					<strong class="q-color font-medium">Query (Q)</strong> is the search text you type in the
+-					search engine bar. This is the token you want to
+-					<em>"find more information about"</em>.
+-				</li>
+-				<li>
+-					<strong class="k-color font-medium">Key (K)</strong> is the title of each web page in the search
+-					result window. It represents the possible tokens the query can attend to.
+-				</li>
+-				<li>
+-					<strong class="v-color font-medium">Value (V)</strong> is the actual content of web pages shown.
+-					Once we matched the appropriate search term (Query) with the relevant results (Key), we want
+-					to get the content (Value) of the most relevant pages.
+-				</li>
++				<li><strong class="q-color">查询 Q</strong>像你在搜索框中输入的关键词，表示当前词元想要寻找什么信息。</li>
++				<li><strong class="k-color">键 K</strong>像搜索结果中的网页标题，帮助判断哪些词元与当前查询相关。</li>
++				<li><strong class="v-color">值 V</strong>像网页的实际内容。找到相关结果后，模型从这些内容中提取需要的信息。</li>
+ 			</ul>
+-			<p>
+-				By using these QKV values, the model can calculate attention scores, which determine how
+-				much focus each token should receive when generating predictions.
+-			</p>
++			<p>Q 和 K 用于计算注意力分数，决定当前词元应当关注哪些位置。V 提供随后汇总的信息。</p>
+ 		</div>
+ 		<div class="article-subsection-l2">
+-			<h4>Step 2: Multi-Head Splitting</h4>
+-			<p>
+-				<span class="q-color">Query</span>, <span class="k-color">key</span>, and
+-				<span class="v-color">Value</span>
+-				vectors are split into multiple heads—in GPT-2 (small)'s case, into
+-				<code>12</code> heads. Each head processes a segment of the embeddings independently, capturing
+-				different syntactic and semantic relationships. This design facilitates parallel learning of
+-				diverse linguistic features, enhancing the model's representational power.
+-			</p>
++			<h4>第二步　拆分为多个注意力头</h4>
++			<p>模型将 Q、K、V 的向量维度分配给多个注意力头。GPT-2 小型模型有 <code>12</code> 个头，每个头分别处理 <code>64</code> 维信息。各个头独立计算注意力，从而能够同时学习不同的语法和语义关系。</p>
+ 		</div>
+ 		<div class="article-subsection-l2">
+-			<h4>Step 3: Masked Self-Attention</h4>
+-			<p>
+-				In each head, we perform masked self-attention calculations. This mechanism allows the model
+-				to generate sequences by focusing on relevant parts of the input while preventing access to
+-				future tokens.
+-			</p>
+-
+-			<div class="figure">
+-				<img src="./article_assets/attention.png" width="80%" align="middle" />
+-			</div>
+-			<div class="figure-caption">
+-				Figure <span class="attention">3</span>. Using Query, Key, and Value matrices to calculate
+-				masked self-attention.
+-			</div>
+-
++			<h4>第三步　带掩码的自注意力</h4>
++			<p>每个注意力头都进行带掩码的自注意力计算。当前词元可以关注自己和前面的词元，但不能读取后面尚未生成的词元。</p>
++			<div class="figure"><img src="./article_assets/attention.png" width="80%" alt="带掩码的自注意力计算，依次进行点积、缩放、掩码、softmax 和加权求和" /></div>
++			<div class="figure-caption">图 3　由 Q、K、V 计算自注意力。Dot Product 表示点积，Scaling 表示缩放，Mask 表示掩码，Softmax 将分数转换为概率，Dropout 表示训练时的随机失活。</div>
+ 			<ul>
+-				<li>
+-					<strong>Dot Product</strong>: The dot product of
+-					<span class="q-color">Query</span>
+-					and <span class="k-color">Key</span> matrices determines the
+-					<strong>attention score</strong>, producing a square matrix that reflects the relationship
+-					between all input tokens.
+-				</li>
+-				<li>
+-					<strong>Scaling · Mask</strong>: The attention scores are scaled and a mask is applied to
+-					the upper triangle of the attention matrix to prevent the model from accessing future
+-					tokens, setting these values to negative infinity. The model needs to learn how to predict
+-					the next token without “peeking” into the future.
+-				</li>
+-				<li>
+-					<strong>Softmax · Dropout</strong>: After masking and scaling, the attention scores are
+-					converted into probabilities by the softmax operation, then optionally regularized with
+-					dropout. Each row of the matrix sums to one and indicates the relevance of every other
+-					token to the left of it.
+-				</li>
++				<li><strong>点积</strong>计算每个查询向量与各个键向量的相似程度，得到注意力分数矩阵。这个方阵的行、列分别对应输入序列中的词元。</li>
++				<li><strong>缩放与掩码</strong>先将分数除以每个头的键向量维度的平方根，再将矩阵上三角中代表未来词元的位置设为负无穷。这让模型在预测时无法提前看到后面的内容。</li>
++				<li><strong>Softmax 与 Dropout</strong>将每一行的分数转换为概率。此时每行总和为 1，表示对当前位置及此前各词元的关注程度。训练时还可以对这些权重应用 Dropout；应用后单行总和不一定仍为 1。推理时关闭 Dropout。</li>
+ 			</ul>
+ 		</div>
+ 		<div class="article-subsection-l2">
+-			<h4>Step 4: Output and Concatenation</h4>
+-			<p>
+-				The model uses the masked self-attention scores and multiplies them with the
+-				<span class="v-color">Value</span> matrix to get the
+-				<span class="purple-color">final output</span>
+-				of the self-attention mechanism. GPT-2 has <code>12</code> self-attention heads, each capturing
+-				different relationships between tokens. The outputs of these heads are concatenated and passed
+-				through a linear projection.
+-			</p>
++			<h4>第四步　汇总并拼接输出</h4>
++			<p>将注意力权重矩阵与<span class="v-color">值矩阵 V</span>相乘，就得到各个词元所关注信息的加权汇总，也就是这个注意力头的<span class="purple-color">输出</span>。模型再把 <code>12</code> 个头的输出拼接起来，并通过一次线性投影进行组合。</p>
+ 		</div>
+ 	</div>
+ 
+ 	<div class="article-section" id="article-activation" data-click="article-mlp">
+-		<h3>MLP: Multi-Layer Perceptron</h3>
+-
+-		<div class="figure">
+-			<img src="./article_assets/mlp.png" width="70%" align="middle" />
+-		</div>
+-		<div class="figure-caption">
+-			Figure <span class="attention">4</span>. Using MLP layer to project the self-attention
+-			representations into higher dimensions to enhance the model's representational capacity.
+-		</div>
+-
+-		<p>
+-			After the multiple heads of self-attention capture the diverse relationships between the input
+-			tokens, the concatenated outputs are passed through the Multilayer Perceptron (MLP) layer to
+-			enhance the model's representational capacity. The MLP block consists of two linear
+-			transformations with a <a
+-				href="https://en.wikipedia.org/wiki/Rectified_linear_unit#Gaussian-error_linear_unit_(GELU)"
+-				>GELU</a
+-			> activation function in between.
+-		</p>
+-		<p>
+-			The first linear transformation expands the dimensionality of the input four-fold from <code
+-				>768</code
+-			>
+-			to
+-			<code>3072</code>. This expansion step allows the model to project the token representations
+-			into a higher-dimensional space, where it can capture richer and more complex patterns that
+-			may not be visible in the original dimension.
+-		</p>
+-		<p>
+-			The second linear transformation then reduces the dimensionality back to the original size of <code
+-				>768</code
+-			>.This compression step brings the representations back to a manageable size while retaining
+-			the useful nonlinear transformations introduced in the expansion step.
+-		</p>
+-		<p>
+-			Unlike the self-attention mechanism, which integrates information across tokens, the MLP
+-			processes tokens independently and simply maps each token representation from one space to
+-			another, enriching the overall model capacity.
+-		</p>
++		<h3>多层感知机 MLP</h3>
++		<div class="figure"><img src="./article_assets/mlp.png" width="70%" alt="多层感知机把 768 维表示扩展到 3072 维，经过 GELU 激活后再变回 768 维" /></div>
++		<div class="figure-caption">图 4　MLP 在更高维空间中加工词元表示。Linear 表示线性变换，GELU 是两次线性变换之间的激活函数。</div>
++		<p>多头自注意力汇总了词元之间的信息后，MLP 继续加工每个词元的表示。它包含两次线性变换，中间使用
++			<a href="https://en.wikipedia.org/wiki/Rectified_linear_unit#Gaussian-error_linear_unit_(GELU)" target="_blank" rel="noreferrer">GELU（高斯误差线性单元）</a>作为激活函数，引入非线性。</p>
++		<p>第一次线性变换将维度扩大四倍，从 <code>768</code> 维扩展到 <code>3072</code> 维。更高维的空间让模型有能力表达更丰富、更复杂的模式。</p>
++		<p>经过 GELU 后，第二次线性变换把维度降回 <code>768</code>，以便继续传给后面的模块，同时保留前一步得到的有用信息。</p>
++		<p>自注意力在词元之间交换信息，MLP 则对每个词元独立应用相同的变换，进一步丰富它的表示。</p>
+ 	</div>
+ 
+ 	<div class="article-section" id="article-prob" data-click="article-prob">
+-		<h2>Output Probabilities</h2>
+-		<p>
+-			After the input has been processed through all Transformer blocks, the output is passed
+-			through the final linear layer to prepare it for token prediction. This layer projects the
+-			final representations into a <code>50,257</code>
+-			dimensional space, where every token in the vocabulary has a corresponding value called
+-			<code>logit</code>. Any token can be the next word, so this process allows us to simply rank
+-			these tokens by their likelihood of being that next word. We then apply the softmax function
+-			to convert the logits into a probability distribution that sums to one. This will allow us to
+-			sample the next token based on its likelihood.
+-		</p>
+-
+-		<div class="figure py-5">
+-			<img src="./article_assets/softmax.png" width="70%" />
+-		</div>
+-		<div class="figure-caption">
+-			Figure <span class="attention">5</span>. Each token in the vocabulary is assigned a
+-			probability based on the model's output logits. These probabilities determine the likelihood
+-			of each token being the next word in the sequence.
+-		</div>
+-
+-		<p id="article-temperature" data-click="article-temperature">
+-			The final step is to generate the next token by sampling from this distribution The <code
+-				>temperature</code
+-			>
+-			hyperparameter plays a critical role in this process. Mathematically speaking, it is a very simple
+-			operation: model output logits are simply divided by the
+-			<code>temperature</code>:
+-		</p>
+-
++		<h2>输出概率</h2>
++		<p>经过全部 Transformer 模块后，最终的线性层将每个词元的表示投影到 <code>50,257</code> 维空间。每个维度对应词表中的一个候选词元，其原始分数称为 <code>logit</code>。预测下一个词元时，使用输入序列最后一个位置的这些分数，再通过 softmax 得到总和为 1 的概率分布，随后从中采样。</p>
++		<div class="figure"><img src="./article_assets/softmax.png" width="70%" alt="模型输出的 logits 经过温度调整和 softmax，转换成候选词元的概率" /></div>
++		<div class="figure-caption">图 5　将候选词元的分数转换为概率。Logits 表示原始分数，Temperature 表示温度，Probabilities 表示概率。</div>
++		<p id="article-temperature" data-click="article-temperature">采样时，<strong>温度（temperature）</strong>控制概率分布的集中程度。计算方法是在 softmax 之前，将 logits 除以一个正的温度值。</p>
+ 		<ul>
+-			<li>
+-				<code>temperature = 1</code>: Dividing logits by one has no effect on the softmax outputs.
+-			</li>
+-			<li>
+-				<code>temperature &lt; 1</code>: Lower temperature makes the model more confident and
+-				deterministic by sharpening the probability distribution, leading to more predictable
+-				outputs.
+-			</li>
+-			<li>
+-				<code>temperature &gt; 1</code>: Higher temperature creates a softer probability
+-				distribution, allowing for more randomness in the generated text – what some refer to as
+-				model <em>“creativity”</em>.
+-			</li>
++			<li><code>temperature = 1</code> 时，分数不变，保留原来的概率分布。</li>
++			<li><code>0 &lt; temperature &lt; 1</code> 时，概率分布更加集中，原本高概率的词元更容易被选中，输出通常更稳定。</li>
++			<li><code>temperature &gt; 1</code> 时，概率分布更加平缓，较低概率的词元也更有机会被选中，输出通常更多样。</li>
+ 		</ul>
+-
+-		<p id="article-sampling" data-click="article-sampling">
+-			In addition, the sampling process can be further refined using <code>top-k</code>
+-			and
+-			<code>top-p</code> parameters:
+-		</p>
++		<p id="article-sampling" data-click="article-sampling">还可以通过 <code>top-k</code> 和 <code>top-p</code> 控制采样的候选范围。</p>
+ 		<ul>
+-			<li>
+-				<code>top-k sampling</code>: Limits the candidate tokens to the top k tokens with the
+-				highest probabilities, filtering out less likely options.
+-			</li>
+-			<li>
+-				<code>top-p sampling</code>: Considers the smallest set of tokens whose cumulative
+-				probability exceeds a threshold p, ensuring that only the most likely tokens contribute
+-				while still allowing for diversity.
+-			</li>
++			<li><strong>Top-k 采样</strong>只保留概率最高的 k 个词元，排除其余候选。</li>
++			<li><strong>Top-p 采样</strong>将词元按概率从高到低排列，选取累计概率达到或超过阈值 p 的最小候选集合。候选数量会随概率分布变化。</li>
+ 		</ul>
+-		<p>
+-			By tuning <code>temperature</code>, <code>top-k</code>, and <code>top-p</code>, you can
+-			balance between deterministic and diverse outputs, tailoring the model's behavior to your
+-			specific needs.
+-		</p>
++		<p>模型会在保留的候选中重新归一化概率，再进行采样。调整温度、top-k 和 top-p，可以在输出的稳定性和多样性之间取得不同的平衡。</p>
+ 	</div>
+ 
+ 	<div class="article-section" data-click="article-advanced-features">
+-		<h2>Auxiliary Architectural Features</h2>
+-
+-		<p>
+-			There are several auxiliary architectural features that enhance the performance of Transformer
+-			models. While important for the model's overall performance, they are not as important for
+-			understanding the core concepts of the architecture. Layer Normalization, Dropout, and
+-			Residual Connections are crucial components in Transformer models, particularly during the
+-			training phase. Layer Normalization stabilizes training and helps the model converge faster.
+-			Dropout prevents overfitting by randomly deactivating neurons. Residual Connections allows
+-			gradients to flow directly through the network and helps to prevent the vanishing gradient
+-			problem.
+-		</p>
++		<h2>其他重要的结构</h2>
++		<p>除了注意力和 MLP，Transformer 还使用层归一化、随机失活和残差连接。它们帮助训练更稳定、减少过拟合，并让梯度更容易传到较早的网络层。</p>
+ 		<div class="article-subsection" id="article-ln">
+-			<h3>Layer Normalization</h3>
+-
+-			<p>
+-				Layer Normalization helps to stabilize the training process and improves convergence. It
+-				works by normalizing the inputs across the features, ensuring that the mean and variance of
+-				the activations are consistent. This normalization helps mitigate issues related to internal
+-				covariate shift, allowing the model to learn more effectively and reducing the sensitivity
+-				to the initial weights. Layer Normalization is applied twice in each Transformer block, once
+-				before the self-attention mechanism and once before the MLP layer.
+-			</p>
++			<h3>层归一化（Layer Normalization）</h3>
++			<p>层归一化对一个词元向量的各个特征计算均值和方差，再进行标准化，并应用可学习的缩放与偏移。这有助于稳定数值尺度、改善训练收敛，并降低训练对初始权重的敏感程度。在 GPT-2 中，每个 Transformer 模块在自注意力之前和 MLP 之前各进行一次层归一化。</p>
+ 		</div>
+ 		<div class="article-subsection" id="article-dropout">
+-			<h3>Dropout</h3>
+-
+-			<p>
+-				Dropout is a regularization technique used to prevent overfitting in neural networks by
+-				randomly setting a fraction of model weights to zero during training. This encourages the
+-				model to learn more robust features and reduces dependency on specific neurons, helping the
+-				network generalize better to new, unseen data. During model inference, dropout is
+-				deactivated. This essentially means that we are using an ensemble of the trained
+-				subnetworks, which leads to a better model performance.
+-			</p>
++			<h3>随机失活（Dropout）</h3>
++			<p>Dropout 是减少过拟合的一种方法。训练时，它随机将一部分激活输出置为零，并对保留下来的输出进行相应缩放。这可以减少模型对特定神经元的依赖，促使模型学到更稳健的特征，从而更好地处理未见过的数据。推理时关闭 Dropout，使用完整网络。它也可以从近似组合多个子网络的角度来理解。</p>
+ 		</div>
+ 		<div class="article-subsection" id="article-residual">
+-			<h3>Residual Connections</h3>
+-
+-			<p>
+-				Residual connections were first introduced in the ResNet model in 2015. This architectural
+-				innovation revolutionized deep learning by enabling the training of very deep neural
+-				networks. Essentially, residual connections are shortcuts that bypass one or more layers,
+-				adding the input of a layer to its output. This helps mitigate the vanishing gradient
+-				problem, making it easier to train deep networks with multiple Transformer blocks stacked on
+-				top of each other. In GPT-2, residual connections are used twice within each Transformer
+-				block: once before the MLP and once after, ensuring that gradients flow more easily, and
+-				earlier layers receive sufficient updates during backpropagation.
+-			</p>
++			<h3>残差连接（Residual Connections）</h3>
++			<p>残差连接在 2015 年提出的 ResNet 中得到广泛应用，帮助研究者训练更深的神经网络。它把一个子层的输入直接加到该子层的输出上，让信息和梯度可以沿着更直接的路径传播，减轻梯度消失带来的困难。GPT-2 的每个 Transformer 模块中有两处残差连接，分别跨过自注意力子层和 MLP 子层，帮助较早的层在反向传播中获得有效更新。</p>
+ 		</div>
+ 	</div>
+ 
+ 	<div class="article-section" data-click="article-interactive-features">
+-		<h1>Interactive Features</h1>
+-		<p>
+-			Transformer Explainer is built to be interactive and allows you to explore the inner workings
+-			of the Transformer. Here are some of the interactive features you can play with:
+-		</p>
+-
++		<h1>怎样使用交互功能</h1>
++		<p>你可以通过上方的可视化界面观察模型内部的计算。</p>
+ 		<ul>
+-			<li>
+-				<strong>Input your own text sequence</strong> to see how the model processes it and predicts
+-				the next word. Explore attention weights, intermediate computations, and see how the final output
+-				probabilities are calculated.
+-			</li>
+-			<li>
+-				<strong>Use temperature slider</strong> to control the randomness of the model’s predictions.
+-				Explore how you can make the model output more deterministic or more creative by changing the
+-				temperature value.
+-			</li>
+-			<li>
+-				<strong>Select top-k and top-p sampling methods</strong> to adjust sampling behavior during inference.
+-				Experiment with different values and see how the probability distribution changes and influences
+-				the model's predictions.
+-			</li>
+-			<li>
+-				<strong>Interact with attention maps</strong> to see how the model focuses on different tokens
+-				in the input sequence. Hover over tokens to highlight their attention weights and explore how
+-				the model captures context and relationships between words.
+-			</li>
++			<li><strong>输入自己的文本</strong>，查看模型如何分词、处理输入并预测下一个词元。展开各个步骤，观察注意力权重、中间计算和最终概率。</li>
++			<li><strong>调整温度滑块</strong>，比较概率分布如何变化，观察输出在稳定性和多样性上的差别。</li>
++			<li><strong>选择 Top-k 或 Top-p 采样</strong>，尝试不同参数，观察候选词元的范围和预测结果如何变化。</li>
++			<li><strong>探索注意力图</strong>，把鼠标放在词元上，查看相应的注意力权重，观察模型如何利用上下文。</li>
+ 		</ul>
+ 	</div>
+ 
+ 	<div class="article-section" data-click="article-video">
+-		<h2>Video Tutorial</h2>
+-		<div class="video-container">
+-			<iframe
+-				src="https://www.youtube.com/embed/ECR4oAwocjs"
+-				frameborder="0"
+-				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+-				allowfullscreen
+-			>
+-			</iframe>
+-		</div>
++		<h2>视频演示</h2>
++		<div class="video-container"><a href="https://www.youtube.com/watch?v=ECR4oAwocjs" target="_blank" rel="noreferrer">观看作者的演示视频（英文）</a></div>
+ 	</div>
+ 
+ 	<div class="article-section" data-click="article-implementation">
+-		<h2>How is Transformer Explainer Implemented?</h2>
+-		<p>
+-			Transformer Explainer features a live GPT-2 (small) model running directly in the browser.
+-			This model is derived from the PyTorch implementation of GPT by Andrej Karpathy's
+-			<a href="https://github.com/karpathy/nanoGPT" title="Github" target="_blank"
+-				>nanoGPT project</a
+-			>
+-			and has been converted to
+-			<a href="https://onnxruntime.ai/" title="ONNX" target="_blank">ONNX Runtime</a>
+-			for seamless in-browser execution. The interface is built using JavaScript, with
+-			<a href="https://kit.svelte.dev/" title="Svelte" target="_blank">Svelte</a>
+-			as a front-end framework and
+-			<a href="https://d3js.org/" title="D3" target="_blank">D3.js</a>
+-			for creating dynamic visualizations. Numerical values are updated live following the user input.
+-		</p>
++		<h2>这个实验是怎样实现的？</h2>
++		<p>Transformer Explainer 在浏览器中直接运行 GPT-2 小型模型。模型来自 Andrej Karpathy 的
++			<a href="https://github.com/karpathy/nanoGPT" target="_blank" rel="noreferrer">nanoGPT 项目</a>中的 PyTorch 实现，并转换为可由
++			<a href="https://onnxruntime.ai/" target="_blank" rel="noreferrer">ONNX Runtime</a>运行的格式。
++			界面使用 JavaScript 和 <a href="https://kit.svelte.dev/" target="_blank" rel="noreferrer">Svelte</a> 构建，使用
++			<a href="https://d3js.org/" target="_blank" rel="noreferrer">D3.js</a> 绘制交互图形。输入变化后，图中的数值会根据实际计算结果更新。</p>
+ 	</div>
+ 
+ 	<div class="article-section" data-click="article-credit">
+-		<h2>Who developed the Transformer Explainer?</h2>
+-		<p>
+-			Transformer Explainer was created by
+-
+-			<a href="https://aereeeee.github.io/" target="_blank">Aeree Cho</a>,
+-			<a href="https://www.linkedin.com/in/chaeyeonggracekim/" target="_blank">Grace C. Kim</a>,
+-			<a href="https://alexkarpekov.com/" target="_blank">Alexander Karpekov</a>,
+-			<a href="https://alechelbling.com/" target="_blank">Alec Helbling</a>,
+-			<a href="https://zijie.wang/" target="_blank">Jay Wang</a>,
+-			<a href="https://seongmin.xyz/" target="_blank">Seongmin Lee</a>,
+-			<a href="https://bhoov.com/" target="_blank">Benjamin Hoover</a>, and
+-			<a href="https://poloclub.github.io/polochau/" target="_blank">Polo Chau</a>
+-
+-			at the Georgia Institute of Technology.
+-		</p>
++		<h2>原项目作者</h2>
++		<p>Transformer Explainer 由佐治亚理工学院的
++			<a href="https://aereeeee.github.io/" target="_blank" rel="noreferrer">Aeree Cho</a>、
++			<a href="https://www.linkedin.com/in/chaeyeonggracekim/" target="_blank" rel="noreferrer">Grace C. Kim</a>、
++			<a href="https://alexkarpekov.com/" target="_blank" rel="noreferrer">Alexander Karpekov</a>、
++			<a href="https://alechelbling.com/" target="_blank" rel="noreferrer">Alec Helbling</a>、
++			<a href="https://zijie.wang/" target="_blank" rel="noreferrer">Jay Wang</a>、
++			<a href="https://seongmin.xyz/" target="_blank" rel="noreferrer">Seongmin Lee</a>、
++			<a href="https://bhoov.com/" target="_blank" rel="noreferrer">Benjamin Hoover</a> 和
++			<a href="https://poloclub.github.io/polochau/" target="_blank" rel="noreferrer">Polo Chau</a> 开发。</p>
+ 	</div>
+ </div>
+ 
+ <style lang="scss">
+-	a {
+-		color: theme('colors.blue.500');
+-
+-		&:hover {
+-			color: theme('colors.blue.700');
+-		}
+-	}
+-
+-	.bold-purple {
+-		color: theme('colors.purple.700');
+-		font-weight: bold;
+-	}
+-
+-	code {
+-		color: theme('colors.gray.500');
+-		background-color: theme('colors.gray.50');
+-		font-family: theme('fontFamily.mono');
+-	}
+-
+-	.q-color {
+-		color: theme('colors.blue.400');
+-	}
+-
+-	.k-color {
+-		color: theme('colors.red.400');
+-	}
+-
+-	.v-color {
+-		color: theme('colors.green.400');
+-	}
+-
+-	.purple-color {
+-		color: theme('colors.purple.500');
+-	}
+-
+-	.article-section {
+-		padding-bottom: 2rem;
+-	}
+-	.architecture-section {
+-		padding-top: 1rem;
+-	}
+-	.video-container {
+-		position: relative;
+-		padding-bottom: 56.25%; /* 16:9 aspect ratio */
+-		height: 0;
+-		overflow: hidden;
+-		max-width: 100%;
+-		background: #000;
+-	}
+-
+-	.video-container iframe {
+-		position: absolute;
+-		top: 0;
+-		left: 0;
+-		width: 100%;
+-		height: 100%;
+-	}
+-
+-	#description {
+-		padding-bottom: 3rem;
+-		margin-left: auto;
+-		margin-right: auto;
+-		max-width: 78ch;
+-	}
+-
+-	#description h1 {
+-		color: theme('colors.purple.700');
+-		font-size: 2.2rem;
+-		font-weight: 300;
+-		padding-top: 1rem;
+-	}
+-
+-	#description h2 {
+-		// color: #444;
+-		color: theme('colors.purple.700');
+-		font-size: 2rem;
+-		font-weight: 300;
+-		padding-top: 1rem;
+-	}
+-
+-	#description h3 {
+-		color: theme('colors.gray.700');
+-		font-size: 1.6rem;
+-		font-weight: 200;
+-		padding-top: 1rem;
+-	}
+-
+-	#description h4 {
+-		color: theme('colors.gray.700');
+-		font-size: 1.6rem;
+-		font-weight: 200;
+-		padding-top: 1rem;
+-	}
+-
+-	#description p {
+-		margin: 1rem 0;
+-	}
+-
+-	#description p img {
+-		vertical-align: middle;
+-	}
+-
+-	#description .figure-caption {
+-		font-size: 0.8rem;
+-		margin-top: 0.5rem;
+-		text-align: center;
+-		margin-bottom: 2rem;
+-	}
+-
+-	#description ol {
+-		margin-left: 3rem;
+-		list-style-type: decimal;
+-	}
+-
+-	#description li {
+-		margin: 0.6rem 0;
+-	}
+-
+-	#description p,
+-	#description div,
+-	#description li {
+-		color: theme('colors.gray.600');
+-		line-height: 1.6;
+-	}
+-
+-	#description small {
+-		font-size: 0.8rem;
+-	}
+-
+-	#description ol li img {
+-		vertical-align: middle;
+-	}
+-
+-	#description .video-link {
+-		color: theme('colors.blue.600');
+-		cursor: pointer;
+-		font-weight: normal;
+-		text-decoration: none;
+-	}
+-
+-	#description ul {
+-		list-style-type: disc;
+-		margin-left: 2.5rem;
+-		margin-bottom: 1rem;
+-	}
+-
+-	#description a:hover,
+-	#description .video-link:hover {
+-		text-decoration: underline;
+-	}
+-
+-	.figure,
+-	.video {
+-		width: 100%;
+-		display: flex;
+-		flex-direction: column;
+-		align-items: center;
++	#description { max-width: 78ch; width: calc(100% - 48px); margin: 0 auto; padding-bottom: 3rem; overflow-wrap: anywhere; }
++	a { color: theme('colors.blue.600'); }
++	a:hover { color: theme('colors.blue.700'); text-decoration: underline; }
++	.bold-purple { color: theme('colors.purple.700'); font-weight: bold; }
++	code { color: theme('colors.gray.700'); background-color: theme('colors.gray.50'); font-family: theme('fontFamily.mono'); }
++	.q-color { color: theme('colors.blue.600'); }
++	.k-color { color: theme('colors.red.600'); }
++	.v-color { color: theme('colors.green.700'); }
++	.purple-color { color: theme('colors.purple.600'); }
++	.article-section { padding-bottom: 2rem; }
++	.article-subsection, .article-subsection-l2, [id] { scroll-margin-top: 100px; }
++	h1, h2 { color: theme('colors.purple.700'); font-weight: 400; padding-top: 1rem; line-height: 1.4; }
++	h1 { font-size: 2.2rem; }
++	h2 { font-size: 2rem; }
++	h3, h4 { color: theme('colors.gray.700'); font-weight: 500; padding-top: 1rem; line-height: 1.5; }
++	h3 { font-size: 1.6rem; }
++	h4 { font-size: 1.3rem; }
++	p { margin: 1rem 0; }
++	p, li { color: theme('colors.gray.600'); line-height: 1.9; }
++	ol { list-style-type: decimal; margin-left: 1.8rem; }
++	ul { list-style-type: disc; margin-left: 1.8rem; margin-bottom: 1rem; }
++	li { margin: 0.6rem 0; }
++	.figure { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 1.5rem; }
++	.figure img { max-width: 100%; height: auto; }
++	.figure-caption { color: theme('colors.gray.600'); font-size: 0.85rem; line-height: 1.8; margin: 0.75rem 0 2rem; }
++	.formula { width: 100%; overflow-x: auto; font-size: 0.8rem; }
++	.video-container { padding: 1.25rem; background: theme('colors.gray.50'); border: 1px solid theme('colors.gray.200'); margin-top: 1rem; }
++	@media (max-width: 640px) {
++		#description { width: calc(100% - 32px); font-size: 15px; }
++		h1 { font-size: 1.75rem; }
++		h2 { font-size: 1.5rem; }
++		h3 { font-size: 1.25rem; }
++		h4 { font-size: 1.1rem; }
++		.figure img { width: 100%; }
+ 	}
+ </style>
+diff --git a/src/components/common/Slider.svelte b/src/components/common/Slider.svelte
+index 0cd4f7a..77a7a7f 100644
+--- a/src/components/common/Slider.svelte
++++ b/src/components/common/Slider.svelte
+@@ -56,6 +56,11 @@
+ </div>
+ 
+ <style lang="scss">
++	@media(max-width:1000px) {
++		.slider-input {height:auto !important;gap:4px;}
++		.slider-head {min-height:24px;}
++		.slider-container {min-height:24px;}
++	}
+ 	.slider-input {
+ 		height: 100%;
+ 		display: flex;
+diff --git a/src/components/textbook/TextbookCard.svelte b/src/components/textbook/TextbookCard.svelte
+index e69bdf4..7ab83c0 100644
+--- a/src/components/textbook/TextbookCard.svelte
++++ b/src/components/textbook/TextbookCard.svelte
+@@ -56,6 +56,7 @@
+ 
+ 	// Drag functions
+ 	function handleCardMouseDown(event: MouseEvent) {
++		if (window.matchMedia('(max-width: 600px)').matches) return;
+ 		if ((event.target as HTMLElement).closest('.close-btn')) return;
+ 
+ 		// Check if in resize zone
+@@ -312,6 +313,7 @@
+ 
+ 		.card-body {
+ 			flex: 1 0 0;
++			min-height: 0;
+ 			padding: 0 1rem 0.5rem 1rem;
+ 		}
+ 	}
+@@ -333,6 +335,8 @@
+ 			width: 100%;
+ 			height: 100%;
+ 			opacity: 0;
++			visibility: hidden;
++			overflow-y: auto;
+ 			transition: opacity 0.3s ease;
+ 			// display: flex;
+ 			// flex-direction: column;
+@@ -340,6 +344,7 @@
+ 
+ 			&.active {
+ 				opacity: 1;
++				visibility: visible;
+ 			}
+ 		}
+ 	}
+@@ -452,4 +457,20 @@
+ 		flex: 1;
+ 		line-height: 1.4;
+ 	}
++
++	@media (max-width: 600px) {
++		.floating-container {
++			left: 12px !important;
++			right: 12px;
++			top: auto !important;
++			bottom: 12px;
++		}
++		.text-card {
++			width: 100% !important;
++			height: min(360px, calc(100dvh - 24px)) !important;
++			background: rgba(255, 255, 255, 0.97);
++			cursor: default;
++		}
++		.text-carousel { padding-bottom: 3rem; }
++	}
+ </style>
+diff --git a/src/components/textbook/TextbookNavigation.svelte b/src/components/textbook/TextbookNavigation.svelte
+index 76bc212..7760102 100644
+--- a/src/components/textbook/TextbookNavigation.svelte
++++ b/src/components/textbook/TextbookNavigation.svelte
+@@ -275,7 +275,7 @@
+ 					.page-dropdown {
+ 						position: absolute;
+ 						bottom: 100%;
+-						left: 10%;
++						right: 0;
+ 						margin-bottom: 0.5rem;
+ 						background: rgba(255, 255, 255, 0.95);
+ 						border: 1px solid rgba(229, 231, 235, 0.3);
+@@ -358,4 +358,11 @@
+ 			}
+ 		}
+ 	}
++	@media (max-width: 600px) {
++		.navigation-footer .nav-section.center {
++			gap: 8px;
++			padding: 0 4px;
++			.progress-bar { width: 4rem; }
++		}
++	}
+ </style>
+diff --git a/src/routes/+layout.svelte b/src/routes/+layout.svelte
+index 8a4ecad..a0d86e3 100644
+--- a/src/routes/+layout.svelte
++++ b/src/routes/+layout.svelte
+@@ -1,5 +1,6 @@
+ <script lang="ts">
+ 	import '~/styles/app.css';
++	import '@fontsource/jersey-10/latin-400.css';
+ 	import '~/styles/global.scss';
+ 	import Topbar from '~/components/Topbar.svelte';
+ 	import { isLoaded, predictedColor, rootRem, userId } from '~/store';
+@@ -7,7 +8,6 @@
+ 	import { onMount } from 'svelte';
+ 	import { Spinner } from 'flowbite-svelte';
+ 	import Alert from '~/components/Alert.svelte';
+-	import GTM from '~/utils/gtm.svelte';
+ 	import { page } from '$app/stores';
+ 
+ 	let topBarHeight = 0;
+@@ -37,7 +37,7 @@
+ 		intersectionObserver = new IntersectionObserver(handleIntersection, {
+ 			root: null,
+ 			rootMargin: '0px',
+-			threshold: 0.2
++			threshold: matchMedia('(max-width:1000px)').matches ? 0.01 : 0.2
+ 		});
+ 
+ 		if (target) {
+@@ -66,7 +66,7 @@
+ 	};
+ </script>
+ 
+-<GTM />
++
+ <div
+ 	id="app"
+ 	style={`--min-screen-width:${minScreenWidth}px;--min-column-width:${minColumWidth}px;--predicted-color:${predictedColor};`}
+@@ -126,6 +126,11 @@
+ 		overflow: hidden;
+ 	}
+ 	.article {
++		width: 100vw;
++		max-width: 100%;
+ 		padding-top: 2rem;
+ 	}
++	@media(max-width:1000px) {
++		header { min-width:0; width:100vw; left:0; transform:none !important; }
++	}
+ </style>
+diff --git a/src/routes/+page.svelte b/src/routes/+page.svelte
+index 813fee4..e4566b0 100644
+--- a/src/routes/+page.svelte
++++ b/src/routes/+page.svelte
+@@ -34,56 +34,76 @@
+ 	import { base } from '$app/paths';
+ 	import * as ort from 'onnxruntime-web';
+ 
+-	import { adjustTemperature, runModel, fakeRunWithCachedData } from '~/utils/data';
++	import { adjustTemperature, runModel, fakeRunWithCachedData, cancelModelRun } from '~/utils/data';
+ 	import { fetchAndMergeChunks } from '~/utils/fetchChunks';
+ 	import WeightPopovers from '~/components/WeightPopovers.svelte';
+ 	import { fade } from 'svelte/transition';
+-	import { AutoTokenizer } from '@xenova/transformers';
++	import { AutoTokenizer, env } from '@xenova/transformers';
+ 	import { ex0, ex1, ex2, ex3, ex4 } from '~/constants/examples';
+ 	import BlockTransition from '~/components/BlockTransition.svelte';
+ 	import QKV from '~/components/QKV.svelte';
+ 	import Textbook from '~/components/textbook/Textbook.svelte';
+ 
+-	ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.0/dist/';
++	ort.env.wasm.wasmPaths = `${base}/wasm/`;
++ ort.env.wasm.numThreads = 1;
++ ort.env.wasm.proxy = true;
++ env.allowRemoteModels = false;
++ env.localModelPath = `${base}/tokenizers/`;
+ 	ort.env.logLevel = 'error';
+ 
+ 	let active = false;
++	let loadStatus = '正在读取分词器';
++	let alive = true;
+ 	let appStartTime = Date.now();
+ 
+ 	// fetch model
+-	onMount(async () => {
+-		const gpt2Tokenizer = await AutoTokenizer.from_pretrained('Xenova/gpt2');
+-		active = true;
+-
+-		const unsubscribe = subscribeInputs(gpt2Tokenizer);
+-
+-		if (!$isMobile) {
+-			await fetchModel();
+-		}
+-
+-		return unsubscribe;
++	onMount(() => {
++		let unsubscribe = () => {};
++		const controller = new AbortController();
++		(async () => {
++			try {
++				const gpt2Tokenizer = await AutoTokenizer.from_pretrained('Xenova/gpt2');
++				if (!alive) return;
++				active = true;
++				unsubscribe = subscribeInputs(gpt2Tokenizer);
++				loadStatus = '正在读取 GPT-2 模型，例句暂使用上游预计算结果';
++				await fetchModel(controller.signal);
++				if (!alive) return;
++				loadStatus = '计算引擎已就绪，正在计算第一条例句';
++				await runModel({ tokenizer: gpt2Tokenizer, input: $inputText.trim(), temperature: $temperature, sampling: $sampling });
++				if (alive) loadStatus = 'GPT-2 已就绪，使用当前输入进行计算';
++			} catch(error) { if(alive) loadStatus = `模型加载失败：${error.message}`; }
++		})();
++		const dispose = () => {
++			if (!alive) return;
++			alive = false; controller.abort(); unsubscribe(); cancelModelRun();
++			$modelSession?.release(); modelSession.set(null);
++		};
++		window.addEventListener('pagehide', dispose);
++		return () => { window.removeEventListener('pagehide', dispose); dispose(); };
+ 	});
+ 
+ 	// Fetch model onnx
+-	const fetchModel = async () => {
++	const fetchModel = async (signal) => {
+ 		const chunkNum = 63; //TODO: move to model meta
+ 		const chunkUrls = Array(chunkNum)
+ 			.fill(0)
+ 			.map((d, i) => `${base}/model-v2/gpt2.onnx.part${i}`);
+ 
+ 		// Fetch from cache
+-		const { hasCache, mergedArray } = await fetchAndMergeChunks(chunkUrls);
+-
+-		// Create a Blob from the merged array
+-		const blob = new Blob([mergedArray], { type: 'application/octet-stream' });
+-
+-		// Create a URL for the Blob
+-		const url = URL.createObjectURL(blob);
+-
+-		// Create ONNX session using the Blob URL
+-		const session = await ort.InferenceSession.create(url, {
+-			// logSeverityLevel: 0
++		const { hasCache, mergedArray } = await fetchAndMergeChunks(chunkUrls, signal);
++		if (!alive) return;
++		loadStatus = '模型文件已读取，正在初始化计算引擎';
++
++		// Pass bytes directly; a second 657 MB Blob can exceed Chromium's Blob memory budget.
++		const session = await ort.InferenceSession.create(new Uint8Array(mergedArray), {
++			graphOptimizationLevel: 'disabled',
++			executionProviders: ['wasm'],
++			enableCpuMemArena: false,
++			enableMemPattern: false,
++			extra: { session: { disable_prepacking: '1' } }
+ 		});
++		if (!alive) { await session.release(); return; }
+ 
+ 		modelSession.set(session);
+ 
+@@ -101,7 +121,7 @@
+ 	// Subscribe inputs
+ 	const cachedDataMap = [ex0, ex1, ex2, ex3, ex4];
+ 	const subscribeInputs = (tokenizer: PreTrainedTokenizer) => {
+-		const runModelOrCache = () => {
++		const runModelOrCache = (input: string) => {
+ 			if ($isFetchingModel || !$modelSession) {
+ 				const cachedData = cachedDataMap[$selectedExampleIdx];
+ 
+@@ -116,14 +136,14 @@
+ 			// run model when input has changed
+ 			runModel({
+ 				tokenizer,
+-				input: $inputText.trim(),
++				input: input.trim(),
+ 				temperature: $temperature,
+ 				sampling: $sampling
+-			});
++			}).catch(error => { if (alive) { loadStatus = `计算失败：${error.message}`; cancelModelRun(); } });
+ 		};
+ 
+ 		const unsubscribeInputText = inputText.subscribe((value) => {
+-			runModelOrCache();
++			runModelOrCache(value);
+ 		});
+ 
+ 		let initialTemperature = true; // prevent initial redundant rendering
+@@ -180,6 +200,8 @@
+ 	}
+ </script>
+ 
++<div role="status" class="model-load-status">{loadStatus}</div>
++
+ <div
+ 	class:active
+ 	class="main-section h-full w-full"
+@@ -234,6 +256,7 @@
+ </div>
+ 
+ <style lang="scss">
++ .model-load-status{position:fixed;bottom:8px;left:12px;z-index:900;background:#fffef4;border:1px solid #e9dec9;border-radius:4px;padding:7px 12px;font-size:12px;max-width:90vw}
+ 	.main-section {
+ 		opacity: 0;
+ 		&.active {
+diff --git a/src/utils/Katex.svelte b/src/utils/Katex.svelte
+index 3d140cb..63b3a94 100644
+--- a/src/utils/Katex.svelte
++++ b/src/utils/Katex.svelte
+@@ -1,5 +1,6 @@
+ <script>
+ 	import katex from 'katex';
++ import 'katex/dist/katex.min.css';
+ 
+ 	export let math;
+ 	export let displayMode = false;
+@@ -14,13 +15,6 @@
+ 	$: katexString = katex.renderToString(math, options);
+ </script>
+ 
+-<svelte:head>
+-	<link
+-		rel="stylesheet"
+-		href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css"
+-		integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X"
+-		crossorigin="anonymous"
+-	/>
+-</svelte:head>
++
+ 
+ {@html katexString}
+diff --git a/src/utils/animation.ts b/src/utils/animation.ts
+index ea06eee..127ccd8 100644
+--- a/src/utils/animation.ts
++++ b/src/utils/animation.ts
+@@ -586,6 +586,7 @@ export const showFlowAnimation = async (tokenLength: number, isNextTokenOnly = t
+ 		// showSamplingAnimation();
+ 
+ 		flowTimeline = tl;
++		if (matchMedia('(prefers-reduced-motion: reduce)').matches) tl.timeScale(1000);
+ 	});
+ };
+ 
+diff --git a/src/utils/data.ts b/src/utils/data.ts
+index 936a9df..09f7609 100644
+--- a/src/utils/data.ts
++++ b/src/utils/data.ts
+@@ -12,6 +12,8 @@ import {
+ import { get } from 'svelte/store';
+ import { reshapeArray } from './array';
+ import { showFlowAnimation } from './animation';
++let currentRun = 0;
++export const cancelModelRun = () => { currentRun++; isModelRunning.set(false); };
+ 
+ export const fakeRunWithCachedData = async ({
+ 	cachedData,
+@@ -24,6 +26,7 @@ export const fakeRunWithCachedData = async ({
+ 	temperature: number;
+ 	sampling: Sampling;
+ }) => {
++	const run = ++currentRun;
+ 	isModelRunning.set(true);
+ 
+ 	modelData.set(cachedData);
+@@ -31,7 +34,9 @@ export const fakeRunWithCachedData = async ({
+ 	tokenIds.set(cachedData.tokenIds);
+ 
+ 	setTimeout(async () => {
++		if (run !== currentRun) return;
+ 		await showFlowAnimation(cachedData.tokens.length, true);
++		if (run !== currentRun) return;
+ 		adjustTemperature({
+ 			tokenizer,
+ 			logits: cachedData.logits,
+@@ -53,9 +58,11 @@ export const runModel = async ({
+ 	temperature: number;
+ 	sampling: Sampling;
+ }) => {
++	const run = ++currentRun;
+ 	isModelRunning.set(true);
+ 
+ 	const { token_ids, input_tokens } = await getTokenization(tokenizer, input === '' ? ' ' : input);
++	if (run !== currentRun) return;
+ 
+ 	let isOneTokenAdded: boolean;
+ 	tokens.set(input_tokens);
+@@ -66,6 +73,7 @@ export const runModel = async ({
+ 	});
+ 
+ 	const { logits, outputs } = await getData(token_ids);
++	if (run !== currentRun) return;
+ 
+ 	const { probabilities, sampled } = getProbabilities({ tokenizer, logits, sampling, temperature });
+ 
+@@ -73,7 +81,9 @@ export const runModel = async ({
+ 
+ 	// To ensure the animation starts after all elements have been rendered
+ 	setTimeout(async () => {
++		if (run !== currentRun) return;
+ 		await showFlowAnimation(input_tokens.length, isOneTokenAdded);
++		if (run !== currentRun) return;
+ 
+ 		predictedToken.set(sampled);
+ 		// setPredictedTokenForAnimation(probabilities, sampled, sampling);
+@@ -124,9 +134,11 @@ export const getTokenization = async (tokenizer: PreTrainedTokenizer, input: str
+ };
+ 
+ export const getData = async (token_ids: number[]) => {
++	let inputTensor: ort.Tensor;
++	let results: Record<string, ort.Tensor>;
+ 	try {
+ 		// Convert token_ids to tensor
+-		const inputTensor = new ort.Tensor('int64', token_ids, [1, token_ids.length]);
++		inputTensor = new ort.Tensor('int64', token_ids, [1, token_ids.length]);
+ 
+ 		// Get the session from the store
+ 		const session = get(modelSession);
+@@ -138,10 +150,10 @@ export const getData = async (token_ids: number[]) => {
+ 		const feeds = { input: inputTensor };
+ 
+ 		// Run inference
+-		const results = await session.run(feeds);
++		results = await session.run(feeds);
+ 
+ 		// Extract the logits
+-		const logits = results['linear_output'].data;
++		const logits = Array.from(results['linear_output'].data) as number[];
+ 
+ 		// Extract the dictionary values
+ 		const outputs = targetTensors.reduce(
+@@ -164,6 +176,9 @@ export const getData = async (token_ids: number[]) => {
+ 	} catch (error) {
+ 		console.error('Error during inference:', error.message);
+ 		throw error;
++	} finally {
++		inputTensor?.dispose();
++		if (results) Object.values(results).forEach(tensor => tensor.dispose());
+ 	}
+ };
+ 
+diff --git a/src/utils/fetchChunks.js b/src/utils/fetchChunks.js
+index f0d7bdc..1f03923 100644
+--- a/src/utils/fetchChunks.js
++++ b/src/utils/fetchChunks.js
+@@ -1,56 +1,21 @@
+-const CACHE_PREFIX = 'onnx-model-cache';
+-const CACHE_NAME = `${CACHE_PREFIX}-v2`;
+-
+-async function fetchModelChunks(chunkUrls) {
+-	await clearOldCaches();
+-
+-	let hasCache = false;
+-	const cache = await caches.open(CACHE_NAME);
+-	const cachedResponses = await Promise.all(chunkUrls.map((url) => cache.match(url)));
+-
+-	// add cache
+-	const fetchPromises = chunkUrls.map((url, index) => {
+-		if (!cachedResponses[index]) {
+-			// console.log(`Fetching and caching: ${url}`);
+-			return fetch(url).then((response) => {
+-				if (response.ok) {
+-					cache.put(url, response.clone());
+-					return response.arrayBuffer();
+-				} else {
+-					throw new Error(`Failed to fetch ${url}`);
+-				}
+-			});
+-		} else {
+-			hasCache = true;
+-			// console.log(`Using cached version: ${url}`);
+-			return cachedResponses[index].arrayBuffer();
+-		}
+-	});
+-
+-	const modelBuffers = await Promise.all(fetchPromises);
+-	return { hasCache, modelBuffers };
+-}
+-
+-export async function fetchAndMergeChunks(urls) {
+-	const { hasCache, modelBuffers: chunks } = await fetchModelChunks(urls);
+-	const totalSize = chunks.reduce((acc, chunk) => acc + chunk.byteLength, 0);
+-	const mergedArray = new Uint8Array(totalSize);
+-	let offset = 0;
+-	for (const chunk of chunks) {
+-		mergedArray.set(new Uint8Array(chunk), offset);
+-		offset += chunk.byteLength;
+-	}
+-	return { hasCache, mergedArray: mergedArray.buffer };
+-}
+-
+-async function clearOldCaches() {
+-	const cacheNames = await caches.keys();
+-	await Promise.all(
+-		cacheNames.map((name) => {
+-			if (name !== CACHE_NAME && name.includes(CACHE_PREFIX)) {
+-				console.log(`Deleting old cache: ${name}`);
+-				return caches.delete(name);
+-			}
+-		})
+-	);
++// Stream shards into one buffer; avoid retaining a second full model copy.
++export async function fetchAndMergeChunks(urls, signal) {
++  const manifestResponse = await fetch(new URL('./manifest.json', new URL(urls[0], location.href)), { signal });
++  if (!manifestResponse.ok) throw new Error('模型分片清单无法读取');
++  const { sizes } = await manifestResponse.json();
++  const mergedArray = new Uint8Array(sizes.reduce((sum, size) => sum + size, 0));
++  let offset = 0;
++  for (let index = 0; index < urls.length; index++) {
++    const response = await fetch(urls[index], { signal });
++    if (!response.ok) throw new Error(`模型分片 ${index + 1} 无法读取（${response.status}）`);
++    const reader = response.body.getReader();
++    const start = offset;
++    while (true) {
++      const { done, value } = await reader.read();
++      if (done) break;
++      mergedArray.set(value, offset); offset += value.byteLength;
++    }
++    if (offset - start !== sizes[index]) throw new Error(`模型分片 ${index + 1} 不完整`);
++  }
++  return { hasCache: false, mergedArray: mergedArray.buffer };
+ }
+diff --git a/src/utils/textbookPages.ts b/src/utils/textbookPages.ts
+index bc95163..5c0852d 100644
+--- a/src/utils/textbookPages.ts
++++ b/src/utils/textbookPages.ts
+@@ -35,20 +35,15 @@ const { drawLine, removeLine } = drawResidualLine();
+ export const textPages: TextbookPage[] = [
+ 	{
+ 		id: 'what-is-transformer',
+-		title: 'What is Transformer?',
+-		content: `<p><strong>Transformer</strong> is the core architecture behind modern AI, powering models like ChatGPT and Gemini. Introduced in 2017, it revolutionized how AI processes information. The same architecture is used for training on massive datasets and for inference to generate outputs. Here we use GPT-2 (small), simpler than newer ones but perfect for learning the fundamentals.</p>
+-`,
++		title: "什么是 Transformer",
++		content: "<p><strong>Transformer</strong> 是现代语言模型常用的架构。它在 2017 年提出，既用于大规模数据训练，也用于生成文本。本实验使用 GPT-2 small，展示它在推理时如何处理输入。</p>",
+ 		on: () => {},
+ 		out: () => {}
+ 	},
+ 	{
+ 		id: 'how-transformers-work',
+-		title: 'How Transformers Work?',
+-		content: `<p>Transformers aren't magic—they build text step by step by asking:</p>
+-	<blockquote class="question">
+-		"What is the most probable next word that will follow this input?"
+-	</blockquote>
+-	<p>Here we explore how a trained model generates text. Write your own text or use an example, then click <strong>Generate</strong> to see it in action. If the model isn’t ready yet, try another <strong>Example</strong>.</p>`,
++		title: "Transformer 怎样生成文本",
++		content: "<p>模型每一步都会回答一个问题。</p><blockquote class=\"question\">给定这些输入，下一个词元最可能是什么？</blockquote><p>输入短句或选择例句，点击<strong>生成</strong>查看计算过程。模型加载期间可以切换<strong>例句</strong>，查看上游预计算结果。</p>",
+ 		on: () => {
+ 			highlightElements(['.input-form']);
+ 			if (get(isFetchingModel)) {
+@@ -77,9 +72,9 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'transformer-architecture',
+-		title: 'Transformer Architecture',
++		title: "Transformer 的结构",
+ 		content:
+-			'<p>Transformer has three main parts:</p><div class="numbered-list"><div class="numbered-item"><span class="number-circle">1</span><div class="item-content"><strong>Embeddings</strong> turn text into numbers.</div></div><div class="numbered-item"><span class="number-circle">2</span><div class="item-content"><strong>Transformer blocks</strong> mix information with Self-Attention and refine it with an MLP.</div></div><div class="numbered-item"><span class="number-circle">3</span><div class="item-content"><strong>Probabilities</strong> determine the likelihood of each next token.</div></div></div>',
++			"<p>网络包括三个主要部分。</p><ol><li><strong>嵌入</strong>将文本表示为数字向量。</li><li><strong>Transformer 块</strong>通过自注意力汇集信息，再由 MLP 处理每个词元的表示。</li><li><strong>输出概率</strong>表示各个候选词元出现在下一位置的可能性。</li></ol>",
+ 		on: () => {
+ 			const selectors = [
+ 				'.step.embedding',
+@@ -103,8 +98,8 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'embedding',
+-		title: 'Embedding',
+-		content: `<p>Before a Transformer can use text, it first breaks it into small units and represents each as a list of numbers (vector). This process is called <strong>embedding</strong>, and the term can refer to both the process and the resulting vector.</p><p>In this tool, each vector appears as a rectangle, and hovering over it shows its size.</p>`,
++		title: "嵌入 Embedding",
++		content: "<p>模型先把文本分成小单元，再把每个单元表示为一列数字，也就是向量。这个过程和得到的向量都称为<strong>嵌入</strong>。</p><p>图中的矩形代表向量。将指针移到矩形上可查看其维度。</p>",
+ 		on: () => {
+ 			highlightElements(['.step.embedding .title']);
+ 		},
+@@ -124,8 +119,8 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'token-embedding',
+-		title: 'Token Embedding',
+-		content: `<p><strong>Tokenization</strong> splits input text into tokens—small units like words or parts of words. GPT-2 (small) has 50,257 token vocabulary, each with a unique ID.</p><p>In the <strong>token embedding</strong> step, every token is matched to a 768-number vector from a large lookup table. These vectors are learned during training to best represent each token’s meaning.</p>`,
++		title: "词元嵌入",
++		content: "<p><strong>分词</strong>把输入拆成词元，一个词元可能是完整单词，也可能是单词的一部分。GPT-2 有 50,257 个词元，每个都有唯一编号。</p><p>模型根据编号查表，得到包含 768 个数的<strong>词元嵌入</strong>。这些数在模型训练时学习得到。</p>",
+ 		on: function () {
+ 			const selectors = [
+ 				'.token-column .column.token-string',
+@@ -155,8 +150,8 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'positional-encoding',
+-		title: 'Positional Encoding',
+-		content: `<p>Word order matters in language. <strong>Positional encoding</strong> gives each token information about its place in the sequence.</p><p>GPT-2 does this by adding a learned positional embedding to the token's embedding, but newer models may use other methods, like RoPE, which encodes position by rotating certain vectors. All aim to help the model understand order in text.</p>`,
++		title: "位置编码",
++		content: "<p>词语顺序会影响含义。<strong>位置编码</strong>提供词元在序列中的位置信息。</p><p>GPT-2 将学习得到的位置向量加到词元嵌入上。其他模型可能使用 RoPE 等方法，通过旋转向量来表示位置。</p>",
+ 		on: function () {
+ 			const selectors = [
+ 				'.token-column .column.position-embedding',
+@@ -186,8 +181,8 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'blocks',
+-		title: 'Repetitive Transformer Blocks',
+-		content: `<p>A <strong>Transformer block</strong> is the main unit of processing in the model. It has two parts:</p><ul><li><strong>Multi-head self-attention</strong> – lets tokens share information</li><li><strong>MLP</strong> – refines each token's details</li></ul><p>Models stack many blocks so token representations become richer as they pass through. GPT-2 (small) has 12 of them.</p>`,
++		title: "重复的 Transformer 块",
++		content: "<p>每个<strong>Transformer 块</strong>包含两部分。</p><ul><li><strong>多头自注意力</strong>让词元交换信息。</li><li><strong>MLP</strong>进一步处理每个词元的表示。</li></ul><p>模型把多个块依次堆叠，逐层处理上下文。GPT-2 small 包含 12 个块。</p>",
+ 		on: function () {
+ 			this.timeoutId = setTimeout(
+ 				() => {
+@@ -230,9 +225,9 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'self-attention',
+-		title: 'Multi-Head Self Attention',
++		title: "多头自注意力",
+ 		content:
+-			'<p><strong>Self-attention</strong> lets the model decide which parts of the input are most relevant to each token. This helps it capture meaning and relationships, even between far-apart words.</p><p>In <strong>multi-head</strong> form, the model runs several attention processes in parallel, each focusing on different patterns in the text.</p>',
++			"<p><strong>自注意力</strong>计算输入中哪些位置与当前词元更相关。它可以捕捉相距较远的词语之间的关系。</p><p><strong>多头</strong>表示同时进行多组注意力计算。各组可以学习不同的文本模式。</p>",
+ 		on: () => {
+ 			highlightElements(['.step.attention']);
+ 		},
+@@ -242,17 +237,8 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'qkv',
+-		title: 'Query, Key, Value',
+-		content: `
+-	<p>To perform self-attention, each token's embedding is transformed into 
+-  <span class="highlight">three new embeddings</span>—
+-  <span class="blue">Query</span>,  
+-  <span class="red">Key</span>, and  
+-  <span class="green">Value</span>.
+-  This transformation is done by applying different weights and biases to each token embedding. These parameters (weights and biases), are optimized through training.</p>
+-
+-<p>Once created, <span class="blue">Queries</span> compare with <span class="red">Keys</span> to measure relevance, and this relevance is used to weight the <span class="green">Values</span>.</p>
+-`,
++		title: "查询、键和值",
++		content: "<p>模型使用不同的权重和偏置，把每个词元的表示变换成三个向量，分别是<span class=\"blue\">查询 Q</span>、<span class=\"red\">键 K</span>和<span class=\"green\">值 V</span>。这些参数在训练时学习得到。</p><p><span class=\"blue\">查询</span>与<span class=\"red\">键</span>比较相关程度，再用得到的权重汇总<span class=\"green\">值</span>。</p>",
+ 		on: function () {
+ 			this.timeoutId = setTimeout(
+ 				() => {
+@@ -283,9 +269,9 @@ export const textPages: TextbookPage[] = [
+ 
+ 	{
+ 		id: 'multi-head',
+-		title: 'Multi-head',
++		title: "多头计算",
+ 		content:
+-			'<p>After creating <span class="blue">Q</span>, <span class="red">K</span>, and <span class="green">V</span> embeddings, the model splits them into several <strong>heads</strong> (12 in GPT-2 small). Each head works with its own smaller set of <span class="blue">Q</span>/<span class="red">K</span>/<span class="green">V</span>, focusing on different patterns in the text—like grammar, meaning, or long-range links.</p><p>Multiple heads let the model learn many kinds of relationships in parallel, making its understanding richer.</p>',
++			"<p>Q、K、V 向量会被拆成多个<strong>注意力头</strong>。GPT-2 small 有 12 个头，每个头处理各自较小的向量。</p><p>多个头并行学习不同关系，例如局部语法和较远位置的联系。各个头的作用由训练决定。</p>",
+ 		on: () => {
+ 			highlightAttentionPath();
+ 			highlightElements(['.multi-head .head-title']);
+@@ -307,8 +293,8 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'masked-self-attention',
+-		title: 'Masked Self Attention',
+-		content: `<p>In each head, the model decides how much each token focuses on others:</p><ul><li><strong>Dot Product</strong> – Multiply matching numbers in <span class="blue">Query</span>/<span class="red">Key</span> vectors, sum to get <span class="purple">attention scores</span>.</li><li><strong>Mask</strong> – Hide future tokens so it can't peek ahead.</li><li><strong>Softmax</strong> – Convert scores to probabilities, each row summing to 1, showing focus on earlier tokens.</li></ul>`,
++		title: "带掩码的自注意力",
++		content: "<ul><li><strong>点积</strong>将 Q 与 K 对应位置的数相乘再求和，并按维度缩放，得到注意力分数。</li><li><strong>掩码</strong>遮住后续词元，避免模型提前看到未来输入。</li><li><strong>Softmax</strong>把分数变成每行总和为 1 的权重，用来汇总当前及之前位置的信息。</li></ul>",
+ 		on: () => {
+ 			highlightAttentionPath();
+ 			highlightElements(['.attention-matrix.attention-result']);
+@@ -331,9 +317,9 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'output-concatenation',
+-		title: 'Attention Output & Concatenation',
++		title: "注意力输出与拼接",
+ 		content:
+-			'<p>Each head <span class="highlight">multiplies its <span class="purple">attention scores</span> with the <span class="green">Value</span> embeddings to produce its attention output</span>—a refined representation of each token after considering context.</p><p>GPT-2 (small) has 12 such outputs, which are concatenated to form a single vector of the original size (768 numbers).</p>',
++			"<p>每个注意力头用<span class=\"purple\">注意力权重</span>加权汇总<span class=\"green\">V 向量</span>，得到包含上下文信息的新表示。</p><p>GPT-2 small 将 12 个头的输出拼接起来，恢复为包含 768 个数的向量。</p>",
+ 		on: function () {
+ 			this.timeoutId = setTimeout(
+ 				() => {
+@@ -363,9 +349,9 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'mlp',
+-		title: 'MLP (Multi-Layer Perceptron)',
++		title: "多层感知机 MLP",
+ 		content:
+-			'<p>The attention output goes through an <strong>MLP</strong> to refine token representations. A Linear layer changes embedding values and size using learned weights and bias, then a non-linear activation decides how much each value passes.</p><p>Many activation types exist; GPT-2 uses <strong>GELU</strong>, which lets small values pass partially and large values pass fully, helping capture both subtle and strong patterns.</p>',
++			"<p><strong>MLP</strong>进一步处理每个词元。线性层用学习到的权重和偏置改变向量的数值与维度，非线性激活再改变各个分量。</p><p>GPT-2 使用 <strong>GELU</strong> 激活函数，对输入进行平滑的非线性变换，让网络能表达更复杂的模式。</p>",
+ 		on: () => {
+ 			highlightElements(['.step.mlp', '.operation-col.activation']);
+ 		},
+@@ -376,8 +362,8 @@ export const textPages: TextbookPage[] = [
+ 
+ 	{
+ 		id: 'output-logit',
+-		title: 'Output Logit',
+-		content: `<p>After all Transformer blocks, the last token's output embedding, enriched with context from all previous tokens, is multiplied by learned weights in a final layer.</p><p>This produces <strong>logits</strong>, 50,257 numbers—one for each token in GPT-2’s vocabulary—that indicate how likely each token is to come next.</p>`,
++		title: "输出分数 Logit",
++		content: "<p>经过全部 Transformer 块后，最后一个词元的表示包含前文信息。模型将它送入最终线性层。</p><p>结果是 50,257 个<strong>原始分数 logits</strong>，分别对应词表中的候选词元。这些分数还不是概率。</p>",
+ 		on: () => {
+ 			highlightElements(['g.path-group.softmax', '.column.final']);
+ 		},
+@@ -398,9 +384,9 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'output-probabilities',
+-		title: 'Probabilities',
++		title: "输出概率",
+ 		content:
+-			'<p>Logits are just raw scores. To make them easier to interpret, we convert them into <strong>probabilities</strong> between 0 and 1, where all add up to 1. This tells us the likelihood of each token being the next word.</p><p>Instead of always picking the highest-probability token, we can use different selection strategies to balance safety and creativity in the generated text.</p>',
++			"<p>Softmax 将分数转为 0 到 1 之间、总和为 1 的<strong>概率</strong>，表示下一个词元的可能性。</p><p>生成时可以选择概率最高的词元，也可以按采样策略随机选择。不同策略会改变输出的多样性。</p>",
+ 		on: () => {
+ 			highlightElements(['.step.softmax .title']);
+ 		},
+@@ -420,9 +406,9 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'temperature',
+-		title: 'Temperature',
++		title: "温度",
+ 		content:
+-			'<p><strong>Temperature</strong> works by scaling the logits before turning them into probabilities. A <strong>low temperature</strong> (e.g., 0.2) makes large logits even larger and small ones smaller, favoring the highest-scoring tokens and leading to more <strong>predictable choices</strong>. A <strong>high temperature</strong> (e.g., 1.0 or above) flattens the differences, making less likely tokens more competitive and leading to more <strong>creative outputs</strong>.</p>',
++			"<p>计算概率前，先将 logits 除以<strong>温度</strong>。较低的温度会放大分数之间的相对差异，让概率更集中。较高的温度会减小差异，让更多候选有机会被选中。</p><p>温度改变采样分布，不改变已经训练好的模型权重。</p>",
+ 		on: function () {
+ 			if (get(expandedBlock).id !== 'softmax') {
+ 				expandedBlock.set({ id: 'softmax' });
+@@ -470,9 +456,9 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'sampling',
+-		title: 'Sampling Strategy',
++		title: "采样策略",
+ 		content:
+-			'<p>Finally, we need a strategy to pick the next token. Many exist, but here are common ones: Greedy search picks the top one. <strong>Top-k</strong> keeps only the k most likely tokens, and <strong>top-p</strong> keeps the smallest set whose total probability is at least p—trimming unlikely ones early.</p><p>Then softmax turns the remaining logits into probabilities, and one token is picked at random from the allowed set.</p>',
++			"<p>贪心选择总是取最高分词元。<strong>Top-k</strong>只保留概率最高的 k 个候选。<strong>Top-p</strong>保留累计概率达到 p 的最小候选集合。</p><p>在保留的集合内重新归一化概率，再随机选出下一个词元。本页可切换 Top-k 和 Top-p。</p>",
+ 		on: function () {
+ 			if (get(expandedBlock).id !== 'softmax') {
+ 				expandedBlock.set({ id: 'softmax' });
+@@ -520,8 +506,8 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'residual',
+-		title: 'Residual Connection',
+-		content: `<p>Transformers have auxiliary features that enhance the model performance. For example, a <strong>residual connection</strong> adds a layer's input to its output, keeping information from fading through many blocks. In GPT-2, it's used twice per block to train deeper stacks effectively.</p>`,
++		title: "残差连接",
++		content: "<p><strong>残差连接</strong>把一层的输入加到该层输出上，帮助信息通过多层网络，也有利于深层网络训练。</p><p>GPT-2 的每个块在注意力和 MLP 两处使用残差连接。</p>",
+ 		on: function () {
+ 			this.timeoutId = setTimeout(
+ 				() => {
+@@ -542,8 +528,8 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'layer-normalization',
+-		title: 'Layer Normalization',
+-		content: `<p><strong>Layer Normalization</strong> helps stabilize both training and inference by adjusting input numbers so their mean and variance stay consistent. This makes the model less sensitive to its starting weights and helps it learn more effectively. In GPT-2, it's applied before self-attention, before the MLP, and once more before the final output.</p>`,
++		title: "层归一化",
++		content: "<p><strong>层归一化</strong>对同一词元向量的均值和方差进行归一化，再应用学习得到的缩放和平移，让计算更稳定。</p><p>GPT-2 在自注意力之前、MLP 之前和最终输出之前使用它。</p>",
+ 		on: () => {
+ 			highlightElements(['.operation-col.ln']);
+ 		},
+@@ -553,8 +539,8 @@ export const textPages: TextbookPage[] = [
+ 	},
+ 	{
+ 		id: 'dropout',
+-		title: 'Dropout',
+-		content: `<p>During training, <strong>dropout</strong> randomly turns off some connections between numbers so the model doesn't overfit to specific patterns. This helps it learn features that generalize better. GPT-2 uses it, but newer LLMs often skip it because they train on huge datasets and overfitting is less of a problem. In inference, dropout is turned off.</p>`,
++		title: "随机失活 Dropout",
++		content: "<p>训练时，<strong>Dropout</strong>随机屏蔽部分数值，减少模型对特定模式的过度依赖。</p><p>本实验运行的是推理阶段，Dropout 关闭。图中保留这一结构，便于理解原模型。</p>",
+ 		on: () => {
+ 			highlightElements(['.operation-col.dropout']);
+ 		},
+diff --git a/svelte.config.js b/svelte.config.js
+index 5dd4952..86a4db3 100644
+--- a/svelte.config.js
++++ b/svelte.config.js
+@@ -27,7 +27,7 @@ const config = {
+ 			'~': './src'
+ 		},
+ 		paths: {
+-			base: process.env.NODE_ENV === 'production' ? '/transformer-explainer' : ''
++			base: '/experiments/transformer'
+ 		}
+ 	}
+ };
+diff --git a/vite.config.ts b/vite.config.ts
+index 9455ad0..b7e3835 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -6,6 +6,7 @@ export default defineConfig({
+ 	css: {
+ 		preprocessorOptions: {
+ 			scss: {
++				loadPaths: [process.cwd()],
+ 				additionalData: `@import 'src/styles/variables.scss';`
+ 			}
+ 		}

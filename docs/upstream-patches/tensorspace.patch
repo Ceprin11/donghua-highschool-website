@@ -1,0 +1,398 @@
+diff --git a/.gitignore b/.gitignore
+index 75db5a1..4baa3be 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -2,4 +2,5 @@ node_modules/
+ package-lock.json
+ .idea/
+ build/
+-dist/
++/dist/*
++!/dist/tensorspace.js
+diff --git a/examples/lenet/lenet.html b/examples/lenet/lenet.html
+index 081ae54..62745a0 100644
+--- a/examples/lenet/lenet.html
++++ b/examples/lenet/lenet.html
+@@ -1,7 +1,7 @@
+ <!DOCTYPE html>
+-<html lang="en">
++<html lang="zh-CN">
+     <head>
+-        <meta charset="UTF-8">
++        <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+         <title>TensorSpace - LeNet Demo</title>
+         <meta name="author" content="syt123450 / https://github.com/syt123450">
+         <meta name="author" content="zchholmes / https://github.com/zchholmes">
+@@ -69,7 +69,7 @@
+                 border: 1px solid #000;
+             }
+ 
+-        </style>
++        #signature-pad{touch-action:none} @media(max-width:700px){#controlPanel{position:relative;width:100%;height:500px}#container{width:100%;height:650px}} </style>
+     </head>
+     <body>
+ 
+@@ -77,7 +77,7 @@
+             <div class="wrapper">
+                 <canvas id="signature-pad" class="signature-pad" width=224 height=224></canvas>
+             </div>
+-            <div id="clear">clear</div>
++            <div id="clear">清空画布</div><button id="reset-view" style="position:absolute;top:380px;left:38px;padding:12px">重置视角</button><p id="prediction" role="status" style="position:absolute;top:435px;left:38px;color:#b9dbe6">正在读取模型</p>
+         </div>
+ 
+         <div id="container"></div>
+@@ -89,7 +89,7 @@
+         <script src="../lib/TrackballControls.js"></script>
+         <script src="../lib/tf.min.js"></script>
+         <script src="../lib/signature_pad.min.js"></script>
+-        <script src="../../dist/tensorspace.js"></script>
++        <script src="../../dist/tensorspace.js"></script><script src="../lib/lifecycle.js"></script>
+ 
+         <script>
+ 
+@@ -103,6 +103,7 @@
+             } );
+ 
+             function getImage() {
++ if (!model.isInitialized) return;
+ 
+                 let canvas = document.getElementById( "signature-pad" );
+                 let context = canvas.getContext( '2d' );
+@@ -120,7 +121,7 @@
+ 
+                 }
+ 
+-                model.predict( signatureData );
++                model.predict(signatureData, scores => { const values = Array.from(scores); const best = values.indexOf(Math.max(...values)); document.getElementById('prediction').textContent = '预测 ' + best + ' · ' + (values[best]*100).toFixed(1) + '%'; });
+ 
+             }
+ 
+@@ -129,7 +130,7 @@
+                 $( "#clear" ).click( function() {
+ 
+                     signaturePad.clear();
+-                    model.clear();
++                    model.clear(); document.getElementById('prediction').textContent = '请写下一个数字';
+ 
+                 } );
+ 
+@@ -143,7 +144,7 @@
+ 
+             let model = new TSP.models.Sequential( modelContainer, {
+ 
+-                animeTime: 200,
++                animeTime: matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 200,
+                 stats: true
+ 
+             } );
+@@ -177,7 +178,9 @@
+ 
+             } );
+ 
+-            model.init();
++            model.init(() => { document.getElementById('prediction').textContent = '请写下一个数字'; });
++ document.getElementById('reset-view').onclick = () => model.modelRenderer.reset();
++ window.addEventListener('pagehide', () => disposeTensorSpace(model));
+ 
+         </script>
+     </body>
+diff --git a/examples/trainingLeNet/data/mnist_data.js b/examples/trainingLeNet/data/mnist_data.js
+index cdb3fed..a63b1af 100644
+--- a/examples/trainingLeNet/data/mnist_data.js
++++ b/examples/trainingLeNet/data/mnist_data.js
+@@ -63,7 +63,8 @@ class MnistData {
+ 
+ 			};
+ 
+-			img.src = MNIST_IMAGES_SPRITE_PATH;
++			img.onerror = () => reject(new Error('MNIST 图像无法加载'));
++ img.src = MNIST_IMAGES_SPRITE_PATH;
+ 
+ 		} );
+ 
+@@ -95,15 +96,16 @@ class MnistData {
+ 			dataItems.push([imageArray, labelArray]);
+ 		}
+ 
+-		let dataset = tf.data.array(dataItems).map(([arrayImage, label])=> {
++		this.testItems = dataItems.slice(NUM_TRAIN_ELEMENTS);
++ const makeDataset = items => tf.data.array(items).map(([arrayImage, label])=> {
+ 			return {
+ 				xs: tf.tensor(arrayImage, [28, 28, 1]),
+ 				ys: tf.tensor(label)
+ 			};
+ 		}).shuffle(10);
+ 
+-		this.trainDataset = dataset.take(NUM_TRAIN_ELEMENTS);
+-		this.testDataset = dataset.skip(NUM_TRAIN_ELEMENTS).take(NUM_TEST_ELEMENTS);
++		this.trainDataset = makeDataset(dataItems.slice(0, NUM_TRAIN_ELEMENTS));
++		this.testDataset = makeDataset(this.testItems);
+ 
+ 	}
+ 
+diff --git a/examples/trainingLeNet/trainingLeNet.html b/examples/trainingLeNet/trainingLeNet.html
+index b77c7d6..74a70dc 100644
+--- a/examples/trainingLeNet/trainingLeNet.html
++++ b/examples/trainingLeNet/trainingLeNet.html
+@@ -1,7 +1,7 @@
+ <!DOCTYPE html>
+-<html lang="en">
++<html lang="zh-CN">
+ <head>
+-    <meta charset="UTF-8">
++    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+     <title>TensorSpace - Training LeNet</title>
+     <meta name="author" content="syt123450 / https://github.com/syt123450">
+     <meta name="description" content="Demo to show how to use TensorSpace to show training process">
+@@ -29,247 +29,14 @@
+             height: 100%;
+         }
+ 
+-    </style>
++    .training-controls{position:absolute;z-index:10;right:18px;top:18px;width:290px;background:#04242e;color:#b9dbe6;padding:18px;border:1px solid #6797ae;font:14px/1.6 sans-serif}button{cursor:pointer;background:#0c3948;color:#d5eef4;border:1px solid #6797ae;padding:9px;margin:3px}button:disabled{opacity:.5;cursor:default}#test-image{width:84px;height:84px;image-rendering:pixelated;vertical-align:middle;margin-right:12px}@media(max-width:700px){.training-controls{position:relative;box-sizing:border-box;width:100%;top:0;right:0}#container{height:650px}} </style>
+ 
+ </head>
+ <body>
+ 
+-<div id="container"></div>
++<div class="training-controls"><button id="start" disabled>开始训练</button><button id="stop" disabled>停止</button><button id="reset">重置网络</button><button id="sample" disabled>下一张测试图</button><button id="camera">重置视角</button><p id="status" role="status">正在读取 MNIST 数据</p><p id="metrics">训练集损失与准确率将在训练后显示</p><canvas id="test-image" width="28" height="28"></canvas><span id="test-label"></span></div><div id="container"></div>
+ 
+-<script>
+-
+-    // predict data "5"
+-    let data5;
+-    // Mnist data set;
+-    let data;
+-
+-	let [ tfjsLoadModel, tfjsTrainingModel ] = constructorTfjsModel();
+-    let tspModel = constructorTspModel();
+-
+-	tspModel.load( {
+-
+-		type: "live",
+-		modelHandler: tfjsLoadModel
+-
+-	} );
+-
+-	tspModel.init( function() {
+-
+-		$.ajax( {
+-
+-			url: "./data/5.json",
+-			type: 'GET',
+-			async: true,
+-			dataType: 'json',
+-			success: function ( data ) {
+-
+-                data5 = data;
+-				loadAndTrain();
+-
+-			}
+-
+-		} );
+-
+-
+-	} );
+-
+-	async function loadAndTrain() {
+-
+-		await load();
+-		await train();
+-
+-	}
+-
+-	function constructorTfjsModel() {
+-
+-		let input = tf.input( {
+-
+-			shape: [ 28, 28, 1 ],
+-			name: "mnistInput"
+-		} );
+-
+-		let padding2d = tf.layers.zeroPadding2d( {
+-
+-			padding: [ 2, 2 ],
+-			name: "myPadding"
+-		} );
+-
+-		let conv1 = tf.layers.conv2d( {
+-
+-			kernelSize: 5,
+-			filters: 6,
+-			strides: 1,
+-			activation: 'relu',
+-			kernelInitializer: 'VarianceScaling',
+-			name: "myConv1"
+-
+-		} );
+-
+-		let maxPool1 = tf.layers.maxPooling2d( {
+-
+-			poolSize: [ 2, 2 ],
+-			strides: [ 2, 2 ],
+-			name: "myMaxPooling1"
+-		} );
+-
+-		let conv2 = tf.layers.conv2d( {
+-
+-			kernelSize: 5,
+-			filters: 16,
+-			strides: 1,
+-			activation: 'relu',
+-			kernelInitializer: 'VarianceScaling',
+-			name: "myConv2"
+-
+-		} );
+-
+-		let maxPool2 = tf.layers.maxPooling2d( {
+-
+-			poolSize: [ 2, 2 ],
+-			strides: [ 2, 2 ],
+-			name: "myMaxPooling2"
+-
+-		} );
+-
+-		let flatten = tf.layers.flatten( {
+-
+-			name: "myFlatten"
+-
+-		} );
+-
+-		let dense1 = tf.layers.dense( {
+-
+-			units: 120,
+-			kernelInitializer: 'VarianceScaling',
+-			activation: 'relu',
+-			name: "myDense1"
+-
+-		} );
+-
+-		let dense2 = tf.layers.dense( {
+-
+-			units: 84,
+-			kernelInitializer: 'VarianceScaling',
+-			activation: 'relu',
+-			name: "myDense2"
+-
+-		} );
+-
+-		let dense3 = tf.layers.dense( {
+-
+-			units: 10,
+-			kernelInitializer: 'VarianceScaling',
+-			activation: 'softmax',
+-			name: "myDense3"
+-
+-		} );
+-
+-		let paddingOutput = padding2d.apply( input );
+-		let conv1Output = conv1.apply( paddingOutput );
+-		let maxPool1Output = maxPool1.apply( conv1Output );
+-		let conv2Output = conv2.apply( maxPool1Output );
+-		let maxPool2Output = maxPool2.apply( conv2Output );
+-		let flattenOutput = flatten.apply( maxPool2Output );
+-		let dense1Output = dense1.apply( flattenOutput );
+-		let dense2Output = dense2.apply( dense1Output );
+-		let dense3Output = dense3.apply( dense2Output );
+-
+-		let tfjsLoadModel = tf.model( {
+-
+-			inputs: input,
+-			outputs: [ paddingOutput, conv1Output, maxPool1Output, conv2Output, maxPool2Output, dense1Output, dense2Output, dense3Output ]
+-
+-		} );
+-
+-		let tfjsTrainingModel = tf.model( {
+-
+-			inputs: input,
+-			outputs: dense3Output
+-
+-		} );
+-
+-		tfjsTrainingModel.compile( {
+-
+-			optimizer: tf.train.adam( 0.0001 ),
+-			loss: 'categoricalCrossentropy',
+-			metrics: [ 'accuracy' ],
+-
+-		} );
+-
+-		return [ tfjsLoadModel, tfjsTrainingModel ];
+-
+-    }
+-
+-    function constructorTspModel() {
+-
+-		let modelContainer = document.getElementById( "container" );
+-
+-		let tspModel = new TSP.models.Sequential( modelContainer, {
+-
+-            animeTime: 200,
+-			stats: true
+-
+-		} );
+-
+-		tspModel.add( new TSP.layers.GreyscaleInput() );
+-
+-		tspModel.add( new TSP.layers.Padding2d( ) );
+-
+-		tspModel.add( new TSP.layers.Conv2d( {
+-
+-			initStatus: "open"
+-
+-		} ) );
+-
+-		tspModel.add( new TSP.layers.Pooling2d() );
+-
+-		tspModel.add( new TSP.layers.Conv2d() );
+-
+-		tspModel.add( new TSP.layers.Pooling2d() );
+-
+-		tspModel.add( new TSP.layers.Dense() );
+-
+-		tspModel.add( new TSP.layers.Dense() );
+-
+-		tspModel.add( new TSP.layers.Output1d( {
+-
+-			outputs: [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ],
+-			initStatus: "open"
+-
+-		} ) );
+-
+-		return tspModel;
+-
+-    }
+-
+-	async function load() {
+-
+-		data = new MnistData();
+-		await data.load();
+-
+-	}
+-
+-	async function train() {
+-
+-		const TRAIN_BATCH_SIZE = 10;
+-		const BATCH_PER_EPOCH = 10;
+-		const TRAIN_EPOCHS = 100;
+-
+-		await tfjsTrainingModel.fitDataset(data.trainDataset.batch(TRAIN_BATCH_SIZE), {
+-			batchesPerEpoch: BATCH_PER_EPOCH,
+-			epochs: TRAIN_EPOCHS,
+-			callbacks: {
+-                onEpochEnd: async (epoch, logs) => {
+-					const accuracy = logs[ 'acc' ];
+-					console.log( accuracy );
+-					tspModel.predict( data5 );
+-                }
+-			}
+-		});
+-
+-	}
+-
+-</script>
++<script src="./training.js"></script>
+ 
+ </body>
+ </html>
+\ No newline at end of file

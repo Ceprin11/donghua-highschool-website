@@ -1,40 +1,10 @@
-import * as React from "react"
-import { useSize } from "../../hooks/use-size"
-import { cn } from "../../lib/utils"
-import { DEFAULT_TRANSFORM_WIDTH, getImagePreviewClassName } from "./image-helpers"
+import { useCallback, useState } from "react";
 
-export function useResponsiveImage({ parsed, fittingType, focalPoint, quality, className, onLoad, onSourceChange }, parentRef) {
-  const wrapperRef = React.useRef(null)
-  const imgRef = React.useRef(null)
-  const size = useSize(wrapperRef)
-  const [loaded, setLoaded] = React.useState(false)
+let nextId = 1;
+const listeners = new Set();
+let currentToasts = [];
 
-  React.useImperativeHandle(parentRef, () => imgRef.current)
-  React.useEffect(() => setLoaded(false), [parsed.baseUrl])
-  React.useEffect(() => {
-    const wrapper = wrapperRef.current
-    const replace = (event) => onSourceChange(
-      event.detail.src, getImagePreviewClassName(className, wrapper.className, cn("inline-block relative", className))
-    )
-    wrapper.addEventListener("base44:image-replace", replace)
-    return () => wrapper.removeEventListener("base44:image-replace", replace)
-  }, [className, onSourceChange])
-
-  const crop = fittingType !== "fit"
-  // Wait for useSize's pre-paint measurement before requesting a transform.
-  const options = size && {
-    width: size.width || DEFAULT_TRANSFORM_WIDTH,
-    height: size.height || undefined,
-    crop,
-    focalPoint: crop ? focalPoint : undefined,
-    quality,
-  }
-
-  return {
-    wrapperRef, imgRef, loaded, options,
-    handleLoad: (event) => {
-      setLoaded(true)
-      onLoad?.(event)
-    },
-  }
-}
+function emit() { listeners.forEach((listener) => listener(currentToasts)); }
+export function toast(input) { const item = { id: String(nextId++), ...(typeof input === "string" ? { description: input } : input) }; currentToasts = [...currentToasts, item]; emit(); return { id: item.id, dismiss: () => dismiss(item.id) }; }
+export function dismiss(id) { currentToasts = id ? currentToasts.filter((item) => item.id !== id) : []; emit(); }
+export function useToast() { const [toasts, setToasts] = useState(currentToasts); const subscribe = useCallback((listener) => { listeners.add(listener); return () => listeners.delete(listener); }, []); useState(() => subscribe(setToasts)); return { toasts, toast, dismiss }; }

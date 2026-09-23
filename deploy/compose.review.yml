@@ -1,0 +1,22 @@
+name: donghua-ai
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATA_DIR: /data
+      PUBLIC_ORIGIN: http://118.89.188.169
+    ports:
+      - "80:3001"
+    volumes:
+      - ../../data:/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

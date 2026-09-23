@@ -1,199 +1,85 @@
-import React, { useState, useEffect } from "react";
+import { labRoute, topLevelLab } from '../../shared/lab-registry.js';
+import React, { useState } from "react";
+import { ArrowRight, ArrowUpRight, BrainCircuit, ScanLine, Sparkles, Route, Plus, Minus } from "lucide-react";
 import { Link, useOutletContext } from "react-router-dom";
-import { ArrowRight, FlaskConical, Sparkles, BookOpen } from "lucide-react";
-import SectionHeading from "@/components/site/SectionHeading";
-import PlaceholderImage from "@/components/site/PlaceholderImage";
-import { Image } from "@/components/ui/image";
+import Reveal from "@/components/site/Reveal";
+import TopicVisual from "@/components/site/TopicVisual";
 import TeacherCard from "@/components/site/TeacherCard";
-import { getCourseThemes, getExperiments, getTeacherProfile, getStudentWorks, getTeachingActivities } from "@/services/contentService";
+import NeuralPreview from "@/components/site/NeuralPreview";
+import { AssetImage } from "@/components/site/Media";
+import { EmptyState, ErrorState, LoadingState } from "@/components/site/States";
+import { useContent } from "@/hooks/useContent";
+import { getCourseThemes, getExperiments, getStudentWorks, getTeacherProfile, getTeachingActivities } from "@/services/contentService";
+import "@/styles/home.css";
+
+/** @type {import("../services/contentService").SiteSettings} */
+const FALLBACK_SETTINGS = { hero_title: "人工智能课程，互动实验室", hero_description: "", section_visibility: { themes: true, teacher: true, experiments: true, works: true, activities: true } };
+const ICONS = { neural: BrainCircuit, cv: ScanLine, transformer: Sparkles, maze: Route };
+const QUESTIONS = ["机器是怎样学会分类的？", "计算机看到的世界是什么样？", "AI 为什么会给出不同的回答？", "机器人如何学会下一步行动？"];
+const TOPIC_INDEX = { "intro-ai": 0, "computer-vision": 1, "generative-ai": 2, "embodied-intelligence": 3 };
 
 export default function Home() {
-  const { settings } = useOutletContext();
-  const [themes, setThemes] = useState([]);
-  const [experiments, setExperiments] = useState([]);
-  const [teacher, setTeacher] = useState(null);
-  const [works, setWorks] = useState([]);
-  const [activities, setActivities] = useState([]);
+  const { settings: loadedSettings, settingsError } = /** @type {{settings: import("../services/contentService").SiteSettings | null, settingsError: Error | null}} */ (useOutletContext());
+  const settings = loadedSettings || FALLBACK_SETTINGS;
+  const themes = useContent(getCourseThemes);
+  const experiments = useContent(getExperiments);
+  const teacher = useContent(getTeacherProfile);
+  const works = useContent(getStudentWorks);
+  const activities = useContent(getTeachingActivities);
+  const [activeTheme, setActiveTheme] = useState(0);
+  const visible = { ...FALLBACK_SETTINGS.section_visibility, ...settings.section_visibility };
+  const featuredExperiments = (experiments.data || []).filter(topLevelLab).filter(item => settings.featured_experiment_slugs?.includes(item.slug) || item.featured);
+  const displayedExperiments = (featuredExperiments.length ? featuredExperiments : experiments.data?.filter(topLevelLab) || []).slice(0, 4);
+  const featuredWorks = (works.data || []).filter(item => settings.featured_work_slugs?.includes(item.slug) || item.featured);
+  const displayedWorks = (featuredWorks.length ? featuredWorks : works.data || []).slice(0, 3);
+  const neuralReady = (experiments.data || []).some(item => item.engine_key === "neural" && item.runtime_status === "ready");
+  const hasHeroImage = Boolean(settings.hero_media_asset_id || settings.hero_media_url);
+  const visualIndex = TOPIC_INDEX[themes.data?.[activeTheme]?.slug] ?? 0;
+  const titleLines = (settings.hero_title || FALLBACK_SETTINGS.hero_title).split(/[，,]/u);
+  if (settingsError) return <ErrorState error={settingsError} onRetry={() => window.location.reload()} />;
 
-  useEffect(() => {
-    getCourseThemes().then(setThemes).catch(() => {});
-    getExperiments().then(setExperiments).catch(() => {});
-    getTeacherProfile().then(setTeacher).catch(() => {});
-    getStudentWorks().then(setWorks).catch(() => {});
-    getTeachingActivities().then(setActivities).catch(() => {});
-  }, []);
+  return <div className="home-page">
+    <section className="home-hero">
+      <div className="hero-copy">
+        
+        <h1>{titleLines.map((line, index) => <span key={index}>{line}</span>)}</h1>
+        {settings.hero_description && <p className="hero-description">{settings.hero_description}</p>}
+        <div className="hero-actions"><Link to="/labs" className="orange-button">进入实验室 <ArrowUpRight size={19} /></Link>{visible.themes ? <a href="#courses" className="text-button">查看课程 <ArrowRight size={17} /></a> : <Link to="/courses" className="text-button">查看课程 <ArrowRight size={17} /></Link>}</div>
+      </div>
+      <div className="hero-stage">{hasHeroImage ? <AssetImage assetId={settings.hero_media_asset_id} src={settings.hero_media_url} alt="人工智能课程" className="hero-custom-image" aspect="aspect-[16/7]" /> : neuralReady ? <NeuralPreview /> : <div className="hero-static-visual"><TopicVisual index={0} /></div>}</div>
+      <div className="hero-caption"><Link to={neuralReady ? "/labs/neural-network" : "/labs"}>{neuralReady ? "打开完整实验" : "进入实验室"} <ArrowUpRight size={15} /></Link></div>
+    </section>
 
-  const vis = settings?.section_visibility || {};
-  const featuredExps = experiments.filter((e) => settings?.featured_experiment_slugs?.includes(e.slug) || e.featured).slice(0, 5);
-  const featuredWorks = works.filter((w) => settings?.featured_work_slugs?.includes(w.slug) || w.featured).slice(0, 4);
+    {visible.themes && <Reveal className="home-section home-courses" id="courses">
+      <div className="section-topline"><span className="eyebrow">课程介绍</span><Link to="/courses" className="text-button">全部课程 <ArrowUpRight size={17} /></Link></div>
+      <h2>课程主题</h2>
+      
+      {themes.loading ? <LoadingState label="正在读取课程" /> : themes.error ? <ErrorState error={themes.error} onRetry={themes.reload} /> : themes.data?.length ? <div className="course-explorer">
+        <div className="course-visual"><TopicVisual index={visualIndex} /><span className="visual-caption">{["数据 · 学习 · 预测", "像素 · 颜色 · 轮廓", "语言 · 概率 · 生成", "探索 · 奖励 · 行动"][visualIndex]}</span></div>
+        <div className="course-accordion">{themes.data.slice(0, 4).map((theme, index) => <div key={theme.slug} className={`course-topic ${activeTheme === index ? "is-active" : ""}`}>
+          <h3><button type="button" aria-expanded={activeTheme === index} aria-controls={`course-panel-${index}`} onClick={() => setActiveTheme(index)}><span className="topic-number">0{index + 1}</span><span>{theme.title}</span>{activeTheme === index ? <Minus size={18} /> : <Plus size={18} />}</button></h3>
+          <div id={`course-panel-${index}`} hidden={activeTheme !== index} className="course-answer"><p className="course-question">{QUESTIONS[TOPIC_INDEX[theme.slug]]}</p><p>{theme.summary}</p><Link to={`/courses/${theme.slug}`}>了解这个主题 <ArrowRight size={15} /></Link></div>
+        </div>)}</div>
+      </div> : <EmptyState title="课程即将更新" />}
+    </Reveal>}
 
-  return (
-    <div>
-      <section className="mx-auto max-w-[1280px] px-5 md:px-8 py-12 md:py-20">
-        <div className="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
-          <div>
-            <div className="text-sm font-medium text-primary mb-3">东华大学 · 东华大学附属松江高级中学</div>
-            <h1 className="text-3xl md:text-5xl font-bold text-foreground leading-tight" style={{ fontFamily: "var(--font-display)" }}>
-              {settings?.hero_title || "看见人工智能的原理，探索未来世界的可能"}
-            </h1>
-            <p className="mt-5 text-base md:text-lg text-muted-foreground leading-relaxed">
-              {settings?.hero_description || "从认识人工智能，到理解机器如何感知、生成与行动。通过课程讲解与互动实验，让抽象的 AI 知识变得可观察、可尝试。"}
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link to="/courses" className="inline-flex items-center gap-1.5 px-5 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90">
-                了解课程 <ArrowRight size={16} />
-              </Link>
-              <Link to="/labs" className="inline-flex items-center gap-1.5 px-5 py-3 rounded-lg border border-border text-sm font-medium hover:bg-accent">
-                <FlaskConical size={16} /> 进入互动实验室
-              </Link>
-            </div>
-          </div>
-          <div className="relative">
-            <NeuralPreview />
-          </div>
-        </div>
-      </section>
+    {visible.experiments && <section className="home-labs"><Reveal className="home-section">
+      
+      <div className="labs-heading"><h2>互动实验室</h2></div>
+      {experiments.loading ? <LoadingState label="正在读取实验" /> : experiments.error ? <ErrorState error={experiments.error} onRetry={experiments.reload} /> : displayedExperiments.length ? <div className="experiment-list">{displayedExperiments.map((experiment, index) => {
+        const Icon = ICONS[experiment.engine_key] || BrainCircuit;
+        return <Link key={experiment.slug} to={labRoute(experiment.slug)} className="experiment-row"><span className="experiment-number">0{index + 1}</span><span className="experiment-icon"><Icon size={28} strokeWidth={1.4} /></span><h3>{experiment.title}</h3><p>{experiment.summary}</p><span className="experiment-open">{experiment.runtime_status === "maintenance" ? "维护中" : "开始实验"}<ArrowUpRight size={21} /></span></Link>;
+      })}</div> : <EmptyState title="实验即将更新" />}
+    </Reveal></section>}
 
-      {settings?.project_intro && (
-        <section className="mx-auto max-w-[1280px] px-5 md:px-8 py-8">
-          <div className="rounded-2xl border border-border bg-card p-6 md:p-10">
-            <SectionHeading eyebrow="项目简介" title="合作建设的人工智能科普课程" />
-            <p className="text-base text-foreground/80 leading-relaxed whitespace-pre-line">{settings.project_intro}</p>
-            {settings?.teaching_features?.length > 0 && (
-              <div className="mt-6 grid sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {settings.teaching_features.map((f, i) => (
-                  <div key={i} className="flex items-start gap-2.5 rounded-lg border border-border p-3.5">
-                    <Sparkles size={18} className="text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm text-foreground/80">{f}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
+    <Reveal className="home-section home-method">
+      <div><h2>关于项目</h2><p className="section-description">{settings.project_intro || "面向初高中学生的人工智能科普课程与互动实验。"}</p>{settings.teaching_features?.length > 0 && <p className="method-features">{settings.teaching_features.join(" · ")}</p>}<Link to="/about" className="text-button">关于这个项目 <ArrowUpRight size={17} /></Link></div>
+      <div className="method-steps">{[["课程讲解", "人工智能基础、应用与社会影响。"], ["互动实验", "调整数据和参数，查看模型输出。"], ["课堂讨论", "分析实验结果，讨论课程案例。"]].map(([title, description], index) => <div key={title}><span>0{index + 1}</span><div><h3>{title}</h3><p>{description}</p></div></div>)}</div>
+    </Reveal>
 
-      {vis.themes && themes.length > 0 && (
-        <section className="mx-auto max-w-[1280px] px-5 md:px-8 py-12">
-          <SectionHeading eyebrow="课程主题" title="四大课程主题" description="从认识 AI 到理解机器如何感知、生成与行动" />
-          <div className="grid sm:grid-cols-2 gap-5">
-            {themes.map((t) => (
-              <Link key={t.slug} to="/courses" className="group rounded-xl border border-border bg-card overflow-hidden hover:shadow-md transition-shadow">
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">{t.title}</h3>
-                      <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-3">{t.summary}</p>
-                    </div>
-                    <BookOpen size={20} className="text-muted-foreground/50 shrink-0" />
-                  </div>
-                  {t.keywords?.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {t.keywords.slice(0, 4).map((k, i) => (
-                        <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">{k}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {vis.teacher && teacher && (
-        <section className="mx-auto max-w-[1280px] px-5 md:px-8 py-12">
-          <div className="bg-card/50 rounded-2xl border border-border p-6 md:p-8">
-            <SectionHeading eyebrow="主讲教师" title="课程主讲教师" />
-            <TeacherCard teacher={teacher} />
-          </div>
-        </section>
-      )}
-
-      {vis.experiments && featuredExps.length > 0 && (
-        <section className="mx-auto max-w-[1280px] px-5 md:px-8 py-12">
-          <SectionHeading eyebrow="互动实验" title="动手体验 AI 原理" description="五个可操作的互动实验，在浏览器中真实运行" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {featuredExps.map((e) => (
-              <Link key={e.slug} to={`/labs/${e.slug}`} className="group rounded-xl border border-border bg-card p-5 hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-2 mb-2">
-                  <FlaskConical size={18} className="text-primary" />
-                  <span className="text-xs text-muted-foreground">{e.computation_label || "互动实验"}</span>
-                </div>
-                <h3 className="text-base font-semibold text-foreground group-hover:text-primary">{e.title}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground line-clamp-2">{e.summary}</p>
-                <div className="mt-3 inline-flex items-center gap-1 text-sm text-primary">进入实验 <ArrowRight size={14} /></div>
-                {e.engine_key === "gesture" && <div className="mt-1.5 text-xs text-amber-700">需要摄像头授权</div>}
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {vis.works && featuredWorks.length > 0 && (
-        <section className="mx-auto max-w-[1280px] px-5 md:px-8 py-12">
-          <SectionHeading eyebrow="学生作品" title="精选学生作品" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {featuredWorks.map((w) => (
-              <Link key={w.slug} to={`/works/${w.slug}`} className="group rounded-xl border border-border bg-card overflow-hidden hover:shadow-md transition-shadow">
-                {w.cover_image_url ? (
-                  <Image src={w.cover_image_url} alt={w.title} className="w-full aspect-[4/3] bg-muted" fittingType="fill" />
-                ) : (
-                  <PlaceholderImage label={w.title} aspect="aspect-[4/3]" />
-                )}
-                <div className="p-4">
-                  <h3 className="text-sm font-semibold text-foreground group-hover:text-primary line-clamp-1">{w.title}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{w.summary}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-          <div className="mt-5 text-center">
-            <Link to="/works" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">查看全部作品 <ArrowRight size={14} /></Link>
-          </div>
-        </section>
-      )}
-
-      {vis.activities && activities.length > 0 && (
-        <section className="mx-auto max-w-[1280px] px-5 md:px-8 py-12">
-          <SectionHeading eyebrow="教学活动" title="教学活动记录" />
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {activities.map((a) => (
-              <div key={a.id} className="rounded-xl border border-border bg-card p-4">
-                <PlaceholderImage label={a.title} aspect="aspect-[4/3]" />
-                <h3 className="mt-3 text-sm font-semibold text-foreground">{a.title}</h3>
-                {a.description && <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{a.description}</p>}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
-  );
-}
-
-function NeuralPreview() {
-  return (
-    <div className="relative aspect-[4/3] rounded-2xl border border-border bg-gradient-to-br from-card to-muted/30 overflow-hidden">
-      <svg viewBox="0 0 400 300" className="w-full h-full">
-        <defs>
-          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fdfcfa" /><stop offset="1" stopColor="#f0ede8" /></linearGradient>
-        </defs>
-        <rect width="400" height="300" fill="url(#bg)" />
-        {[80, 160, 240, 320].map((x, li) => (
-          <g key={x}>
-            {[100, 150, 200].map((y, ni) => (
-              <g key={y}>
-                {li < 3 && [100, 150, 200].map((y2) => (
-                  <line key={y2} x1={x} y1={y} x2={x + 80} y2={y2} stroke="#9B2635" strokeWidth="0.5" opacity={Math.random() * 0.4 + 0.1} />
-                ))}
-                <circle cx={x} cy={y} r="9" fill="#fff" stroke="#9B2635" strokeWidth="1.5" />
-              </g>
-            ))}
-          </g>
-        ))}
-        <text x="200" y="280" textAnchor="middle" fontSize="11" fill="#60656D">神经网络结构示意（非实时训练）</text>
-      </svg>
-    </div>
-  );
+    {visible.teacher && (teacher.loading || teacher.error || teacher.data) && <Reveal className="home-section home-editorial"><h2>主讲教师</h2>{teacher.loading ? <LoadingState /> : teacher.error ? <ErrorState error={teacher.error} onRetry={teacher.reload} /> : <TeacherCard teacher={teacher.data} />}</Reveal>}
+    {visible.works && (works.loading || works.error || displayedWorks.length > 0) && <Reveal className="home-section home-editorial"><div className="section-topline"><span className="eyebrow">学生作品</span><Link to="/works" className="text-button">全部作品 <ArrowUpRight size={17} /></Link></div><h2>学生作品</h2>{works.loading ? <LoadingState /> : works.error ? <ErrorState error={works.error} onRetry={works.reload} /> : <div className="editorial-grid">{displayedWorks.map(work => <Link key={work.slug} to={`/works/${work.slug}`}><AssetImage assetId={work.cover_asset_id} src={work.cover_image_url} alt={work.title} /><h3>{work.title}</h3><p>{work.summary}</p></Link>)}</div>}</Reveal>}
+    {visible.activities && (activities.loading || activities.error || activities.data?.length > 0) && <Reveal className="home-section home-editorial"><h2>教学活动</h2>{activities.loading ? <LoadingState /> : activities.error ? <ErrorState error={activities.error} onRetry={activities.reload} /> : <div className="editorial-grid">{activities.data.slice(0, 3).map(activity => <article key={activity.id}>{activity.photo_asset_ids?.[0] && <AssetImage assetId={activity.photo_asset_ids[0]} alt={activity.title} />}<h3>{activity.title}</h3><p>{activity.description}</p></article>)}</div>}</Reveal>}
+    
+  </div>;
 }

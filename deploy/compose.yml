@@ -1,0 +1,23 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATA_DIR: /data
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Set the HTTPS site origin}
+      TRUST_PROXY: "1"
+    ports:
+      - "127.0.0.1:3001:3001"
+    volumes:
+      - site-data:/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+volumes:
+  site-data:

@@ -1,0 +1,81 @@
+name: Deploy review site
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tencent-review
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the pushed revision
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.15.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Verify source and prepared lab resources
+        run: |
+          npm run lint
+          npm run typecheck
+          npm test
+          npx vite build
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: review
+    steps:
+      - name: Configure deployment key
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/tencent_review
+          chmod 600 ~/.ssh/tencent_review
+
+      - name: Deploy the exact commit
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        run: |
+          ssh -i ~/.ssh/tencent_review \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            ubuntu@118.89.188.169 \
+            "bash -s -- '$DEPLOY_SHA'" <<'REMOTE'
+          set -euo pipefail
+          deploy_root=/opt/donghua-ai
+          repo_dir="$deploy_root/repo"
+
+          if [ ! -d "$repo_dir/.git" ]; then
+            git clone https://github.com/Ceprin11/donghua-highschool-website.git "$repo_dir"
+          fi
+
+          cd "$repo_dir"
+          git fetch --prune origin main
+          git checkout --detach "$1"
+
+          model_store="$deploy_root/lab-assets/transformer-model-v2"
+          test -f "$model_store/manifest.json"
+          rm -rf public/experiments/transformer/model-v2
+          mkdir -p public/experiments/transformer
+          cp -a "$model_store" public/experiments/transformer/model-v2
+
+          sudo docker compose -f deploy/compose.review.yml up -d --build --wait --wait-timeout 240
+          curl --fail --silent --show-error http://127.0.0.1/api/health
+          REMOTE

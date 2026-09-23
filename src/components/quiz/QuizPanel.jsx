@@ -19,9 +19,9 @@ export default function QuizPanel({ questions }) {
   const reset = () => { setAnswers({}); setSubmitted(false); };
 
   return (
-    <div className="space-y-5">
+    <div className="quiz-panel space-y-5">
       {questions.map((q, qi) => (
-        <div key={q.id} className="rounded-lg border border-border p-4 bg-card">
+        <div key={q.id} className="quiz-question">
           <div className="flex gap-2 mb-3">
             <span className="text-xs font-semibold text-primary mt-0.5">Q{qi + 1}</span>
             <p className="text-sm md:text-base font-medium text-foreground">{q.question}</p>

@@ -1,61 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
-import { Upload, Trash2, Loader2 } from "lucide-react";
+import React, { useState } from "react";
+import { ArrowRight, Download, ExternalLink, FileText, FlaskConical, Image, LayoutDashboard, Loader2, Settings, UserRound } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ErrorState, LoadingState } from "@/components/site/States";
+import { useContent } from "@/hooks/useContent";
+import { downloadAdminExport, getAdminOverview } from "@/services/adminService";
 
-export default function AdminMedia() {
-  const [assets, setAssets] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const [msg, setMsg] = useState("");
-  const fileRef = useRef(null);
-
-  useEffect(() => { load(); }, []);
-  const load = () => base44.entities.MediaAsset.filter({}, "-created_date", 100).then(setAssets).catch(() => {});
-
-  const handleUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const allowed = ["image/jpeg", "image/png", "image/webp", "video/mp4", "video/webm"];
-    if (!allowed.includes(file.type)) { setMsg("不支持的文件类型，仅允许 JPEG/PNG/WebP 图片和 MP4/WebM 视频"); return; }
-    if (file.size > 20 * 1024 * 1024) { setMsg("文件过大，限制 20MB"); return; }
-    setUploading(true); setMsg("");
-    try {
-      const { file_url } = await base44.integrations.Core.UploadPublicFile({ file });
-      const assetKind = file.type.startsWith("video/") ? "video" : "image";
-      await base44.entities.MediaAsset.create({ file_name: file.name, file_url, mime_type: file.type, size: file.size, asset_kind: assetKind, description: "", source_note: "管理员上传", access_visibility: "public" });
-      setMsg("上传成功"); load();
-    } catch (err) { setMsg("上传失败：" + err.message); }
-    setUploading(false);
-    if (fileRef.current) fileRef.current.value = "";
-  };
-
-  const remove = async (a) => {
-    if (!confirm(`确认删除素材「${a.file_name}」？请先检查是否仍被内容引用。`)) return;
-    try { await base44.entities.MediaAsset.delete(a.id); load(); } catch (e) { setMsg("删除失败"); }
-  };
-
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">素材管理</h1>
-      {msg && <div className={`text-sm mb-3 ${msg.includes("失败") ? "text-red-600" : "text-green-600"}`}>{msg}</div>}
-      <div className="rounded-xl border border-border bg-card p-5 mb-6">
-        <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" onChange={handleUpload} disabled={uploading} className="text-sm" />
-        <div className="mt-2 text-xs text-muted-foreground">支持 JPEG/PNG/WebP 图片和 MP4/WebM 视频，单个文件不超过 20MB。仅管理员可上传。</div>
-        {uploading && <div className="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground"><Loader2 size={14} className="animate-spin" /> 上传中…</div>}
-      </div>
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {assets.map((a) => (
-          <div key={a.id} className="rounded-xl border border-border bg-card p-3">
-            {a.asset_kind === "image" ? <img src={a.file_url} alt={a.file_name} className="w-full aspect-video object-cover rounded-lg bg-muted" /> : <video src={a.file_url} className="w-full aspect-video object-cover rounded-lg bg-black" />}
-            <div className="mt-2 text-sm font-medium text-foreground truncate">{a.file_name}</div>
-            <div className="text-xs text-muted-foreground">{a.mime_type} · {Math.round(a.size / 1024)}KB</div>
-            <div className="mt-2 flex gap-2">
-              <button onClick={() => { navigator.clipboard.writeText(a.file_url); setMsg("已复制 URL"); }} className="px-2.5 py-1 rounded border border-border text-xs hover:bg-accent">复制 URL</button>
-              <button onClick={() => remove(a)} className="px-2.5 py-1 rounded border border-border text-xs text-red-600 hover:bg-red-50"><Trash2 size={12} /></button>
-            </div>
-          </div>
-        ))}
-      </div>
-      {assets.length === 0 && <div className="text-sm text-muted-foreground">暂无素材</div>}
-    </div>
-  );
+export default function AdminOverview() {
+  const overview = useContent(getAdminOverview);
+  const [exporting, setExporting] = useState(false);
+  const [message, setMessage] = useState("");
+  const data = overview.data || {}; const published = data.published || {};
+  const stats = [{ label: "已发布作品", value: published.works ?? 0, link: "/admin/works", icon: FileText }, { label: "可用实验", value: data.readyExperiments ?? 0, link: "/admin/experiments", icon: FlaskConical }, { label: "已发布题目", value: data.publishedQuestions ?? published.quizzes ?? 0, link: "/admin/quizzes", icon: LayoutDashboard }, { label: "已发布目录", value: data.groups_published ?? 0, link: "/admin/experiments", icon: FlaskConical }, { label: "课程主题", value: published.themes ?? 0, link: "/admin/courses", icon: Settings }];
+  const exportData = async () => { setExporting(true); setMessage(""); try { const blob = await downloadAdminExport(); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = `ai-course-export-${new Date().toISOString().slice(0, 10)}.json`; anchor.click(); URL.revokeObjectURL(url); setMessage("导出已开始"); } catch (error) { setMessage(error.message || "导出失败"); } finally { setExporting(false); } };
+  return <div><div className="mb-8 flex flex-col justify-between gap-3 md:flex-row md:items-end"><div><div className="text-xs font-semibold tracking-[0.2em] text-primary">CONTENT DESK</div><h1 className="mt-2 text-3xl font-bold text-foreground">建设概览</h1><p className="mt-2 text-sm text-muted-foreground">查看当前发布状态，并从这里进入内容维护。</p></div><a href="/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 self-start rounded-lg border border-border px-3.5 py-2.5 text-sm font-medium text-foreground hover:bg-accent">打开公开网站<ExternalLink size={15} /></a></div>{overview.loading ? <LoadingState label="正在读取后台概览" /> : overview.error ? <ErrorState error={overview.error} onRetry={overview.reload} /> : <><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{stats.map(({ label, value, link, icon: Icon }) => <Link key={label} to={link} className="group rounded-xl border border-border bg-card p-5 transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-sm"><div className="flex items-center justify-between"><div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary"><Icon size={18} /></div><ArrowRight size={16} className="text-muted-foreground transition group-hover:translate-x-1 group-hover:text-primary" /></div><div className="mt-6 text-3xl font-semibold text-foreground">{value}</div><div className="mt-1 text-sm text-muted-foreground">{label}</div></Link>)}</div><div className="mt-8 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]"><section className="rounded-xl border border-border bg-card p-6"><h2 className="text-base font-semibold text-foreground">常用入口</h2><div className="mt-4 grid gap-3 sm:grid-cols-2">{[{ to: "/admin/settings", label: "首页与项目设置", Icon: Settings }, { to: "/admin/teacher", label: "主讲教师", Icon: UserRound }, { to: "/admin/works", label: "学生作品", Icon: FileText }, { to: "/admin/media", label: "素材管理", Icon: Image }].map(({ to, label, Icon }) => <Link key={to} to={to} className="flex items-center gap-3 rounded-lg border border-border px-4 py-3 text-sm text-foreground transition hover:border-primary/35 hover:bg-accent"><Icon size={16} className="text-primary" />{label}<ArrowRight size={14} className="ml-auto text-muted-foreground" /></Link>)}</div></section><section className="rounded-xl border border-border bg-card p-6"><h2 className="text-base font-semibold text-foreground">数据导出</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">导出当前内容记录和素材清单，文件备份请由服务器管理员按部署文档完成。</p><button onClick={exportData} disabled={exporting} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-60">{exporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}导出内容数据</button>{message && <p className="mt-3 text-xs text-muted-foreground">{message}</p>}</section></div></>}</div>;
 }

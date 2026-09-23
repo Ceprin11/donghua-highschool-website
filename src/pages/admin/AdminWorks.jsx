@@ -1,66 +1,37 @@
-import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { Save, Loader2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Eye, Plus, Save, Star, Trash2 } from "lucide-react";
 import MediaPicker from "@/components/admin/MediaPicker";
+import { EmptyState, ErrorState, LoadingState, StatusBadge } from "@/components/site/States";
+import { listAdminContent } from "@/services/adminService";
+import { createWork, deleteWork, listWorksAdmin, publishWork, unpublishWork, updateWork } from "@/services/workService";
+import { inputClass, Field } from "./AdminLayout";
+import { envelopePayload } from "./adminUtils";
 
-export default function AdminTeacher() {
-  const [record, setRecord] = useState(null);
-  const [form, setForm] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState("");
+const blank = (sort = 0) => ({ slug: "", title: "", summary: "", body: "", theme_slug: "", work_type: "project", author_display_name: "", ai_knowledge: "", creative_highlights: "", cover_asset_id: "", cover_image_url: "", image_asset_ids: [], video_asset_id: "", demo_url: "", featured: false, sort_order: sort, is_demo: false });
 
-  useEffect(() => {
-    base44.entities.TeacherProfile.filter({}, "-updated_date", 1).then((list) => {
-      if (list && list.length) { setRecord(list[0]); setForm(list[0]); }
-      else setForm({ key: "default", name: "", photo_asset_id: "", photo_url: "", organization: "", title_or_identity: "", project_role: "", short_bio: "", visible: false, status: "draft" });
-    });
-  }, []);
-
-  const update = (field, value) => setForm((f) => ({ ...f, [field]: value }));
-
-  const save = async (publish) => {
-    setSaving(true); setMsg("");
-    try {
-      const data = { ...form, status: publish ? "published" : "draft" };
-      if (record?.id) await base44.entities.TeacherProfile.update(record.id, data);
-      else { const r = await base44.entities.TeacherProfile.create(data); setRecord(r); }
-      setForm(data);
-      setMsg(publish ? "已发布" : "草稿已保存");
-    } catch (e) { setMsg("保存失败：" + e.message); }
-    setSaving(false);
-  };
-
-  if (!form) return <div className="text-muted-foreground">加载中…</div>;
-
-  return (
-    <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-foreground mb-2">主讲教师介绍</h1>
-      <p className="text-sm text-muted-foreground mb-6">仅六项资料；未确认前不公开展示。</p>
-      <div className="space-y-5">
-        <Field label="姓名"><input className={inputCls} value={form.name || ""} onChange={(e) => update("name", e.target.value)} placeholder="待补充" /></Field>
-        <Field label="单位或学院"><input className={inputCls} value={form.organization || ""} onChange={(e) => update("organization", e.target.value)} placeholder="待补充" /></Field>
-        <Field label="职称或身份"><input className={inputCls} value={form.title_or_identity || ""} onChange={(e) => update("title_or_identity", e.target.value)} placeholder="待补充" /></Field>
-        <Field label="项目职责"><input className={inputCls} value={form.project_role || ""} onChange={(e) => update("project_role", e.target.value)} placeholder="待补充" /></Field>
-        <Field label="简短介绍"><textarea className={inputCls} rows={4} value={form.short_bio || ""} onChange={(e) => update("short_bio", e.target.value)} placeholder="待补充" /></Field>
-        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.visible || false} onChange={(e) => update("visible", e.target.checked)} /> 公开展示（首页与关于项目）</label>
-        <MediaPicker
-          label="教师照片"
-          value={{ asset_id: form.photo_asset_id, url: form.photo_url }}
-          onChange={(v) => { update("photo_asset_id", v?.asset_id || ""); update("photo_url", v?.url || ""); }}
-        />
-        <div className="flex items-center gap-3">
-          <button onClick={() => save(false)} disabled={saving} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-border text-sm font-medium disabled:opacity-50">
-            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 保存草稿
-          </button>
-          <button onClick={() => save(true)} disabled={saving} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50">
-            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 发布
-          </button>
-          {msg && <span className={`text-sm ${msg.includes("失败") ? "text-red-600" : "text-green-600"}`}>{msg}</span>}
-        </div>
-      </div>
-    </div>
-  );
+export default function AdminWorks() {
+  const [records, setRecords] = useState([]); const [themes, setThemes] = useState([]); const [editing, setEditing] = useState(null); const [preview, setPreview] = useState(null); const [filter, setFilter] = useState("all"); const [loading, setLoading] = useState(true); const [error, setError] = useState(null); const [message, setMessage] = useState("");
+  const load = async () => { setLoading(true); try { const [works, themeRecords] = await Promise.all([listWorksAdmin(), listAdminContent("themes")]); setRecords(works); setThemes(themeRecords); setError(null); } catch (loadError) { setError(loadError); } finally { setLoading(false); } };
+  useEffect(() => { load(); }, []);
+  const save = async () => { if (!editing.slug.trim() || !editing.title.trim()) { setMessage("请填写标题和唯一 slug"); return; } try { const payload = { ...editing, image_asset_ids: (editing.image_asset_ids || []).map((item) => typeof item === "string" ? item : item.asset_id).filter(Boolean) }; if (editing.id) await updateWork(editing.id, payload); else await createWork(payload); setEditing(null); setMessage("作品已保存为草稿"); await load(); } catch (saveError) { setMessage(saveError.message || "保存失败"); } };
+  const remove = async (record) => { if (!window.confirm(`确认删除「${envelopePayload(record).title}」？`)) return; try { await deleteWork(record.id); await load(); } catch (deleteError) { setMessage(deleteError.message || "删除失败"); } };
+  const startEdit = (record) => { const payload = envelopePayload(record); setEditing({ ...blank(), ...payload, id: record.id, image_asset_ids: (payload.image_asset_ids || []).map((id) => ({ asset_id: id })) }); };
+  if (loading) return <LoadingState label="正在读取学生作品" />; if (error) return <ErrorState error={error} onRetry={load} />;
+  const displayed = records.filter((record) => filter === "all" || (record.status || envelopePayload(record).status) === filter);
+  return <div><div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><h1 className="text-3xl font-bold">学生作品</h1><p className="mt-2 text-sm text-muted-foreground">整理作品、预览草稿，再决定发布或下架。公开页不会提供学生上传入口。</p></div><button onClick={() => setEditing(blank(records.length))} className="inline-flex items-center gap-2 self-start rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"><Plus size={16} />新增作品</button></div><div className="mb-5 flex flex-wrap items-center gap-2">{[["all", "全部"], ["draft", "草稿"], ["published", "已发布"], ["archived", "已下架"]].map(([key, label]) => <button key={key} onClick={() => setFilter(key)} className={`rounded-lg border px-3 py-2 text-sm ${filter === key ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-accent"}`}>{label}</button>)}</div>{message && <p className="mb-4 text-sm text-muted-foreground">{message}</p>}<div className="space-y-3">{displayed.length ? displayed.map((record) => <WorkRow key={record.id} record={record} onEdit={() => startEdit(record)} onPreview={() => setPreview({ ...envelopePayload(record), status: record.status })} onReload={load} onMessage={setMessage} onDelete={() => remove(record)} />) : <EmptyState title="没有匹配作品" description="可以新增一条作品草稿。" />}</div>{editing && <Editor value={editing} setValue={setEditing} themes={themes} onSave={save} onClose={() => setEditing(null)} />}{preview && <Preview work={preview} onClose={() => setPreview(null)} />}</div>;
 }
 
-const inputCls = "w-full px-3 py-2 rounded-lg border border-border bg-card text-sm focus:outline-none focus:border-primary";
-function Field({ label, children }) { return <div><label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>{children}</div>; }
+function WorkRow({ record, onEdit, onPreview, onReload, onMessage, onDelete }) {
+  const payload = envelopePayload(record); const status = record.status || payload.status || "draft";
+  const toggleFeatured = async () => { try { await updateWork(record.id, { featured: !payload.featured }); await onReload(); } catch (error) { onMessage(error.message || "更新失败"); } };
+  const publish = async () => { try { if (status === "published") await unpublishWork(record.id); else await publishWork(record.id); await onReload(); } catch (error) { onMessage(error.message || "发布操作失败"); } };
+  const publishUpdate = async () => { try { await publishWork(record.id); await onReload(); onMessage("作品更新已发布"); } catch (error) { onMessage(error.message || "发布更新失败"); } };
+  return <div className="flex flex-col justify-between gap-4 rounded-xl border border-border bg-card p-5 md:flex-row md:items-center"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h2 className="truncate font-semibold text-foreground">{payload.title}</h2>{payload.featured && <Star size={15} className="fill-amber-500 text-amber-500" />}<StatusBadge status={status} /></div><p className="mt-2 text-sm text-muted-foreground">作者：{payload.author_display_name || "匿名"} · /{record.slug || payload.slug}</p></div><div className="flex shrink-0 flex-wrap gap-2"><button onClick={onPreview} className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs hover:bg-accent"><Eye size={14} />预览</button><button onClick={onEdit} className="rounded-lg border border-border px-3 py-2 text-xs hover:bg-accent">编辑</button><button onClick={toggleFeatured} className={`rounded-lg border px-2.5 py-2 text-xs ${payload.featured ? "border-amber-300 bg-amber-50" : "border-border"}`} title="切换精选"><Star size={14} /></button>{status === "published" ? <><button onClick={publishUpdate} className="rounded-lg bg-primary px-3 py-2 text-xs text-primary-foreground">发布更新</button><button onClick={publish} className="rounded-lg border border-border px-3 py-2 text-xs text-red-700 hover:bg-red-50">下架</button></> : <button onClick={publish} className="rounded-lg bg-primary px-3 py-2 text-xs text-primary-foreground">发布</button>}<button onClick={onDelete} className="rounded-lg border border-border p-2 text-red-600 hover:bg-red-50"><Trash2 size={14} /></button></div></div>;
+}
+
+function Editor({ value, setValue, themes, onSave, onClose }) {
+  const update = (key, next) => setValue((current) => ({ ...current, [key]: next })); const gallery = Array.isArray(value.image_asset_ids) ? value.image_asset_ids : [];
+  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}><div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-border bg-card p-6" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between"><h2 className="text-lg font-semibold">{value.id ? "编辑作品" : "新增作品"}</h2><button onClick={onClose} className="text-sm text-muted-foreground">关闭</button></div><div className="mt-5 grid gap-4 md:grid-cols-2"><Field label="唯一 slug"><input className={inputClass} value={value.slug} onChange={(event) => update("slug", event.target.value)} /></Field><Field label="作品标题"><input className={inputClass} value={value.title} onChange={(event) => update("title", event.target.value)} /></Field><Field label="所属主题"><select className={inputClass} value={value.theme_slug || ""} onChange={(event) => update("theme_slug", event.target.value)}><option value="">未指定</option>{themes.map((record) => { const payload = envelopePayload(record); return <option key={record.id} value={record.slug || payload.slug}>{payload.title}</option>; })}</select></Field><Field label="作品类型"><select className={inputClass} value={value.work_type} onChange={(event) => update("work_type", event.target.value)}><option value="project">项目</option><option value="image">图像</option><option value="video">视频</option><option value="interactive">互动</option></select></Field><Field label="作者展示名"><input className={inputClass} value={value.author_display_name} onChange={(event) => update("author_display_name", event.target.value)} placeholder="昵称或小组名" /></Field><Field label="排序"><input type="number" className={inputClass} value={value.sort_order || 0} onChange={(event) => update("sort_order", Number(event.target.value))} /></Field><div className="md:col-span-2"><Field label="作品简介"><textarea className={inputClass} rows={3} value={value.summary} onChange={(event) => update("summary", event.target.value)} /></Field></div><div className="md:col-span-2"><Field label="作品正文"><textarea className={inputClass} rows={7} value={value.body || value.content || ""} onChange={(event) => update("body", event.target.value)} placeholder="支持普通文本分段，公开页按原格式展示。" /></Field></div><Field label="创意亮点"><textarea className={inputClass} rows={4} value={value.creative_highlights} onChange={(event) => update("creative_highlights", event.target.value)} /></Field><Field label="用到的 AI 知识或工具"><textarea className={inputClass} rows={4} value={value.ai_knowledge} onChange={(event) => update("ai_knowledge", event.target.value)} /></Field><div className="md:col-span-2"><MediaPicker label="封面图片" value={{ asset_id: value.cover_asset_id, url: value.cover_image_url }} onChange={(asset) => setValue((current) => ({ ...current, cover_asset_id: asset?.asset_id || "", cover_image_url: asset?.url || "" }))} /></div><div className="md:col-span-2"><MediaPicker label="作品图集" multiple value={gallery} onChange={(items) => update("image_asset_ids", items)} /></div><div className="md:col-span-2"><MediaPicker label="作品视频" kind="video" value={value.video_asset_id ? { asset_id: value.video_asset_id } : null} onChange={(asset) => update("video_asset_id", asset?.asset_id || "")} /></div><Field label="审核后的演示链接"><input className={inputClass} value={value.demo_url} onChange={(event) => update("demo_url", event.target.value)} placeholder="https://…" /></Field><div className="flex flex-wrap gap-4 md:col-span-2"><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={Boolean(value.featured)} onChange={(event) => update("featured", event.target.checked)} className="h-4 w-4 accent-primary" />精选作品</label><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={Boolean(value.is_demo)} onChange={(event) => update("is_demo", event.target.checked)} className="h-4 w-4 accent-primary" />标记为演示样例</label></div></div><div className="mt-6 flex gap-2"><button onClick={onSave} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"><Save size={16} />保存草稿</button><button onClick={onClose} className="rounded-lg border border-border px-4 py-2.5 text-sm">取消</button></div></div></div>;
+}
+
+function Preview({ work, onClose }) { return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}><div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-border bg-card p-6" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between"><h2 className="text-lg font-semibold">作品预览</h2><button onClick={onClose} className="text-sm text-muted-foreground">关闭</button></div><div className="mt-5">{work.cover_image_url && <img src={work.cover_image_url} alt={work.title} className="aspect-video w-full rounded-lg object-cover" />}<h3 className="mt-5 text-2xl font-bold">{work.title}</h3><p className="mt-2 text-xs text-muted-foreground">作者：{work.author_display_name || "匿名"}</p><p className="mt-5 whitespace-pre-line text-sm leading-7 text-foreground/80">{work.summary}</p>{(work.body || work.content) && <p className="mt-5 whitespace-pre-line text-sm leading-7 text-foreground/80">{work.body || work.content}</p>}{work.creative_highlights && <div className="mt-5"><h4 className="text-sm font-semibold">创意亮点</h4><p className="mt-1 text-sm leading-6 text-muted-foreground">{work.creative_highlights}</p></div>}</div></div></div>; }

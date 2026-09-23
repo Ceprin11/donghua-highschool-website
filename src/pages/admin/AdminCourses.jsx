@@ -1,78 +1,193 @@
-import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { Save, Loader2, Plus } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Save } from "lucide-react";
+import MediaPicker from "@/components/admin/MediaPicker";
+import { EmptyState, ErrorState, LoadingState, StatusBadge } from "@/components/site/States";
+import { listAdminContent, publishAdminContent, unpublishAdminContent, updateAdminContent } from "@/services/adminService";
+import { inputClass, Field } from "./AdminLayout";
+import { arrayToLines, envelopePayload, linesToArray } from "./adminUtils";
 
 export default function AdminCourses() {
-  const [themes, setThemes] = useState([]);
+  const [records, setRecords] = useState([]);
   const [editing, setEditing] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState("");
 
-  useEffect(() => { load(); }, []);
-  const load = () => base44.entities.CourseTheme.filter({}, "sort_order", 100).then(setThemes).catch(() => {});
+  const load = async () => {
+    setLoading(true);
+    try {
+      setRecords(await listAdminContent("themes"));
+      setError(null);
+    } catch (loadError) {
+      setError(loadError);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const startNew = () => setEditing({ slug: "", title: "", summary: "", keywords: [], cover_asset_id: "", experiment_slugs: [], sort_order: themes.length, status: "draft" });
-  const startEdit = (t) => setEditing({ ...t });
+  useEffect(() => {
+    load();
+  }, []);
 
   const save = async () => {
-    setSaving(true); setMsg("");
+    if (!editing?.id) {
+      setMessage("课程主题尚未初始化，无法保存");
+      return;
+    }
+    if (!editing.title.trim() || !editing.slug.trim()) {
+      setMessage("请填写主题标题和唯一 slug");
+      return;
+    }
     try {
-      const data = { ...editing, keywords: Array.isArray(editing.keywords) ? editing.keywords : (editing.keywords ? editing.keywords.split("\n") : []) };
-      if (editing.id) await base44.entities.CourseTheme.update(editing.id, data);
-      else await base44.entities.CourseTheme.create(data);
-      setMsg("保存成功"); setEditing(null); load();
-    } catch (e) { setMsg("保存失败：" + e.message); }
-    setSaving(false);
+      const payload = {
+        ...editing,
+        keywords: linesToArray(editing.keywords),
+        takeaways: linesToArray(editing.takeaways),
+        experiment_slugs: linesToArray(editing.experiment_slugs),
+      };
+      await updateAdminContent("themes", editing.id, payload);
+      setEditing(null);
+      setMessage("课程主题已保存为草稿");
+      await load();
+    } catch (saveError) {
+      setMessage(saveError.message || "保存失败");
+    }
   };
 
-  const publish = async (t) => {
-    try { await base44.entities.CourseTheme.update(t.id, { status: "published" }); load(); } catch (e) { setMsg("发布失败：" + e.message); }
+  const publish = async (record) => {
+    try {
+      await publishAdminContent("themes", record.id);
+      setMessage(record.status === "published" ? "课程主题更新已发布" : "课程主题已发布");
+      await load();
+    } catch (publishError) {
+      setMessage(publishError.message || "发布失败");
+    }
   };
+
+  const unpublish = async (record) => {
+    try {
+      await unpublishAdminContent("themes", record.id);
+      setMessage("课程主题已下架");
+      await load();
+    } catch (unpublishError) {
+      setMessage(unpublishError.message || "下架失败");
+    }
+  };
+
+  if (loading) return <LoadingState label="正在读取课程主题" />;
+  if (error) return <ErrorState error={error} onRetry={load} />;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-foreground">课程介绍管理</h1>
-        <button onClick={startNew} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium"><Plus size={16} /> 新增主题</button>
-      </div>
-      {msg && <div className={`text-sm mb-3 ${msg.includes("失败") ? "text-red-600" : "text-green-600"}`}>{msg}</div>}
-      <div className="space-y-3">
-        {themes.map((t) => (
-          <div key={t.id} className="rounded-xl border border-border bg-card p-4 flex items-center justify-between">
-            <div>
-              <div className="font-medium text-foreground">{t.title} <span className="text-xs text-muted-foreground ml-2">/{t.slug}</span>
-                {t.status === "published" ? <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">已发布</span> : <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">草稿</span>}
-              </div>
-              <div className="text-sm text-muted-foreground mt-1 line-clamp-1">{t.summary}</div>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => startEdit(t)} className="px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-accent">编辑</button>
-              {t.status !== "published" && <button onClick={() => publish(t)} className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm">发布</button>}
-            </div>
-          </div>
-        ))}
-      </div>
-      {editing && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setEditing(null)}>
-          <div className="bg-card rounded-xl border border-border max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold mb-4">{editing.id ? "编辑主题" : "新增主题"}</h2>
-            <div className="space-y-4">
-              <Field label="slug（英文标识）"><input className={inputCls} value={editing.slug} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} /></Field>
-              <Field label="标题"><input className={inputCls} value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></Field>
-              <Field label="简介（80-150字）"><textarea className={inputCls} rows={4} value={editing.summary} onChange={(e) => setEditing({ ...editing, summary: e.target.value })} /></Field>
-              <Field label="关键词（每行一个）"><textarea className={inputCls} rows={3} value={Array.isArray(editing.keywords) ? editing.keywords.join("\n") : editing.keywords} onChange={(e) => setEditing({ ...editing, keywords: e.target.value.split("\n") })} /></Field>
-              <Field label="排序"><input type="number" className={inputCls} value={editing.sort_order} onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })} /></Field>
-            </div>
-            <div className="flex gap-2 mt-5">
-              <button onClick={save} disabled={saving} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50">{saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 保存</button>
-              <button onClick={() => setEditing(null)} className="px-4 py-2.5 rounded-lg border border-border text-sm">取消</button>
-            </div>
-          </div>
+      <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <h1 className="text-3xl font-bold">课程主题</h1>
+          <p className="mt-2 text-sm text-muted-foreground">固定维护四个主题，每个主题可以关联已支持的实验。</p>
         </div>
-      )}
+      </div>
+      {message && <p className="mb-4 text-sm text-muted-foreground">{message}</p>}
+      <div className="grid gap-3">
+        {records.length ? records.map((record) => {
+          const payload = envelopePayload(record);
+          return (
+            <div key={record.id} className="flex flex-col justify-between gap-4 rounded-xl border border-border bg-card p-5 md:flex-row md:items-center">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="font-semibold text-foreground">{payload.title}</h2>
+                  <span className="font-mono text-xs text-muted-foreground">/{record.slug || payload.slug}</span>
+                  <StatusBadge status={record.status || payload.status} />
+                </div>
+                <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{payload.summary}</p>
+              </div>
+              <div className="flex shrink-0 flex-wrap justify-end gap-2">
+                <button
+                  onClick={() => setEditing({
+                    ...payload,
+                    id: record.id,
+                    slug: record.slug || payload.slug,
+                    keywords: arrayToLines(payload.keywords),
+                    takeaways: arrayToLines(payload.takeaways),
+                    experiment_slugs: arrayToLines(payload.experiment_slugs),
+                  })}
+                  className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-accent"
+                >
+                  编辑
+                </button>
+                {record.status === "published" ? (
+                  <>
+                    <button onClick={() => publish(record)} className="rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground">发布更新</button>
+                    <button onClick={() => unpublish(record)} className="rounded-lg border border-border px-3 py-2 text-sm text-red-700 hover:bg-red-50">下架</button>
+                  </>
+                ) : (
+                  <button onClick={() => publish(record)} className="rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground">发布</button>
+                )}
+              </div>
+            </div>
+          );
+        }) : <EmptyState title="还没有课程主题" description="课程主题由系统固定初始化，请先运行初始化脚本。" />}
+      </div>
+      {editing && <Editor value={editing} setValue={setEditing} onSave={save} onClose={() => setEditing(null)} />}
     </div>
   );
 }
 
-const inputCls = "w-full px-3 py-2 rounded-lg border border-border bg-card text-sm focus:outline-none focus:border-primary";
-function Field({ label, children }) { return <div><label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>{children}</div>; }
+function Editor({ value, setValue, onSave, onClose }) {
+  const update = (key, next) => setValue((current) => ({ ...current, [key]: next }));
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-border bg-card p-6" onClick={(event) => event.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">编辑课程主题</h2>
+          <button onClick={onClose} className="text-sm text-muted-foreground">关闭</button>
+        </div>
+        <div className="mt-5 space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="唯一 slug">
+              <input className={`${inputClass} bg-muted text-muted-foreground`} value={value.slug} readOnly aria-readonly="true" />
+            </Field>
+            <Field label="排序">
+              <input type="number" className={inputClass} value={value.sort_order || 0} onChange={(event) => update("sort_order", Number(event.target.value))} />
+            </Field>
+          </div>
+          <Field label="标题">
+            <input className={inputClass} value={value.title} onChange={(event) => update("title", event.target.value)} />
+          </Field>
+          <Field label="主题简介">
+            <textarea className={inputClass} rows={4} value={value.summary || ""} onChange={(event) => update("summary", event.target.value)} />
+          </Field>
+          <Field label="关键词（每行一个）">
+            <textarea className={inputClass} rows={3} value={value.keywords || ""} onChange={(event) => update("keywords", event.target.value)} />
+          </Field>
+          <Field label="课程详细介绍">
+            <textarea className={inputClass} rows={4} value={value.overview || ""} onChange={(event) => update("overview", event.target.value)} />
+          </Field>
+          <fieldset className="space-y-4 border-t border-border pt-4"><legend className="text-sm font-medium">核心内容</legend>
+            {(value.sections || []).map((section, index) => <div key={index} className="space-y-2 rounded-lg border border-border p-3">
+              <Field label={`内容 ${index + 1} 标题`}><input className={inputClass} value={section.title} onChange={event => update("sections", value.sections.map((item, i) => i === index ? { ...item, title: event.target.value } : item))} /></Field>
+              <Field label={`内容 ${index + 1} 说明`}><textarea className={inputClass} rows={3} value={section.body} onChange={event => update("sections", value.sections.map((item, i) => i === index ? { ...item, body: event.target.value } : item))} /></Field>
+              <button type="button" className="text-sm text-red-700" onClick={() => update("sections", value.sections.filter((_, i) => i !== index))}>删除内容 {index + 1}</button>
+            </div>)}
+            <button type="button" className="rounded-lg border border-border px-3 py-2 text-sm" disabled={(value.sections || []).length >= 12} onClick={() => update("sections", [...(value.sections || []), { title: "", body: "" }])}>添加核心内容</button>
+          </fieldset>
+          <Field label="学习收获（每行一条）"><textarea className={inputClass} rows={4} value={value.takeaways || ""} onChange={event => update("takeaways", event.target.value)} /></Field>
+          <Field label="课堂案例标题"><input className={inputClass} value={value.activity_title || ""} onChange={event => update("activity_title", event.target.value)} /></Field>
+          <Field label="课堂案例内容"><textarea className={inputClass} rows={4} value={value.activity_description || ""} onChange={event => update("activity_description", event.target.value)} /></Field>
+          <Field label="思考问题"><textarea className={inputClass} rows={2} value={value.discussion || ""} onChange={event => update("discussion", event.target.value)} /></Field>
+          <Field label="关联实验 slug（每行一个）">
+            <textarea className={inputClass} rows={3} value={value.experiment_slugs || ""} onChange={(event) => update("experiment_slugs", event.target.value)} />
+          </Field>
+          <MediaPicker
+            label="主题封面"
+            value={{ asset_id: value.cover_asset_id, url: value.cover_url }}
+            onChange={(asset) => setValue((current) => ({ ...current, cover_asset_id: asset?.asset_id || "", cover_url: asset?.url || "" }))}
+          />
+          <div className="flex gap-2 pt-3">
+            <button onClick={onSave} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"><Save size={16} />保存草稿</button>
+            <button onClick={onClose} className="rounded-lg border border-border px-4 py-2.5 text-sm">取消</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

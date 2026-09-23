@@ -1,0 +1,10 @@
+import React from "react";
+
+export default function TopicVisual({ index }) {
+  return <div key={index} className={`topic-art topic-art-${index}`} aria-hidden="true">
+    {index === 0 && <><div className="art-label">数据分类</div><svg viewBox="0 0 420 290">{Array.from({ length: 42 }, (_, i) => { const angle = i * 2.399; const r = 20 + (i % 7) * 17; return <circle key={i} cx={210 + Math.cos(angle) * r} cy={143 + Math.sin(angle) * r} r="6" fill={i % 2 ? "#ff9d00" : "#55a1ca"} />; })}<ellipse cx="210" cy="145" rx="80" ry="97" fill="none" stroke="#202020" strokeWidth="1.5" strokeDasharray="6 6" transform="rotate(30 210 145)" /></svg><span className="art-tag">输入数据 / 寻找边界</span></>}
+    {index === 1 && <><div className="art-label">图像像素</div><div className="pixel-art">{Array.from({ length: 100 }, (_, i) => <i key={i} style={{ background: ((i % 10 - 4.5) ** 2 + (Math.floor(i / 10) - 4.5) ** 2 < 15) ? ["#ff9d00", "#ffb638", "#ffd58b"][i % 3] : "#e9e9e7" }} />)}</div><span className="art-tag">像素网格</span></>}
+    {index === 2 && <><div className="art-label">今天的天气<span className="typing-cursor">|</span></div><div className="word-probabilities">{[["晴朗", 84], ["阴沉", 62], ["寒冷", 38], ["温暖", 22]].map(([word, width]) => <div key={word}><span>{word}</span><i style={{ width: `${width}%` }} /></div>)}</div><span className="art-tag">候选词概率</span></>}
+    {index === 3 && <><div className="art-label">迷宫路径</div><svg viewBox="0 0 420 290"><defs><pattern id="maze-grid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M 42 0 L 0 0 0 42" fill="none" stroke="#d7d7d3" /></pattern></defs><rect x="84" y="22" width="252" height="252" fill="url(#maze-grid)" />{[[126,64],[168,64],[252,106],[126,190],[210,190]].map(([x,y]) => <rect key={`${x}-${y}`} x={x} y={y} width="42" height="42" fill="#d0d0cc" />)}<path className="maze-path" d="M105 43V169H231V253H315" fill="none" stroke="#ff9d00" strokeWidth="7" strokeLinejoin="round" /><circle cx="105" cy="43" r="9" fill="#202020" /><circle cx="315" cy="253" r="12" fill="#ff9d00" /></svg><span className="art-tag">观察 / 行动 / 获得奖励</span></>}
+  </div>;
+}

@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function SectionHeading({ eyebrow, title, description, center }) {
+export default function SectionHeading({ eyebrow = "", title, description = "", center = false }) {
   return (
     <div className={`mb-8 md:mb-10 ${center ? "text-center mx-auto max-w-2xl" : ""}`}>
       {eyebrow && <div className="text-xs font-semibold text-primary tracking-widest uppercase mb-2">{eyebrow}</div>}

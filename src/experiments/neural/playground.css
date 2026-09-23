@@ -1,0 +1,128 @@
+.neural-detail > .page-width { max-width: 1540px; padding-inline: 36px; }
+.neural-detail .lab-detail-heading { padding-block: 24px 26px; }
+.neural-detail .lab-detail-heading h1 { font-size: clamp(28px, 3vw, 40px); }
+.neural-detail .lab-detail-heading p { margin-top: 6px; }
+.neural-detail .lab-back { margin-bottom: 18px; }
+.neural-detail .experiment-content { padding: 22px; }
+.nn-playground { color: #292e31; font-size: 13px; }
+.nn-playground button:focus-visible, .nn-playground input:focus-visible, .nn-playground select:focus-visible, .nn-diagram-scroll:focus-visible { outline: 2px solid #c47812; outline-offset: 3px; }
+.nn-playground button:disabled { opacity: .35; cursor: default; }
+.nn-controls { display: flex; align-items: center; gap: 26px; padding: 18px 0 24px; border-block: 1px solid #e1e4e5; }
+.nn-transport { display: flex; align-items: center; gap: 7px; }
+.nn-transport button { width: 38px; display: grid; place-items: center; }
+.nn-transport .nn-play { width: 52px; height: 52px; border-radius: 50%; background: #ffab26; color: #262a2d; }
+.nn-step { min-width: 66px; display: grid; gap: 2px; }
+.nn-step > span, .nn-task > span, .nn-select { font-size: 11px; color: #737b80; }
+.nn-step strong { font-size: 25px; font-weight: 400; line-height: 1.1; }
+.nn-step small { color: #92999d; font-size: 10px; }
+.nn-select { display: grid; gap: 3px; flex: 1; min-width: 85px; }
+.nn-select :is(select,input) { width: 100%; background: transparent; border: 0; border-bottom: 1px solid #cfd4d7; border-radius: 0; padding: 4px 0; color: #353b40; font-size: 13px; }
+.nn-select input:disabled { opacity: .35; }
+.nn-task { display: grid; gap: 14px; min-width: 44px; }
+.nn-task strong { font-weight: 400; }
+.nn-workspace { display: grid; grid-template-columns: 148px minmax(0,1fr) 280px; gap: 30px; padding-top: 30px; }
+.nn-workspace h2 { font-size: 14px; font-weight: 500; line-height: 1.5; margin: 0; }
+.nn-caption { font-size: 11px; line-height: 1.8; color: #7e878d; margin-top: 8px; }
+.nn-datasets { display: grid; grid-template-columns: repeat(2,1fr); gap: 9px; margin: 18px 0 24px; }
+.nn-datasets button { border: 1px solid transparent; border-radius: 4px; padding: 3px; background: #f4f6f6; color: #7e878d; }
+.nn-datasets button[aria-pressed="true"] { border-color: #383e42; background: white; color: #292e31; }
+.nn-datasets svg { width: 100%; }
+.nn-datasets span { display: block; font-size: 10px; white-space: nowrap; margin-bottom: 5px; }
+.nn-range { display: block; margin: 0 0 22px; font-size: 11px; color: #737c81; }
+.nn-range > span { display: flex; justify-content: space-between; gap: 4px; }
+.nn-range strong { font-family: Consolas, monospace; font-weight: 400; color: #30383e; }
+.nn-range input { display: block; width: 100%; margin-block: 16px 6px; height: 3px; appearance: none; background: #cbd3d7; border-radius: 2px; }
+.nn-range input::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #c78b35; cursor: pointer; }
+.nn-range input::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #c78b35; cursor: pointer; }
+.nn-regenerate { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; border: 1px solid #cfd4d7; border-radius: 4px; font-size: 11px; }
+.nn-seed { margin-top: 13px; }
+.public-site .neural-detail.lab-demo .experiment-content .nn-playground button { min-height: 44px; }
+.nn-seed span { color: #9ca3a7; }
+.nn-network { min-width: 0; }
+.nn-network-head { display: flex; justify-content: space-between; gap: 10px; min-height: 62px; }
+.nn-layer-tools { display: flex; align-items: start; gap: 8px; }
+.nn-layer-tools h2 { margin-top: 12px; white-space: nowrap; }
+.nn-layer-tools button, .nn-neuron-controls button { display: inline-grid; place-items: center; width: 30px; border-radius: 50%; background: #f1f3f3; }
+.nn-diagram-scroll { width: 100%; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: #c9ced0 #f8f9f9; }
+.nn-diagram { position: relative; min-width: 100%; }
+.nn-connections { position: absolute; inset: 0; overflow: visible; }
+.nn-edge { cursor: pointer; }
+.nn-edge:hover > path:first-child { opacity: 1; stroke-width: 4px; }
+.nn-feature { position: absolute; width: 98px; height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 6px; opacity: .35; font-family: Georgia, serif; font-size: 13px; }
+.nn-feature.is-enabled { opacity: 1; }
+.nn-playground .nn-feature:disabled { opacity: 1; }
+.nn-mini-map { width: 42px; height: 42px; border-radius: 2px; border: 1px solid #d3dadd; }
+.nn-feature.is-enabled .nn-mini-map { border: 1.5px solid #30373b; }
+.nn-neuron { position: absolute; padding: 0; width: 44px; height: 44px; }
+.nn-neuron .nn-mini-map { border: 1px solid #67747b; box-shadow: 0 1px 3px #27343b12; }
+.nn-neuron:is(:hover,:focus-visible,.is-selected) .nn-mini-map { outline: 2px solid #c3832a; outline-offset: 2px; }
+.nn-bias { display: block; position: absolute; width: 8px; height: 8px; right: -3px; bottom: -3px; border: 1px solid #839199; }
+.nn-neuron-controls { position: absolute; top: 0; width: 90px; text-align: center; }
+.nn-neuron-controls > div { display: flex; justify-content: center; gap: 5px; }
+.nn-neuron-controls label { display: flex; align-items: center; justify-content: center; white-space: nowrap; font-size: 10px; color: #737c81; }
+.public-site .nn-neuron-controls input { min-height: 25px !important; width: 30px; border: 0; background: transparent; padding: 0; text-align: center; appearance: textfield; }
+.nn-neuron-controls input::-webkit-inner-spin-button { appearance: none; }
+.nn-output-node { position: absolute; width: 24px; height: 24px; border-radius: 50%; border: 1px solid #c0cbd0; background: #eff3f5; }
+.nn-diagram-caption { position: absolute; left: 120px; bottom: 0; color: #899196; font-size: 11px; line-height: 1.8; margin: 0; }
+.nn-network-note { color: #8c959a; font-size: 10px; line-height: 1.8; margin-top: 16px; }
+.nn-line-sample { display: inline-block; vertical-align: middle; width: 22px; height: 2px; background: #dca350; margin-right: 7px; }
+.nn-weight-editor { margin-top: 12px; display: flex; gap: 12px; align-items: center; padding: 10px; background: #f5f6f6; border-radius: 4px; }
+.nn-weight-editor label { display: flex; align-items: center; gap: 10px; }
+.nn-weight-editor input { width: 100px; border-bottom: 1px solid #bbb; background: transparent; }
+.nn-weight-editor button { margin-left: auto; }
+.nn-output-title { display: flex; justify-content: space-between; align-items: center; }
+.nn-status { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #8b9398; }
+.nn-status::before { content: ''; width: 5px; height: 5px; background: #adb5b9; border-radius: 50%; }
+.nn-status.is-running::before { background: #e39a32; }
+.nn-loss-values { display: flex; flex-direction: column; gap: 5px; margin-top: 17px; font-size: 11px; }
+.nn-loss-values span { display: flex; justify-content: space-between; }
+.nn-loss-values span:nth-child(2) { color: #8a9398; }
+.nn-loss-values strong { font-family: Consolas, monospace; font-weight: 400; }
+.nn-loss-chart { width: 100%; margin: 6px 0 12px; }
+.nn-field-heading { display: flex; align-items: center; justify-content: space-between; height: 35px; color: #68747b; font-size: 11px; }
+.public-site .nn-field-heading button { min-height: 30px; font-size: 10px; color: #a76b16; }
+.nn-result-map { display: block; width: 100%; aspect-ratio: 1; border: 1px solid #dce1e3; cursor: crosshair; }
+.nn-axis { display: flex; justify-content: space-between; font: 10px Consolas, monospace; color: #a0a8ac; margin-top: 4px; }
+.nn-color-legend { display: flex; align-items: center; gap: 10px; font-size: 10px; color: #8b959a; margin: 16px 0; }
+.nn-color-legend i { height: 9px; flex: 1; background: linear-gradient(90deg,#348bb7,#f6f6f6,#f4a036); }
+.nn-output-options { display: grid; gap: 10px; font-size: 11px; color: #626d74; }
+.nn-output-options label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.nn-output-options input { accent-color: #bf7b1e; width: 14px; height: 14px; }
+.nn-accuracy { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid #e4e7e8; padding-top: 16px; margin-top: 20px; }
+.nn-accuracy span { display: grid; gap: 7px; font-size: 10px; color: #929a9f; }
+.nn-accuracy strong { color: #46555e; font: 19px Consolas, monospace; }
+.nn-prediction { font: 11px/1.9 Consolas, monospace; margin-top: 8px; color: #64727a; }
+.nn-footnote { border-top: 1px solid #e2e6e8; margin-top: 30px; padding-top: 18px; display: flex; justify-content: space-between; gap: 16px; color: #8a949a; font-size: 10px; line-height: 1.8; }
+.nn-footnote a:hover { color: #b17623; }
+@media (max-width: 1150px) {
+  .neural-detail > .page-width { padding-inline: 20px; }
+  .nn-workspace { grid-template-columns: 128px minmax(0,1fr) 235px; gap: 20px; }
+  .nn-controls { gap: 16px; flex-wrap: wrap; }
+  .nn-task { display: none; }
+}
+@media (max-width: 900px) {
+  .nn-workspace { grid-template-columns: 150px minmax(0,1fr); gap: 24px; }
+  .nn-output { grid-column: 1 / -1; max-width: 400px; width: 100%; justify-self: center; margin-top: 10px; }
+  .nn-layer-tools { gap: 4px; }
+}
+@media (max-width: 560px) {
+  .neural-detail > .page-width { padding-inline: 12px; }
+  .neural-detail .experiment-content { padding: 14px; }
+  .nn-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding-top: 12px; }
+  .nn-step { justify-self: end; text-align: right; }
+  .nn-select { min-width: 0; }
+  .nn-workspace { display: flex; flex-direction: column; gap: 30px; }
+  .nn-datasets { grid-template-columns: repeat(4,1fr); gap: 7px; }
+  .nn-datasets span { font-size: 9px; }
+  .nn-data { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; }
+  .nn-data > :is(h2,.nn-caption,.nn-datasets) { grid-column: 1 / -1; }
+  .nn-data > .nn-caption { margin-top: 3px; }
+  .nn-regenerate { align-self: center; }
+  .nn-seed br { display: none; }
+  .nn-seed { display: flex; flex-wrap: wrap; gap: 10px; }
+  .nn-layer-tools h2 { font-size: 12px; }
+  .nn-network-head { gap: 6px; }
+  .nn-network-head > div:first-child { min-width: 75px; }
+  .nn-output { align-self: center; }
+  .nn-footnote { display: grid; gap: 6px; }
+}

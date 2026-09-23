@@ -1,61 +1,22 @@
-import React, { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
-import { Upload, Trash2, Loader2 } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Clipboard, FileVideo, Loader2, Pencil, Trash2, Upload } from "lucide-react";
+import { EmptyState, ErrorState, LoadingState } from "@/components/site/States";
+import { deleteMedia, listMedia, mediaUrl, updateMediaSource, uploadMedia } from "@/services/mediaService";
+
+const ALLOWED = ["image/jpeg", "image/png", "image/webp", "video/mp4", "video/webm"];
+const MAX_SIZE = 20 * 1024 * 1024;
 
 export default function AdminMedia() {
-  const [assets, setAssets] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const [msg, setMsg] = useState("");
-  const fileRef = useRef(null);
-
+  const [assets, setAssets] = useState([]); const [loading, setLoading] = useState(true); const [error, setError] = useState(null); const [file, setFile] = useState(null); const [source, setSource] = useState(""); const [progress, setProgress] = useState(0); const [message, setMessage] = useState(""); const [editingSource, setEditingSource] = useState(null); const input = useRef(null);
+  const load = async () => { setLoading(true); try { setAssets(await listMedia()); setError(null); } catch (loadError) { setError(loadError); } finally { setLoading(false); } };
   useEffect(() => { load(); }, []);
-  const load = () => base44.entities.MediaAsset.filter({}, "-created_date", 100).then(setAssets).catch(() => {});
-
-  const handleUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const allowed = ["image/jpeg", "image/png", "image/webp", "video/mp4", "video/webm"];
-    if (!allowed.includes(file.type)) { setMsg("不支持的文件类型，仅允许 JPEG/PNG/WebP 图片和 MP4/WebM 视频"); return; }
-    if (file.size > 20 * 1024 * 1024) { setMsg("文件过大，限制 20MB"); return; }
-    setUploading(true); setMsg("");
-    try {
-      const { file_url } = await base44.integrations.Core.UploadPublicFile({ file });
-      const assetKind = file.type.startsWith("video/") ? "video" : "image";
-      await base44.entities.MediaAsset.create({ file_name: file.name, file_url, mime_type: file.type, size: file.size, asset_kind: assetKind, description: "", source_note: "管理员上传", access_visibility: "public" });
-      setMsg("上传成功"); load();
-    } catch (err) { setMsg("上传失败：" + err.message); }
-    setUploading(false);
-    if (fileRef.current) fileRef.current.value = "";
-  };
-
-  const remove = async (a) => {
-    if (!confirm(`确认删除素材「${a.file_name}」？请先检查是否仍被内容引用。`)) return;
-    try { await base44.entities.MediaAsset.delete(a.id); load(); } catch (e) { setMsg("删除失败"); }
-  };
-
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-foreground mb-6">素材管理</h1>
-      {msg && <div className={`text-sm mb-3 ${msg.includes("失败") ? "text-red-600" : "text-green-600"}`}>{msg}</div>}
-      <div className="rounded-xl border border-border bg-card p-5 mb-6">
-        <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" onChange={handleUpload} disabled={uploading} className="text-sm" />
-        <div className="mt-2 text-xs text-muted-foreground">支持 JPEG/PNG/WebP 图片和 MP4/WebM 视频，单个文件不超过 20MB。仅管理员可上传。</div>
-        {uploading && <div className="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground"><Loader2 size={14} className="animate-spin" /> 上传中…</div>}
-      </div>
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {assets.map((a) => (
-          <div key={a.id} className="rounded-xl border border-border bg-card p-3">
-            {a.asset_kind === "image" ? <img src={a.file_url} alt={a.file_name} className="w-full aspect-video object-cover rounded-lg bg-muted" /> : <video src={a.file_url} className="w-full aspect-video object-cover rounded-lg bg-black" />}
-            <div className="mt-2 text-sm font-medium text-foreground truncate">{a.file_name}</div>
-            <div className="text-xs text-muted-foreground">{a.mime_type} · {Math.round(a.size / 1024)}KB</div>
-            <div className="mt-2 flex gap-2">
-              <button onClick={() => { navigator.clipboard.writeText(a.file_url); setMsg("已复制 URL"); }} className="px-2.5 py-1 rounded border border-border text-xs hover:bg-accent">复制 URL</button>
-              <button onClick={() => remove(a)} className="px-2.5 py-1 rounded border border-border text-xs text-red-600 hover:bg-red-50"><Trash2 size={12} /></button>
-            </div>
-          </div>
-        ))}
-      </div>
-      {assets.length === 0 && <div className="text-sm text-muted-foreground">暂无素材</div>}
-    </div>
-  );
+  const upload = async () => { if (!file) return; if (!ALLOWED.includes(file.type)) { setMessage("只允许 JPEG、PNG、WebP 图片和 MP4、WebM 视频。"); return; } if (file.size > MAX_SIZE) { setMessage("单个素材不能超过 50MB。"); return; } setProgress(0); setMessage(""); try { await uploadMedia(file, source.trim(), setProgress); setFile(null); setSource(""); if (input.current) input.current.value = ""; setMessage("上传成功"); await load(); } catch (uploadError) { setMessage(uploadError.message || "上传失败"); } finally { setProgress(0); } };
+  const remove = async (asset) => { if (!window.confirm(`确认删除「${asset.original_name || asset.file_name || asset.id}」？`)) return; try { await deleteMedia(asset.id); setMessage("素材已删除"); await load(); } catch (deleteError) { setMessage(deleteError.message || "素材仍被引用，无法删除"); } };
+  const saveSource = async (asset, nextSource) => { try { await updateMediaSource(asset.id, nextSource); setEditingSource(null); await load(); } catch (saveError) { setMessage(saveError.message || "来源说明保存失败"); } };
+  if (loading) return <LoadingState label="正在读取素材" />; if (error) return <ErrorState error={error} onRetry={load} />;
+  return <div><div className="mb-8"><h1 className="text-3xl font-bold">素材管理</h1><p className="mt-2 text-sm text-muted-foreground">上传、复用和查看引用。被已发布内容引用的素材不能删除。</p></div><section className="mb-7 rounded-xl border border-border bg-card p-5"><div className="grid gap-4 md:grid-cols-[1fr_260px_auto]"><label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-border px-3 py-3 text-sm hover:border-primary"><Upload size={17} className="text-primary" /><span className="min-w-0 flex-1 truncate">{file ? file.name : "选择图片或视频"}</span><input ref={input} type="file" accept={ALLOWED.join(",")} onChange={(event) => setFile(event.target.files?.[0] || null)} className="sr-only" /></label><input value={source} onChange={(event) => setSource(event.target.value)} placeholder="来源说明（可选）" className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary" /><button onClick={upload} disabled={!file || progress > 0} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-50">{progress > 0 ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}上传</button></div>{progress > 0 && <div className="mt-4"><div className="flex justify-between text-xs text-muted-foreground"><span>上传中</span><span>{progress}%</span></div><div className="mt-1 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} /></div></div>}<p className="mt-3 text-xs text-muted-foreground">支持 JPEG、PNG、WebP、MP4、WebM，单个不超过 20MiB。上传后可在作品、教师和实验表单中复用。</p>{message && <p className="mt-3 text-sm text-muted-foreground">{message}</p>}</section>{assets.length ? <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{assets.map((asset) => <AssetCard key={asset.id} asset={asset} onDelete={() => remove(asset)} onSourceEdit={() => setEditingSource(asset)} />)}</div> : <EmptyState title="素材库为空" description="上传一张图片或一段课堂视频开始使用。" />}{editingSource && <SourceDialog asset={editingSource} onClose={() => setEditingSource(null)} onSave={saveSource} />}</div>;
 }
+
+function AssetCard({ asset, onDelete, onSourceEdit }) { const url = asset.url || asset.file_url || mediaUrl(asset.id); const image = (asset.mime_type || "").startsWith("image/"); const name = asset.original_name || asset.file_name || "未命名素材"; const refs = asset.refs || asset.references || []; const refText = refs.map((ref) => typeof ref === "string" ? ref : [ref.kind || ref.type || "内容", ref.slug || ref.title || ref.id].filter(Boolean).join(" / ")).join("、"); return <article className="overflow-hidden rounded-xl border border-border bg-card">{image ? <img src={url} alt={name} className="aspect-video w-full bg-muted object-cover" /> : <div className="flex aspect-video items-center justify-center bg-[#1d2024] text-white"><FileVideo size={35} className="opacity-70" /></div>}<div className="p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="truncate text-sm font-medium">{name}</h2><p className="mt-1 text-xs text-muted-foreground">{asset.mime_type || "未知类型"} · {formatSize(asset.size || asset.byte_size)}</p></div><button title="复制素材 ID" onClick={() => navigator.clipboard?.writeText(asset.id)} className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent"><Clipboard size={15} /></button></div><p className="mt-3 min-h-5 text-xs text-muted-foreground">来源：{asset.source || asset.source_note || "未填写"}</p>{refs.length > 0 && <p className="mt-1 line-clamp-3 text-xs text-amber-700">引用：{refText}</p>}<div className="mt-4 flex gap-2"><button onClick={onSourceEdit} className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs hover:bg-accent"><Pencil size={13} />来源</button><button onClick={onDelete} className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-red-600 hover:bg-red-50"><Trash2 size={13} />删除</button></div></div></article>; }
+function formatSize(size) { if (!size) return "0 KB"; if (size > 1024 * 1024) return `${(size / 1024 / 1024).toFixed(1)} MB`; return `${Math.round(size / 1024)} KB`; }
+function SourceDialog({ asset, onClose, onSave }) { const [source, setSource] = useState(asset.source || asset.source_note || ""); return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}><div className="w-full max-w-md rounded-xl border border-border bg-card p-6" onClick={(event) => event.stopPropagation()}><h2 className="text-lg font-semibold">编辑来源说明</h2><p className="mt-1 text-xs text-muted-foreground">来源说明会随素材清单导出，方便之后核对授权。</p><textarea rows={4} value={source} onChange={(event) => setSource(event.target.value)} className="mt-5 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary" /><div className="mt-4 flex gap-2"><button onClick={() => onSave(asset, source)} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground">保存</button><button onClick={onClose} className="rounded-lg border border-border px-4 py-2.5 text-sm">取消</button></div></div></div>; }

@@ -1,0 +1,691 @@
+diff --git a/.gitignore b/.gitignore
+index 75f3ff7..4d56caf 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,7 +1,6 @@
+ .DS_Store
+ node_modules
+ public/bundle.*
+-package-lock.json
+ public/assets/js/bundle.*
+ public/assets/js/
+ public/assets/css/bundle.*
+@@ -10,4 +9,4 @@ yarn.lock
+ dist/
+ local-build/
+ tiny-vgg/data/
+-pnpm-lock.yaml
+\ No newline at end of file
++pnpm-lock.yaml
+diff --git a/package.json b/package.json
+index 570e725..a18cd77 100644
+--- a/package.json
++++ b/package.json
+@@ -13,8 +13,14 @@
+     "svelte": "^3.31.0"
+   },
+   "dependencies": {
+-    "@tensorflow/tfjs": "^1.4.0",
+-    "sirv-cli": "^0.4.4"
++    "@fontsource/neucha": "5.2.7",
++    "@fortawesome/fontawesome-free": "5.3.1",
++    "@tensorflow/tfjs": "1.4.0",
++    "bulma": "0.8.0",
++    "d3": "5.16.0",
++    "mathjax": "3.2.2",
++    "sirv-cli": "^0.4.4",
++    "smooth-scroll": "15.0.0"
+   },
+   "scripts": {
+     "build": "rollup -c",
+diff --git a/public/index.html b/public/index.html
+index ef28dbb..11c5327 100644
+--- a/public/index.html
++++ b/public/index.html
+@@ -1,91 +1,7 @@
+-<!DOCTYPE html>
+-<html>
+-  <head>
+-    <meta charset="utf-8" />
+-    <meta name="viewport" content="width=device-width" />
+-
+-    <!-- Primary Meta Tags -->
+-    <meta name="title" content="CNN Explainer" />
+-    <meta
+-      name="description"
+-      content="An interactive visualization system designed to help non-experts learn about Convolutional Neural Networks (CNNs)."
+-    />
+-
+-    <!-- Open Graph / Facebook -->
+-    <meta property="og:type" content="website" />
+-    <meta
+-      property="og:url"
+-      content="https://poloclub.github.io/cnn-explainer/"
+-    />
+-    <meta property="og:title" content="CNN Explainer" />
+-    <meta
+-      property="og:description"
+-      content="An interactive visualization system designed to help non-experts learn about Convolutional Neural Networks (CNNs)."
+-    />
+-    <meta
+-      property="og:image"
+-      content="https://poloclub.github.io/cnn-explainer/assets/figures/preview.png"
+-    />
+-
+-    <!-- Twitter -->
+-    <meta property="twitter:card" content="summary_large_image" />
+-    <meta
+-      property="twitter:url"
+-      content="https://poloclub.github.io/cnn-explainer/"
+-    />
+-    <meta property="twitter:title" content="CNN Explainer" />
+-    <meta
+-      property="twitter:description"
+-      content="An interactive visualization system designed to help non-experts learn about Convolutional Neural Networks (CNNs)."
+-    />
+-    <meta
+-      property="twitter:image"
+-      content="https://poloclub.github.io/cnn-explainer/assets/figures/preview.png"
+-    />
+-    <meta property="twitter:site" content="@jay4w" />
+-    <meta property="twitter:creator" content="@jay4w" />
+-
+-    <title>CNN Explainer</title>
+-
+-    <link rel="icon" type="image/png" href="/assets/img/favicon.png" />
+-    <link rel="stylesheet" href="/global.css" />
+-    <link rel="stylesheet" href="/bundle.css" />
+-
+-    <link
+-      rel="stylesheet"
+-      href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
+-    />
+-    <link
+-      href="https://fonts.googleapis.com/css?family=Neucha&display=swap"
+-      rel="stylesheet"
+-    />
+-    <script src="https://d3js.org/d3.v5.js"></script>
+-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
+-    <script
+-      defer
+-      src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"
+-    ></script>
+-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+-    <script src="https://cdn.jsdelivr.net/gh/cferdinandi/smooth-scroll@15/dist/smooth-scroll.polyfills.min.js"></script>
+-    <script
+-      id="MathJax-script"
+-      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+-    ></script>
+-
+-    <script
+-      type="module"
+-      src="https://unpkg.com/recommender-overlay/dist/recommender-overlay.es.js"
+-    ></script>
+-
+-    <script defer src="/bundle.js"></script>
+-
+-    <style>
+-      @font-face {
+-        font-family: 'A Love of Thunder';
+-        src: URL('/assets/font/A Love of Thunder.ttf') format('truetype');
+-      }
+-    </style>
+-  </head>
+-
+-  <body></body>
+-</html>
++<!doctype html>
++<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CNN 探索</title>
++<link rel="stylesheet" href="./global.css"><link rel="stylesheet" href="./bundle.css"><link rel="stylesheet" href="./lib/bulma.min.css"><link rel="stylesheet" href="./lib/neucha/index.css">
++<script src="./lib/d3.min.js"></script><script src="./lib/tf.min.js"></script><script defer src="./lib/fontawesome.min.js"></script>
++<script src="./lib/smooth-scroll.min.js"></script><script id="MathJax-script" src="./lib/mathjax/tex-svg.js"></script><script defer src="./bundle.js"></script>
++<style>@font-face{font-family:'A Love of Thunder';src:url('./assets/font/A Love of Thunder.ttf')}body{min-width:1050px} @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}</style>
++</head><body></body></html>
+diff --git a/rollup.config.js b/rollup.config.js
+index 8be5c0a..47759cb 100644
+--- a/rollup.config.js
++++ b/rollup.config.js
+@@ -27,7 +27,7 @@ export default {
+ 			}
+ 		}),
+ 
+-        replace({PUBLIC_URL: production ? '/cnn-explainer' : ''}),
++        replace({PUBLIC_URL: '/experiments/cnn-explainer'}),
+ 
+ 		// If you have external dependencies installed from
+ 		// npm, you'll most likely need these plugins. In
+@@ -50,7 +50,7 @@ export default {
+ 
+ 		// If we're building for production (npm run build
+ 		// instead of npm run dev), minify
+-		production && terser()
++		production && terser({ numWorkers: 1 })
+ 	],
+ 	watch: {
+ 		clearScreen: false
+diff --git a/src/App.svelte b/src/App.svelte
+index 7817a8d..f007710 100644
+--- a/src/App.svelte
++++ b/src/App.svelte
+@@ -7,15 +7,7 @@
+ </style>
+ 
+ <div id="app-page">
+-  <recommender-overlay
+-    my-brand="CNN Explainer"
+-    brands-to-ignore="CNN 101"
+-    recommendation-count="10"
+-    similar-candidate-count="15"
+-    position-left="30"
+-    display-delay="30000"
+-    homepage-url="https://poloclub.github.io/"
+-  />
++
+   <Header />
+   <Explainer />
+ </div>
+diff --git a/src/Header.svelte b/src/Header.svelte
+index 24c4668..369b14a 100644
+--- a/src/Header.svelte
++++ b/src/Header.svelte
+@@ -75,7 +75,7 @@
+ 
+ 			<g filter="url(#chalk-texture)" transform="translate(0, 35)">
+ 				<text id="svg-logo-tagline">
+-					Learn Convolutional Neural Network (CNN) in your browser! 
++					在浏览器中探索卷积神经网络 
+ 				</text>
+ 			</g>
+ 		</svg>
+diff --git a/src/article/Article.svelte b/src/article/Article.svelte
+index e17aba4..371cc63 100644
+--- a/src/article/Article.svelte
++++ b/src/article/Article.svelte
+@@ -1,6 +1,5 @@
+ <script>
+ 	import HyperparameterView from '../detail-view/Hyperparameterview.svelte';
+-  import Youtube from './Youtube.svelte';
+ 
+ 	let softmaxEquation = `$$\\text{Softmax}(x_{i}) = \\frac{\\exp(x_i)}{\\sum_j \\exp(x_j)}$$`;
+ 	let reluEquation = `$$\\text{ReLU}(x) = \\max(0,x)$$`;
+@@ -102,7 +101,7 @@
+ 
+ <body>
+   <div id="description">
+-    <h2>What is a Convolutional Neural Network?</h2>
++    <h2>什么是卷积神经网络？</h2>
+     <p>
+ 		In machine learning, a classifier assigns a class label to a data point.  For example, an <em>image classifier</em> produces a class label (e.g, bird, plane) for what objects exist within an image.  A <em>convolutional neural network</em>, or CNN for short, is a type of classifier, which excels at solving this problem!
+ 	 </p>
+@@ -123,15 +122,15 @@
+   		In CNN Explainer, you can see how a simple CNN can be used for image classification.  Because of the network’s simplicity, its performance isn’t perfect, but that’s okay! The network architecture, <a href="http://cs231n.stanford.edu/" title="Tiny VGG Net presented by Stanford's CS231n">Tiny VGG</a>, used in CNN Explainer contains many of the same layers and operations used in state-of-the-art CNNs today, but on a smaller scale.  This way, it will be easier to understand getting started.
+       </p>     
+ 
+-      <h2>What does each layer of the network do?</h2>
++      <h2>网络中的每一层在做什么？</h2>
+       <p>
+   		Let’s walk through each layer in the network.  Feel free to interact with the visualization above by clicking and hovering over various parts of it as you read. 
+       </p>
+-      <h4 id='article-input'>Input Layer</h4>
++      <h4 id='article-input'>输入层 Input</h4>
+       <p>
+       	The input layer (leftmost layer) represents the input image into the CNN.  Because we use RGB images as input, the input layer has three channels, corresponding to the red, green, and blue channels, respectively, which are shown in this layer. Use the color scale when you click on the <img class="is-rounded" width="12%" height="12%" src="PUBLIC_URL/assets/figures/network_details.png" alt="network details icon"/> icon above to display detailed information (on this layer, and others).
+       </p>
+-      <h4 id='article-convolution'>Convolutional Layers</h4>
++      <h4 id='article-convolution'>卷积层 Convolution</h4>
+       <p>
+   		The convolutional layers are the foundation of CNN, as they contain the learned kernels (weights), which extract features that distinguish different images from one another&mdash;this is what we want for classification!  As you interact with the convolutional layer, you will notice links between the previous layers and the convolutional layers.  Each link represents a unique kernel, which is used for the convolution operation to produce the current convolutional neuron’s output or activation map.  
+   	</p>
+@@ -172,7 +171,7 @@
+     	<li><strong>Kernel size</strong>, often also referred to as filter size, refers to the dimensions of the sliding window over the input.  Choosing this hyperparameter has a massive impact on the image classification task.  For example, small kernel sizes are able to extract a much larger amount of information containing highly local features from the input.  As you can see on the visualization above, a smaller kernel size also leads to a smaller reduction in layer dimensions, which allows for a deeper architecture.  Conversely, a large kernel size extracts less information, which leads to a faster reduction in layer dimensions, often leading to worse performance.  Large kernels are better suited to extract features that are larger.  At the end of the day, choosing an appropriate kernel size will be dependent on your task and dataset, but generally, smaller kernel sizes lead to better performance for the image classification task because an architecture designer is able to stack <a href="https://arxiv.org/pdf/1409.1556.pdf" title="Learn why deeper networks perform better!">more and more layers together to learn more and more complex features</a>!</li>
+     	<li><strong>Stride</strong> indicates how many pixels the kernel should be shifted over at a time.  For example, as described in the convolutional layer example above, Tiny VGG uses a stride of 1 for its convolutional layers, which means that the dot product is performed on a 3x3 window of the input to yield an output value, then is shifted to the right by one pixel for every subsequent operation.  The impact stride has on a CNN is similar to kernel size.  As stride is decreased, more features are learned because more data is extracted, which also leads to larger output layers.  On the contrary, as stride is increased, this leads to more limited feature extraction and smaller output layer dimensions.  One responsibility of the architecture designer is to ensure that the kernel slides across the input symmetrically when implementing a CNN.  Use the hyperparameter visualization above to alter stride on various input/kernel dimensions to understand this constraint!</li>
+     </ol>
+-    <h4>Activation Functions</h4>
++    <h4>激活函数 Activation</h4>
+     <h6 id='article-relu'>ReLU</h6>
+     <p>
+     	Neural networks are extremely prevalent in modern technology&mdash;because they are so accurate!  The highest performing CNNs today consist of an absurd amount of layers, which are able to learn more and more features.  Part of the reason these groundbreaking CNNs are able to achieve such <a href="https://arxiv.org/pdf/1512.03385.pdf" title="ResNet">tremendous accuracies</a> is because of their non-linearity.  ReLU applies much-needed non-linearity into the model.  Non-linearity is necessary to produce non-linear decision boundaries, so that the output cannot be written as a linear combination of the inputs.  If a non-linear activation function was not present, deep CNN architectures would devolve into a single, equivalent convolutional layer, which would not perform nearly as well.  The ReLU activation function is specifically used as a non-linear activation function, as opposed to other non-linear functions such as <em>Sigmoid</em> because it has been <a href="https://arxiv.org/pdf/1906.01975.pdf" title="See page 29">empirically observed</a> that CNNs using ReLU are faster to train than their counterparts.
+@@ -203,7 +202,7 @@
+         Figure 4. The <em>Softmax Interactive Formula View</em> allows a user to interact with both the color encoded logits and formula to understand how the prediction scores after the flatten layer are normalized to yield classification scores.
+       </div>
+     </div>
+-    <h4 id='article-pooling'>Pooling Layers</h4>
++    <h4 id='article-pooling'>池化层 Pooling</h4>
+     <p>
+     	There are many types of pooling layers in different CNN architectures, but they all have the purpose of gradually decreasing the spatial extent of the network, which reduces the parameters and overall computation of the network.  The type of pooling used in the Tiny VGG architecture above is Max-Pooling.
+     </p>
+@@ -213,12 +212,12 @@
+     <p>
+     	In the Tiny VGG architecture above, the pooling layers use a 2x2 kernel and a stride of 2.  This operation with these specifications results in the discarding of 75% of activations.  By discarding so many values, Tiny VGG is more computationally efficient and avoids overfitting.
+     </p>
+-    <h4 id='article-flatten'>Flatten Layer</h4>
++    <h4 id='article-flatten'>展平层 Flatten</h4>
+     <p>      
+       This layer converts a three-dimensional layer in the network into a one-dimensional vector to fit the  input of a fully-connected layer for classification.  For example, a 5x5x2 tensor would be converted into a vector of size 50.  The previous convolutional layers of the network extracted the features from the input image, but now it is time to classify the features.  We use the softmax function to classify these features, which requires a 1-dimensional input.  This is why the flatten layer is necessary.  This layer can be viewed by clicking any output class.  
+     </p>
+ 
+-    <h2>Interactive features</h2>
++    <h2>交互操作</h2>
+     <ol>
+     	<li><strong>Upload your own image</strong> by selecting <img class="icon is-rounded" src="PUBLIC_URL/assets/figures/upload_image_icon.png" alt="upload image icon"/> to understand how your image is classified into the 10 classes.  By analyzing the neurons throughout the network, you can understand the activations maps and extracted features.</li>
+     	<li><strong>Change the activation map colorscale</strong> to better understand the impact of activations at different levels of abstraction by adjusting <img class="is-rounded" width="12%" height="12%" src="PUBLIC_URL/assets/figures/heatmap_scale.png" alt="heatmap"/>.</li>
+@@ -227,51 +226,12 @@
+       <li><strong>Learn layer functions</strong> by clicking <img class="icon is-rounded" src="PUBLIC_URL/assets/figures/info_button.png" alt="info icon"/> from the <em>Interactive Formula View</em> to read layer details from the article.</li>
+     </ol> 
+ 
+-    <h2>Video Tutorial</h2>
+-    <ul>
+-      <li class="video-link" on:click={currentPlayer.play(0)}>
+-        CNN Explainer Introduction
+-        <small>(0:00-0:22)</small>
+-      </li>
+-      <li class="video-link" on:click={currentPlayer.play(27)}>
+-        <em>Overview</em>
+-        <small>(0:27-0:37)</small>
+-      </li>
+-      <li class="video-link" on:click={currentPlayer.play(37)}>
+-        Convolutional <em>Elastic Explanation View</em>
+-        <small>(0:37-0:46)</small>
+-      </li>
+-      <li class="video-link" on:click={currentPlayer.play(46)}>
+-        Convolutional, ReLU, and Pooling <em>Interactive Formula Views</em>
+-        <small>(0:46-1:21)</small>
+-      </li>
+-      <li class="video-link" on:click={currentPlayer.play(82)}>
+-        Flatten <em>Elastic Explanation View</em>
+-        <small>(1:22-1:41)</small>
+-      </li>
+-      <li class="video-link" on:click={currentPlayer.play(101)}>
+-        Softmax <em>Interactive Formula View</em>
+-        <small>(1:41-2:02)</small>
+-      </li>
+-      <li class="video-link" on:click={currentPlayer.play(126)}>
+-        Engaging Learning Experience: Understanding Classification
+-        <small>(2:06-2:28)</small>
+-      </li>
+-      <li class="video-link" on:click={currentPlayer.play(149)}>
+-        Interactive Tutorial Article
+-        <small>(2:29-2:54)</small>
+-      </li>
+-    </ul>
+-    <div class="video">
+-      <Youtube videoId="HnWIHWFbuUQ" playerId="demo_video" bind:this={currentPlayer}/>
+-    </div>
+-
+-    <h2>How is CNN Explainer implemented?</h2>
++    <h2>实现与开源技术</h2>
+     <p>
+       CNN Explainer uses <a href="https://js.tensorflow.org/"><em>TensorFlow.js</em></a>, an in-browser GPU-accelerated deep learning library to load the pretrained model for visualization.  The entire interactive system is written in Javascript using <a href="https://svelte.dev/"><em>Svelte</em></a> as a framework and <a href="https://d3js.org/"><em>D3.js</em></a> for visualizations. You only need a web browser to get started learning CNNs today!
+     </p>
+ 
+-    <h2>Who developed CNN Explainer?</h2>
++    <h2>作者与致谢</h2>
+     <p>
+       CNN Explainer was created by 
+       <a href="https://zijie.wang/">Jay Wang</a>,
+diff --git a/src/detail-view/ActivationAnimator.svelte b/src/detail-view/ActivationAnimator.svelte
+index 29d6af4..1b3c752 100644
+--- a/src/detail-view/ActivationAnimator.svelte
++++ b/src/detail-view/ActivationAnimator.svelte
+@@ -1,5 +1,5 @@
+ <script>
+-  import { createEventDispatcher } from 'svelte';
++  import { createEventDispatcher, onDestroy } from 'svelte';
+   import { array1d, getMatrixSliceFromOutputHighlights,
+     getVisualizationSizeConstraint, getMatrixSliceFromInputHighlights, gridData
+   } from './DetailviewUtils.js';
+@@ -20,6 +20,7 @@
+   let inputHighlights = array1d(image.length * image.length, (i) => true);
+   let outputHighlights = array1d(output.length * output.length, (i) => true);
+   let interval;
++  onDestroy(() => clearInterval(interval));
+   $ : {
+     let inputHighlights = array1d(image.length * image.length, (i) => true);
+     let outputHighlights = array1d(output.length * output.length, (i) => true);
+@@ -109,4 +110,4 @@
+   </div>
+   <Dataview on:message={handleMouseover} data={gridOutput} highlights={outputHighlights} isKernelMath={false} 
+       outputLength={output.length} constraint={getVisualizationSizeConstraint(output.length)} dataRange={dataRange} stride={1}/>
+-</div>
+\ No newline at end of file
++</div>
+diff --git a/src/detail-view/Activationview.svelte b/src/detail-view/Activationview.svelte
+index 93a4673..366a83a 100644
+--- a/src/detail-view/Activationview.svelte
++++ b/src/detail-view/Activationview.svelte
+@@ -104,17 +104,17 @@
+ 
+         <div class="buttons">
+ 
+-          <div class="control-button" on:click={handleScroll} title="Jump to article section">
++          <div class="control-button" on:click={handleScroll} title="查看原理说明">
+             <i class="fas fa-info-circle"></i>
+           </div>
+ 
+-          <div class="play-button control-button" on:click={handleClickPause} title="Play animation">
++          <div class="play-button control-button" on:click={handleClickPause} title="播放或暂停动画">
+             {@html isPaused ?
+               '<i class="fas fa-play-circle play-icon"></i>' :
+               '<i class="fas fa-pause-circle"></i>'}
+           </div>
+ 
+-          <div class="delete-button control-button" on:click={handleClickX} title="Close">
++          <div class="delete-button control-button" on:click={handleClickX} title="关闭">
+               <i class="fas control-icon fa-times-circle"></i>
+           </div>
+         </div>
+diff --git a/src/detail-view/ConvolutionAnimator.svelte b/src/detail-view/ConvolutionAnimator.svelte
+index 489c3a4..10f213c 100644
+--- a/src/detail-view/ConvolutionAnimator.svelte
++++ b/src/detail-view/ConvolutionAnimator.svelte
+@@ -1,5 +1,5 @@
+ <script>
+-  import { createEventDispatcher } from 'svelte';
++  import { createEventDispatcher, onDestroy } from 'svelte';
+   import { array1d, getMatrixSliceFromOutputHighlights,
+     compute_input_multiplies_with_weight, getDataRange,
+     getVisualizationSizeConstraint, generateOutputMappings,
+@@ -39,6 +39,7 @@
+   let inputHighlights = [];
+   let outputHighlights = array1d(output.length * output.length, (i) => true);
+   let interval;
++  onDestroy(() => clearInterval(interval));
+   $ : {
+     let inputHighlights = [];
+     let outputHighlights = array1d(output.length * output.length, (i) => true);
+@@ -125,4 +126,4 @@
+   </div>
+   <Dataview on:message={handleMouseover} data={testOutput} highlights={outputHighlights} isKernelMath={false}
+       outputLength={output.length} constraint={getVisualizationSizeConstraint(output.length)} dataRange={dataRange} stride={stride}/>
+-</div>
+\ No newline at end of file
++</div>
+diff --git a/src/detail-view/Convolutionview.svelte b/src/detail-view/Convolutionview.svelte
+index ad80980..bbee03d 100644
+--- a/src/detail-view/Convolutionview.svelte
++++ b/src/detail-view/Convolutionview.svelte
+@@ -14,7 +14,7 @@
+   const dispatch = createEventDispatcher();
+ 	let stride = 1;
+   const dilation = 1;
+-  var isPaused = false;
++  var isPaused = matchMedia('(prefers-reduced-motion: reduce)').matches;
+   var outputFinal = singleConv(input, kernel, stride);
+   $: if (stride > 0) {
+     try { 
+@@ -135,17 +135,17 @@
+         </div>
+ 
+         <div class="buttons">
+-          <div class="control-button" on:click={handleScroll} title="Jump to article section">
++          <div class="control-button" on:click={handleScroll} title="查看原理说明">
+             <i class="fas fa-info-circle"></i>
+           </div>
+ 
+-          <div class="play-button control-button" on:click={handleClickPause} title="Play animation">
++          <div class="play-button control-button" on:click={handleClickPause} title="播放或暂停动画">
+             {@html isPaused ?
+               '<i class="fas fa-play-circle play-icon"></i>' :
+               '<i class="fas fa-pause-circle"></i>'}
+           </div>
+ 
+-          <div class="delete-button control-button" on:click={handleClickX} title="Close">
++          <div class="delete-button control-button" on:click={handleClickX} title="关闭">
+             <i class="fas control-icon fa-times-circle"></i>
+           </div>
+         </div>
+@@ -162,7 +162,7 @@
+       <div class="annotation">
+         <img src='PUBLIC_URL/assets/img/pointer.svg' alt='pointer icon'>
+         <div class="annotation-text">
+-          <span style="font-weight:600">Hover over</span> the matrices to change kernel position.
++          <span style="font-weight:600">移动指针或轻触矩阵</span>，查看不同位置的计算。
+         </div>
+       </div>
+ 
+diff --git a/src/detail-view/Dataview.svelte b/src/detail-view/Dataview.svelte
+index 6e94b58..7c2f7bc 100644
+--- a/src/detail-view/Dataview.svelte
++++ b/src/detail-view/Dataview.svelte
+@@ -53,7 +53,7 @@
+         }
+         return colorScale(normalizedValue);
+       })
+-      .on('mouseover', function(d) {
++      .on('mouseover click', function(d) {
+         if (data.length != outputLength) {
+           dispatch('message', {
+             hoverH: Math.min(Math.floor(d.row / stride), outputLength - 1),
+@@ -119,4 +119,4 @@
+ <div style="display: inline-block; vertical-align: middle;" class="grid"
+   bind:this={grid_final}>
+   <svg id="grid" width=100% height=100%></svg>
+-</div>
+\ No newline at end of file
++</div>
+diff --git a/src/detail-view/HyperparameterAnimator.svelte b/src/detail-view/HyperparameterAnimator.svelte
+index 0ee8118..eec53f4 100644
+--- a/src/detail-view/HyperparameterAnimator.svelte
++++ b/src/detail-view/HyperparameterAnimator.svelte
+@@ -1,5 +1,5 @@
+ <script>
+-  import { createEventDispatcher } from 'svelte';
++  import { createEventDispatcher, onDestroy } from 'svelte';
+   import { array1d, compute_input_multiplies_with_weight,
+           generateOutputMappings, gridData
+   } from './DetailviewUtils.js';
+@@ -22,6 +22,7 @@
+   let inputHighlights = [];
+   let outputHighlights = array1d(output.length * output.length, (i) => true);
+   let interval;
++  onDestroy(() => clearInterval(interval));
+   $ : {
+     let inputHighlights = [];
+     let outputHighlights = array1d(output.length * output.length, (i) => true);
+@@ -123,4 +124,4 @@
+     <HyperparameterDataview on:message={handleMouseover} data={testOutput} highlights={outputHighlights}
+         outputLength={output.length} stride={stride} padding={padding} isOutput={true} isStrideValid={isStrideValid}/>
+   </div>
+-</div>
+\ No newline at end of file
++</div>
+diff --git a/src/detail-view/Hyperparameterview.svelte b/src/detail-view/Hyperparameterview.svelte
+index b7a2ce3..c7d21b4 100644
+--- a/src/detail-view/Hyperparameterview.svelte
++++ b/src/detail-view/Hyperparameterview.svelte
+@@ -161,7 +161,7 @@
+         <div class="input-row">
+           <div class="field is-horizontal">
+             <div class="field-label is-normal">
+-              <label class="label">Input Size:</label>
++              <label class="label">输入尺寸</label>
+             </div>
+             <input class="input is-very-small" type="number" bind:value={inputSize}
+               min={kernelSize} max={7}>
+@@ -174,7 +174,7 @@
+         <div class="input-row">
+           <div class="field is-horizontal">
+             <div class="field-label is-normal">
+-              <label class="label">Padding:</label>
++              <label class="label">边缘填充</label>
+             </div>
+             <input class="input is-very-small" type="number" bind:value={padding} min={0}
+               max={kernelSize - 1}>
+@@ -187,7 +187,7 @@
+         <div class="input-row">
+           <div class="field is-horizontal">
+             <div class="field-label is-normal">
+-              <label class="label">Kernel Size:</label>
++              <label class="label">卷积核尺寸</label>
+             </div>
+             <input class="input is-very-small" type="number" bind:value={kernelSize} min={padding + 1}
+               max={inputSizeWithPadding}>
+@@ -200,7 +200,7 @@
+         <div class="input-row">
+           <div class="field is-horizontal">
+             <div class="field-label is-normal">
+-              <label class="label">Stride:</label>
++              <label class="label">步长</label>
+             </div>
+             <input class="input is-very-small" type=number id="strideNumber" bind:value={stride} min=1
+               max={Math.max(inputSizeWithPadding - kernelSize + 1, 2)}>
+@@ -219,7 +219,7 @@
+           <div class="annotation">
+             <img src='PUBLIC_URL/assets/img/pointer.svg' alt='pointer icon' width="25px">
+             <div class="annotation-text-hyper">
+-              <span style="font-weight:600">Hover over</span> the matrices to change kernel position.
++              <span style="font-weight:600">移动指针</span>，观察卷积核与输出位置的对应关系。
+             </div>
+           </div>
+           
+diff --git a/src/detail-view/PoolAnimator.svelte b/src/detail-view/PoolAnimator.svelte
+index 36e8cbf..6de74d7 100644
+--- a/src/detail-view/PoolAnimator.svelte
++++ b/src/detail-view/PoolAnimator.svelte
+@@ -1,5 +1,5 @@
+ <script>
+-  import { createEventDispatcher } from 'svelte';
++  import { createEventDispatcher, onDestroy } from 'svelte';
+   import { array1d, getMatrixSliceFromOutputHighlights,
+     compute_input_multiplies_with_weight, getVisualizationSizeConstraint,
+     generateOutputMappings, getMatrixSliceFromInputHighlights, gridData
+@@ -33,6 +33,7 @@
+   let inputHighlights = [];
+   let outputHighlights = array1d(output.length * output.length, (i) => true);
+   let interval;
++  onDestroy(() => clearInterval(interval));
+   $ : {
+     let inputHighlights = [];
+     let outputHighlights = array1d(output.length * output.length, (i) => true);
+@@ -121,4 +122,4 @@
+   </div>
+   <Dataview on:message={handleMouseover} data={testOutput} highlights={outputHighlights} isKernelMath={false} 
+       outputLength={output.length} constraint={getVisualizationSizeConstraint(output.length)} dataRange={dataRange} stride={stride}/>
+-</div>
+\ No newline at end of file
++</div>
+diff --git a/src/detail-view/Poolview.svelte b/src/detail-view/Poolview.svelte
+index 7ab269a..d12e44f 100644
+--- a/src/detail-view/Poolview.svelte
++++ b/src/detail-view/Poolview.svelte
+@@ -12,7 +12,7 @@
+   // let isExited = false;
+ 	let stride = 2;
+   const dilation = 1;
+-  var isPaused = false;
++  var isPaused = matchMedia('(prefers-reduced-motion: reduce)').matches;
+   var outputFinal = singleMaxPooling(input);
+   // let dragging = false;
+   // let dragInfo = {x1: 0, x2: 0, y1: 0, y2: 0};
+@@ -164,17 +164,17 @@
+ 
+         <div class="buttons">
+ 
+-          <div class="control-button" on:click={handleScroll} title="Jump to article section">
++          <div class="control-button" on:click={handleScroll} title="查看原理说明">
+             <i class="fas fa-info-circle"></i>
+           </div>
+ 
+-          <div class="play-button control-button" on:click={handleClickPause} title="Play animation">
++          <div class="play-button control-button" on:click={handleClickPause} title="播放或暂停动画">
+             {@html isPaused ?
+               '<i class="fas fa-play-circle play-icon"></i>' :
+               '<i class="fas fa-pause-circle"></i>'}
+           </div>
+ 
+-          <div class="delete-button control-button" on:click={handleClickX} title="Close">
++          <div class="delete-button control-button" on:click={handleClickX} title="关闭">
+             <i class="fas control-icon fa-times-circle"></i>
+           </div>
+         </div>
+@@ -191,7 +191,7 @@
+       <div class="annotation">
+         <img src='PUBLIC_URL/assets/img/pointer.svg' alt='pointer icon'>
+           <div class="annotation-text">
+-            <span style="font-weight:600">Hover over</span> the matrices to change kernel position.
++            <span style="font-weight:600">移动指针或轻触矩阵</span>，查看不同位置的计算。
+           </div>
+       </div>
+ 
+diff --git a/src/overview/Overview.svelte b/src/overview/Overview.svelte
+index 38201f1..6816db6 100644
+--- a/src/overview/Overview.svelte
++++ b/src/overview/Overview.svelte
+@@ -1309,6 +1309,8 @@
+     max-height: 700px;
+     height: calc(100vh - 100px);
+     width: 100vw;
++    min-width: 1050px;
++    flex-shrink: 0;
+   }
+ 
+   .is-very-small {
+@@ -1543,12 +1545,12 @@
+           <i class="fas fa-eye"></i>
+         </span>
+         <span id="hover-label-text">
+-          Show detail
++          显示细节
+         </span>
+       </button>
+ 
+       <div class="control is-very-small has-icons-left"
+-        title="Change color scale range">
++        title="改变颜色标尺范围">
+         <span class="icon is-left">
+           <i class="fas fa-palette"></i>
+         </span>
+@@ -1556,9 +1558,9 @@
+         <div class="select">
+           <select bind:value={selectedScaleLevel} id="level-select"
+             disabled={disableControl}>
+-            <option value="local">Unit</option>
+-            <option value="module">Module</option>
+-            <option value="global">Global</option>
++            <option value="local">单元</option>
++            <option value="module">模块</option>
++            <option value="global">全局</option>
+           </select>
+         </div>
+       </div>
+@@ -1608,4 +1610,4 @@
+ </div>
+ 
+ <Modal on:xClicked={handleModalCanceled}
+-  on:urlTyped={handleCustomImage}/>
+\ No newline at end of file
++  on:urlTyped={handleCustomImage}/>
+diff --git a/src/utils/cnn-tf.js b/src/utils/cnn-tf.js
+index 8ac94fc..bb1cbaa 100644
+--- a/src/utils/cnn-tf.js
++++ b/src/utils/cnn-tf.js
+@@ -239,6 +239,8 @@ const constructCNNFromOutputs = (allOutputs, model, inputImageTensor) => {
+ export const constructCNN = async (inputImageFile, model) => {
+   // Load the image file
+   let inputImageTensor = await getInputImageArray(inputImageFile, true);
++  let result;
++  tf.tidy(() => {
+ 
+   // Need to feed the model with a batch
+   let inputImageTensorBatch = tf.stack([inputImageTensor]);
+@@ -266,7 +268,10 @@ export const constructCNN = async (inputImageFile, model) => {
+   }
+ 
+   let cnn = constructCNNFromOutputs(outputs, model, inputImageTensor);
+-  return cnn;
++  result = cnn;
++  });
++  inputImageTensor.dispose();
++  return result;
+ }
+ 
+ // Helper functions
+@@ -310,7 +315,7 @@ const cropCentralSquare = (arr) => {
+  */
+ const imageDataTo3DTensor = (imageData, width, height, normalize=true) => {
+   // Create array placeholder for the 3d array
+-  let imageArray = tf.fill([width, height, 3], 0).arraySync();
++  let imageArray = Array.from({length: width}, () => Array.from({length: height}, () => [0, 0, 0]));
+ 
+   // Iterate through the data to fill out channel arrays above
+   for (let i = 0; i < imageData.length; i++) {

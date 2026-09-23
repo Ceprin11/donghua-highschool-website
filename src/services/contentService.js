@@ -1,70 +1,40 @@
-import { base44 } from "@/api/base44Client";
+import { mediaUrl, request, unwrapList, unwrapPayload } from "./apiClient";
 
-// Centralized content access layer. Public pages call only these helpers,
-// never the Base44 SDK directly, so the platform adapter can be swapped on migration.
-
-const PUBLISHED = { status: "published" };
-
-export async function getSiteSettings() {
-  const list = await base44.entities.SiteSettings.filter(PUBLISHED, "-updated_date", 1);
-  return list && list.length ? list[0] : null;
+async function list(kind) {
+  const data = await request(`/api/content/${encodeURIComponent(kind)}`);
+  return unwrapList(data);
 }
 
-export async function getTeacherProfile() {
-  const list = await base44.entities.TeacherProfile.filter(PUBLISHED, "-updated_date", 1);
-  if (!list || !list.length) return null;
-  const t = list[0];
-  if (!t.visible) return null;
-  return t;
-}
-
-export async function getCourseThemes() {
-  return await base44.entities.CourseTheme.filter(PUBLISHED, "sort_order", 100);
-}
-
-export async function getExperiments() {
-  return await base44.entities.Experiment.filter(PUBLISHED, "sort_order", 100);
-}
-
-export async function getExperimentBySlug(slug) {
-  const list = await base44.entities.Experiment.filter({ slug, status: "published" }, "-updated_date", 1);
-  return list && list.length ? list[0] : null;
-}
-
-export async function getPresetsForExperiment(slug) {
-  return await base44.entities.ExperimentPreset.filter(
-    { experiment_slug: slug, status: "published" }, "sort_order", 50
-  );
-}
-
-export async function getQuizForExperiment(slug) {
-  return await base44.entities.QuizQuestion.filter(
-    { experiment_slug: slug, status: "published" }, "sort_order", 50
-  );
-}
-
-export async function getStudentWorks() {
-  return await base44.entities.StudentWork.filter({ status: "published" }, "sort_order", 100);
-}
-
-export async function getWorkBySlug(slug) {
-  const list = await base44.entities.StudentWork.filter({ slug, status: "published" }, "-updated_date", 1);
-  return list && list.length ? list[0] : null;
-}
-
-export async function getTeachingActivities() {
-  return await base44.entities.TeachingActivity.filter({ status: "published" }, "sort_order", 50);
-}
-
-export async function getMediaUrl(assetId, fallbackUrl) {
-  if (!assetId) return fallbackUrl || "";
+async function bySlug(kind, slug) {
   try {
-    const list = await base44.entities.MediaAsset.filter({ _id: assetId }, "-updated_date", 1);
-    return list && list.length ? list[0].file_url : fallbackUrl || "";
-  } catch {
-    return fallbackUrl || "";
+    const data = await request(`/api/content/${encodeURIComponent(kind)}/${encodeURIComponent(slug)}`);
+    return unwrapPayload(data);
+  } catch (error) {
+    if (error.status === 404) return null;
+    throw error;
   }
 }
+
+export const getSiteSettings = () => bySlug("settings", "site");
+export const getTeacherProfile = async () => {
+  const teacher = await bySlug("teacher", "teacher");
+  return teacher && teacher.visible === false ? null : teacher;
+};
+export const getCourseThemes = () => list("themes");
+export const getExperiments = () => list("experiments");
+export const getExperimentBySlug = (slug) => bySlug("experiments", slug);
+export const getPresetsForExperiment = async (slug) => {
+  const records = await list("presets");
+  return records.filter((item) => item.experiment_slug === slug);
+};
+export const getQuizForExperiment = async (slug) => {
+  const records = await list("quizzes");
+  return records.filter((item) => item.experiment_slug === slug);
+};
+export const getStudentWorks = () => list("works");
+export const getWorkBySlug = (slug) => bySlug("works", slug);
+export const getTeachingActivities = () => list("activities");
+export const getMediaUrl = (assetId, fallbackUrl = "") => mediaUrl(assetId, fallbackUrl);
 
 export const contentService = {
   getSiteSettings,
@@ -77,4 +47,21 @@ export const contentService = {
   getStudentWorks,
   getWorkBySlug,
   getTeachingActivities,
+  getMediaUrl,
 };
+/**
+ * @typedef {Object} SiteSettings
+ * @property {string} [site_name]
+ * @property {string[]} [school_names]
+ * @property {string} [hero_title]
+ * @property {string} [hero_description]
+ * @property {string} [hero_media_asset_id]
+ * @property {string} [hero_media_url]
+ * @property {string} [project_intro]
+ * @property {string} [about_text]
+ * @property {string[]} [teaching_features]
+ * @property {string} [contact_email]
+ * @property {string[]} [featured_experiment_slugs]
+ * @property {string[]} [featured_work_slugs]
+ * @property {{themes?: boolean, teacher?: boolean, experiments?: boolean, works?: boolean, activities?: boolean}} [section_visibility]
+ */

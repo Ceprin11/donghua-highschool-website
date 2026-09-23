@@ -1,41 +1,15 @@
-# AGENTS.md
+# 工程约定
 
-## Project Context
+本项目是独立运行的 React、Vite、Tailwind 前端与 Express、SQLite 后端。Base44 实体仅作历史参考，不参与运行。
 
-This is a Base44 app repository. Treat it as user-owned application code, keep changes focused on the user's request, and preserve existing project conventions.
+先阅读 README.md 和 docs/ARCHITECTURE.md。实际数据保存于 DATA_DIR，默认 data。不要读取或输出环境密钥、密码、会话或未公开的个人资料。所有测试使用临时数据库与媒体目录。
 
-Start with `README.md` for local setup, environment variables, and publish workflow.
+保留既有未提交修改。除非用户明确要求，不自动提交、推送、部署，不操作云资源。普通本地开发可继续完成。
 
-## Base44 References
+五个实验是首版范围，学生免登录，小测在本机判分。只有一个管理员和一份教师资料。内容修改先保存草稿，再显式发布。公开内容与素材访问都由服务端控制。
 
-- CLI overview: https://docs.base44.com/developers/references/cli/get-started/overview.md
-- Agent skills: https://docs.base44.com/developers/backend/overview/skills.md
+运行 npm run lint、npm test、npm run build 和与修改相关的浏览器测试。先说明每次检查要发现的具体失败，已有结果没有发生相关变化时不要重复检查。测试不得开启真实摄像头，除非用户主动授权。需要真机验证的结果必须明确记录。
 
-If your agent supports Agent Skills, install or update Base44 skills before Base44-specific work:
+原始报告保留于 _project_review。源码快照在工作区的 _source_snapshots，不可放进 public、dist 或发布镜像。
 
-```bash
-npx skills add base44/skills
-```
-
-## Key Files
-
-- `src/`: frontend application source.
-- `src/api/base44Client.js`: frontend Base44 SDK client.
-- `vite.config.js`: Vite config and Base44 Vite plugin setup.
-- `.env.local`: local-only environment values; never commit secrets.
-
-## Working Notes
-
-- Use `base44 dev` as the default local development command when you need the local Base44 backend. It can run the backend and frontend together.
-- When docs or code mention the frontend being started automatically, that usually means the Base44 project config includes `site.serveCommand`, for example `"serveCommand": "npm run dev"` in `base44/config.jsonc`.
-- Use `npm run dev` only for frontend-only work against the hosted Base44 backend.
-- Prefer the existing Base44 CLI workflow over adding new npm scripts for Base44-specific tasks.
-- Reuse the existing SDK client and Vite plugin patterns before adding new Base44 integration paths.
-- Run the relevant checks from `package.json` before finishing code changes.
-
-## Git Backup
-
-- The project backup repository is `https://github.com/Ceprin11/donghua-highschool-website.git`.
-- After completing a coherent code change, run the applicable available checks, commit the project changes with a clear message, and push the current branch to its upstream. Report any check or push failure without claiming the backup succeeded.
-- Preserve existing user changes and remote history. Do not force-push or rewrite history for routine backups.
-- Keep credentials, environment files, local audit reports in `_project_review/`, and `_export-report.json` out of this public repository.
+公开页面文案直接写栏目名称、课程内容和实验功能。不要添加口号、氛围性小字或无具体信息的引导语。保留必要的操作提示，课程正文以课件为依据。

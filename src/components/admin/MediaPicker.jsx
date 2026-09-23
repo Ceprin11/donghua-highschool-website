@@ -1,72 +1,13 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
-import { Image } from "@/components/ui/image";
-import { ImagePlus, Loader2, Trash2 } from "lucide-react";
+import { ImagePlus, Loader2, Trash2, Video } from "lucide-react";
+import { listMedia } from "@/services/mediaService";
+import { mediaUrl } from "@/services/apiClient";
 
-// Admin-only asset picker: lists uploaded MediaAsset images and returns {asset_id, url}.
-// Public pages can't read MediaAsset (admin-only RLS), so the picked file_url is
-// stored directly on the content record for public display.
-export default function MediaPicker({ label = "图片", value, onChange }) {
-  const [open, setOpen] = useState(false);
-  const [assets, setAssets] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const openPicker = () => {
-    setOpen(true);
-    setLoading(true);
-    base44.entities.MediaAsset.filter({ asset_kind: "image" }, "-created_date", 100)
-      .then(setAssets)
-      .catch(() => setAssets([]))
-      .finally(() => setLoading(false));
-  };
-
-  const selected = value?.url ? value : null;
-
-  return (
-    <div>
-      <label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>
-      <div className="flex items-start gap-3">
-        {selected ? (
-          <Image src={selected.url} alt="已选图片" className="w-24 h-24 rounded-lg border border-border bg-muted" fittingType="fill" />
-        ) : (
-          <div className="w-24 h-24 rounded-lg border border-dashed border-border bg-muted/40 flex items-center justify-center text-xs text-muted-foreground">未选择</div>
-        )}
-        <div className="flex flex-col gap-2">
-          <button type="button" onClick={openPicker} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm hover:bg-accent">
-            <ImagePlus size={15} /> {selected ? "更换图片" : "从素材库选择"}
-          </button>
-          {selected && (
-            <button type="button" onClick={() => onChange(null)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm text-red-600 hover:bg-red-50">
-              <Trash2 size={15} /> 移除
-            </button>
-          )}
-          <div className="text-xs text-muted-foreground">图片请先在“素材管理”中上传</div>
-        </div>
-      </div>
-      {open && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setOpen(false)}>
-          <div className="bg-card rounded-xl border border-border max-w-2xl w-full p-6 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-base font-semibold mb-4">选择图片素材</h3>
-            {loading ? (
-              <div className="py-10 flex items-center justify-center gap-2 text-muted-foreground text-sm"><Loader2 size={16} className="animate-spin" /> 加载中…</div>
-            ) : assets.length === 0 ? (
-              <div className="py-10 text-center text-sm text-muted-foreground">暂无图片素材，请先在“素材管理”中上传</div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {assets.map((a) => (
-                  <button key={a.id} type="button" onClick={() => { onChange({ asset_id: a.id, url: a.file_url }); setOpen(false); }} className="rounded-lg border border-border overflow-hidden hover:border-primary transition-colors text-left">
-                    <Image src={a.file_url} alt={a.file_name} className="w-full aspect-square bg-muted" fittingType="fill" />
-                    <div className="px-2 py-1.5 text-xs text-foreground truncate">{a.file_name}</div>
-                  </button>
-                ))}
-              </div>
-            )}
-            <div className="mt-4 text-right">
-              <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 rounded-lg border border-border text-sm">取消</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+export default function MediaPicker({ label = "图片", value, onChange, kind = "image", multiple = false }) {
+  const [open, setOpen] = useState(false); const [error, setError] = useState(null); const [assets, setAssets] = useState([]); const [loading, setLoading] = useState(false); const imageKind = kind === "image";
+  const openPicker = () => { setOpen(true); setLoading(true); setError(null); listMedia().then((items) => setAssets(items.filter((asset) => imageKind ? (asset.mime_type || "").startsWith("image/") : (asset.mime_type || "").startsWith("video/")))).catch(setError).finally(() => setLoading(false)); };
+  const selectedItems = multiple ? (Array.isArray(value) ? value : []) : (value?.asset_id || value?.id ? [value] : []);
+  const choose = (asset) => { const item = { asset_id: asset.id, url: asset.url || asset.file_url || mediaUrl(asset.id) }; if (multiple) onChange([...selectedItems.filter((selected) => selected.asset_id !== item.asset_id), item]); else { onChange(item); setOpen(false); } };
+  const remove = (item) => onChange(multiple ? selectedItems.filter((selected) => selected.asset_id !== item.asset_id) : null);
+  return <div><label className="mb-1.5 block text-sm font-medium text-foreground">{label}</label><div className="flex flex-wrap items-start gap-3">{selectedItems.map((selected) => { const url = mediaUrl(selected.asset_id || selected.id, selected.url || selected.file_url); return <div key={selected.asset_id || selected.id} className="relative">{imageKind ? <img src={url} alt="已选素材" className="h-24 w-24 rounded-lg border border-border bg-muted object-cover" /> : <div className="flex h-24 w-24 items-center justify-center rounded-lg border border-border bg-slate-900 text-white"><Video size={22} /></div>}<button type="button" title="移除素材" onClick={() => remove(selected)} className="absolute -right-2 -top-2 rounded-full bg-card p-1 text-red-600 shadow"><Trash2 size={13} /></button></div>; })}<button type="button" onClick={openPicker} className="flex h-24 min-w-24 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border px-3 text-xs text-muted-foreground hover:border-primary hover:text-primary"><ImagePlus size={17} />{multiple ? "添加素材" : selectedItems.length ? "更换" : "选择素材"}</button></div><div className="mt-2 text-xs text-muted-foreground">{multiple ? "可选择多张素材，发布后按顺序展示。" : imageKind ? "图片请先在素材管理中上传。" : "视频请先在素材管理中上传。"}</div>{open && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setOpen(false)}><div className="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-border bg-card p-6" onClick={(event) => event.stopPropagation()}><h3 className="mb-4 text-base font-semibold">选择{imageKind ? "图片" : "视频"}素材</h3>{loading ? <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground"><Loader2 size={16} className="animate-spin" />加载中…</div> : error ? <div role="alert" className="py-6 text-sm text-red-700">素材加载失败，请重试。<button type="button" onClick={openPicker} className="ml-3 underline">重试</button></div> : assets.length === 0 ? <div className="py-10 text-center text-sm text-muted-foreground">暂无可用素材，请先上传</div> : <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{assets.map((asset) => { const id = asset.id; const url = mediaUrl(id, asset.url || asset.file_url); const picked = selectedItems.some((selected) => selected.asset_id === id); return <button key={id} type="button" onClick={() => choose(asset)} className={`overflow-hidden rounded-lg border text-left transition-colors ${picked ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary"}`}>{imageKind ? <img src={url} alt="" className="aspect-square w-full bg-muted object-cover" /> : <div className="flex aspect-square items-center justify-center bg-slate-900 text-white"><Video size={28} /></div>}<div className="truncate px-2 py-1.5 text-xs text-foreground">{asset.original_name || asset.file_name || "未命名素材"}</div></button>; })}</div>}<div className="mt-4 text-right"><button type="button" onClick={() => setOpen(false)} className="rounded-lg border border-border px-4 py-2 text-sm">完成</button></div></div></div>}</div>;
 }

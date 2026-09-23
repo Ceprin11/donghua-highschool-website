@@ -1,165 +1,126 @@
-// Q-learning on a 2D grid — real Q-table updates, epsilon-greedy action selection.
-// Q(s,a) ← Q(s,a) + α[r + γ max Q(s',a') - Q(s,a)]; terminal goal uses r only.
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FastForward, MapPin, Pause, Play, Trash2 } from "lucide-react";
+import { mergeConfig } from "../../../shared/experiment-config.js";
+import { CELL, cloneGrid, defaultMapA, defaultMapB, findCell, MazeAgent } from "./MazeEngine";
 
-export const CELL = { EMPTY: 0, START: 1, GOAL: 2, OBSTACLE: 3, TRAP: 4 };
+const CELL_COLORS = { [CELL.EMPTY]: "bg-white", [CELL.START]: "bg-green-100 border-green-400", [CELL.GOAL]: "bg-blue-100 border-blue-400", [CELL.OBSTACLE]: "bg-foreground/80", [CELL.TRAP]: "bg-red-100 border-red-400" };
 
-export function emptyMap(rows, cols) {
-  const grid = [];
-  for (let r = 0; r < rows; r++) grid.push(new Array(cols).fill(CELL.EMPTY));
-  return grid;
+function safeConfig(preset) {
+  try { return mergeConfig("maze", preset?.config || {}); } catch { return mergeConfig("maze"); }
 }
 
-export function defaultMapA() {
-  const g = emptyMap(6, 6);
-  g[0][0] = CELL.START;
-  g[5][5] = CELL.GOAL;
-  g[2][2] = CELL.OBSTACLE;
-  g[2][3] = CELL.OBSTACLE;
-  g[3][3] = CELL.OBSTACLE;
-  g[4][1] = CELL.TRAP;
-  return g;
-}
+function gridFromConfig(config) { return config.grid ? cloneGrid(config.grid) : config.map === "B" ? defaultMapB() : defaultMapA(); }
 
-export function defaultMapB() {
-  const g = emptyMap(6, 6);
-  g[0][0] = CELL.START;
-  g[0][5] = CELL.GOAL;
-  g[2][1] = CELL.OBSTACLE;
-  g[2][2] = CELL.OBSTACLE;
-  g[2][3] = CELL.OBSTACLE;
-  g[2][4] = CELL.OBSTACLE;
-  g[4][3] = CELL.TRAP;
-  g[3][0] = CELL.TRAP;
-  return g;
-}
+export default function MazeLab({ preset }) {
+  const config = useMemo(() => safeConfig(preset), [preset]);
+  const [settings, setSettings] = useState(config);
+  const [grid, setGrid] = useState(() => gridFromConfig(config));
+  const [editTool, setEditTool] = useState(Number(CELL.OBSTACLE));
+  const [running, setRunning] = useState(false);
+  const [lastEpisode, setLastEpisode] = useState(null);
+  const [path, setPath] = useState([]);
+  const [history, setHistory] = useState([]);
+  const agentRef = useRef(null);
+  const timerRef = useRef(null);
+  const generationRef = useRef(0);
+  const presetKeyRef = useRef("");
+  const start = useMemo(() => findCell(grid, CELL.START), [grid]);
+  const reachable = useMemo(() => {
+    try { return ensureReadableAgent(settings).isReachable(grid, start); } catch { return false; }
+  }, [grid, settings]);
 
-const ACTIONS = [[-1, 0], [1, 0], [0, -1], [0, 1]]; // up, down, left, right
-
-export class MazeAgent {
-  constructor(rows, cols, config = {}) {
-    this.rows = rows;
-    this.cols = cols;
-    this.alpha = config.alpha ?? 0.2;
-    this.gamma = config.gamma ?? 0.9;
-    this.epsilon = config.epsilon ?? 0.2;
-    this.goalReward = config.goalReward ?? 10;
-    this.trapPenalty = config.trapPenalty ?? -10;
-    this.stepPenalty = config.stepPenalty ?? -1;
-    this.maxSteps = config.maxSteps ?? 50;
-    this.resetLearning();
+  function ensureReadableAgent(nextSettings) {
+    return new MazeAgent(grid.length, grid[0].length, nextSettings);
   }
 
-  resetLearning() {
-    this.Q = [];
-    for (let r = 0; r < this.rows; r++) {
-      const row = [];
-      for (let c = 0; c < this.cols; c++) row.push(new Array(4).fill(0));
-      this.Q.push(row);
+  const stopTraining = useCallback(() => {
+    generationRef.current += 1;
+    setRunning(false);
+    if (timerRef.current !== null) clearInterval(timerRef.current);
+    timerRef.current = null;
+  }, []);
+
+  const resetLearning = useCallback(() => {
+    stopTraining();
+    agentRef.current = new MazeAgent(grid.length, grid[0].length, settings);
+    setLastEpisode(null); setPath([]); setHistory([]);
+  }, [grid, settings, stopTraining]);
+
+  useEffect(() => {
+    const key = JSON.stringify(preset?.config || {});
+    if (presetKeyRef.current === key) return;
+    presetKeyRef.current = key;
+    stopTraining();
+    setSettings(config);
+    setGrid(gridFromConfig(config));
+    agentRef.current = null;
+    setLastEpisode(null); setPath([]); setHistory([]);
+  }, [preset, config, stopTraining]);
+
+  useEffect(() => () => stopTraining(), [stopTraining]);
+
+  const runOne = useCallback(() => {
+    const agent = agentRef.current || new MazeAgent(grid.length, grid[0].length, settings);
+    agentRef.current = agent;
+    agent.alpha = settings.alpha; agent.gamma = settings.gamma; agent.epsilon = settings.epsilon;
+    agent.goalReward = settings.goalReward; agent.trapPenalty = settings.trapPenalty; agent.stepPenalty = settings.stepPenalty; agent.maxSteps = settings.maxSteps;
+    const result = agent.runEpisode(grid, findCell(grid, CELL.START));
+    setLastEpisode(result); setHistory(agent.history.slice(-80)); setPath(agent.greedyPath(grid, findCell(grid, CELL.START), settings.maxSteps));
+  }, [grid, settings]);
+
+  useEffect(() => {
+    if (!running) return undefined;
+    const interval = settings.speed === "fast" ? 35 : settings.speed === "slow" ? 650 : 220;
+    timerRef.current = setInterval(runOne, interval);
+    return () => { if (timerRef.current !== null) clearInterval(timerRef.current); timerRef.current = null; };
+  }, [running, runOne, settings.speed]);
+
+  const toggleRunning = () => {
+    if (running) stopTraining();
+    else { if (!agentRef.current) agentRef.current = new MazeAgent(grid.length, grid[0].length, settings); setRunning(true); }
+  };
+
+  const updateSetting = (key, value) => {
+    const nextSettings = { ...settings, [key]: value };
+    stopTraining();
+    setSettings(nextSettings);
+    agentRef.current = new MazeAgent(grid.length, grid[0].length, nextSettings);
+    setLastEpisode(null); setHistory([]); setPath([]);
+  };
+  const handleCellClick = (row, col) => {
+    if (running) return;
+    const next = cloneGrid(grid);
+    if (editTool === CELL.START || editTool === CELL.GOAL) {
+      if (next[row][col] === (editTool === CELL.START ? CELL.GOAL : CELL.START)) return;
+      const old = editTool === CELL.START ? CELL.START : CELL.GOAL;
+      for (let r = 0; r < next.length; r += 1) for (let c = 0; c < next[r].length; c += 1) if (next[r][c] === old) next[r][c] = CELL.EMPTY;
+      next[row][col] = editTool;
+    } else {
+      if (next[row][col] === CELL.START || next[row][col] === CELL.GOAL) return;
+      next[row][col] = next[row][col] === editTool ? CELL.EMPTY : editTool;
     }
-    this.episodes = 0;
-    this.history = [];
-  }
+    setGrid(next); stopTraining(); agentRef.current = null; setLastEpisode(null); setHistory([]); setPath([]);
+  };
 
-  isTerminal(grid, r, c) {
-    return grid[r][c] === CELL.GOAL || grid[r][c] === CELL.TRAP;
-  }
+  const loadMap = (which) => { stopTraining(); const next = which === "B" ? defaultMapB() : defaultMapA(); setSettings((current) => ({ ...current, map: which, grid: undefined })); setGrid(next); agentRef.current = null; setLastEpisode(null); setHistory([]); setPath([]); };
 
-  validActions(grid, r, c) {
-    const out = [];
-    for (let a = 0; a < 4; a++) {
-      const nr = r + ACTIONS[a][0];
-      const nc = c + ACTIONS[a][1];
-      if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols && grid[nr][nc] !== CELL.OBSTACLE) {
-        out.push(a);
-      }
-    }
-    return out;
-  }
+  const maxReward = Math.max(1, ...history.map((item) => item.reward));
+  const minReward = Math.min(-1, ...history.map((item) => item.reward));
+  const rewardPoints = history.length > 1 ? history.map((item, index) => `${(index / (history.length - 1)) * 300},${110 - ((item.reward - minReward) / Math.max(1, maxReward - minReward)) * 100}`).join(" ") : "";
 
-  pickAction(grid, r, c) {
-    const valid = this.validActions(grid, r, c);
-    if (valid.length === 0) return -1;
-    if (Math.random() < this.epsilon) {
-      return valid[Math.floor(Math.random() * valid.length)];
-    }
-    // pick max Q among valid, tie-break randomly
-    let best = valid[0];
-    let bestVal = this.Q[r][c][best];
-    const ties = [best];
-    for (let i = 1; i < valid.length; i++) {
-      const a = valid[i];
-      const v = this.Q[r][c][a];
-      if (Math.abs(v - bestVal) < 1e-9) { ties.push(a); }
-      else if (v > bestVal) { bestVal = v; best = a; ties.length = 0; ties.push(a); }
-    }
-    return ties[Math.floor(Math.random() * ties.length)];
-  }
-
-  // Run one episode, returns { steps, reward, reachedGoal }
-  runEpisode(grid, startPos) {
-    let r = startPos.r, c = startPos.c;
-    let totalReward = 0;
-    let steps = 0;
-    let reachedGoal = false;
-    while (steps < this.maxSteps) {
-      const a = this.pickAction(grid, r, c);
-      if (a < 0) break;
-      const nr = r + ACTIONS[a][0];
-      const nc = c + ACTIONS[a][1];
-      let reward = this.stepPenalty;
-      let terminal = false;
-      if (grid[nr][nc] === CELL.GOAL) { reward = this.goalReward; reachedGoal = true; terminal = true; }
-      else if (grid[nr][nc] === CELL.TRAP) { reward = this.trapPenalty; terminal = true; }
-      // update
-      const target = terminal ? reward : reward + this.gamma * Math.max(...this.Q[nr][nc]);
-      this.Q[r][c][a] += this.alpha * (target - this.Q[r][c][a]);
-      totalReward += reward;
-      steps++;
-      r = nr; c = nc;
-      if (terminal) break;
-    }
-    this.episodes++;
-    this.history.push({ episode: this.episodes, steps, reward: totalReward, reachedGoal });
-    return { steps, reward: totalReward, reachedGoal };
-  }
-
-  // Derive current greedy policy path (not used as "learned shortest path" claim)
-  greedyPath(grid, startPos, maxSteps = 30) {
-    const path = [{ r: startPos.r, c: startPos.c }];
-    let r = startPos.r, c = startPos.c;
-    const visited = new Set([`${r},${c}`]);
-    for (let s = 0; s < maxSteps; s++) {
-      if (this.isTerminal(grid, r, c)) break;
-      const valid = this.validActions(grid, r, c);
-      if (valid.length === 0) break;
-      let best = valid[0];
-      for (const a of valid) if (this.Q[r][c][a] > this.Q[r][c][best]) best = a;
-      r += ACTIONS[best][0];
-      c += ACTIONS[best][1];
-      const key = `${r},${c}`;
-      if (visited.has(key)) break;
-      visited.add(key);
-      path.push({ r, c });
-    }
-    return path;
-  }
-
-  // BFS reachability check (separate from RL)
-  isReachable(grid, startPos) {
-    const visited = new Set([`${startPos.r},${startPos.c}`]);
-    const queue = [startPos];
-    while (queue.length) {
-      const { r, c } = queue.shift();
-      if (grid[r][c] === CELL.GOAL) return true;
-      for (const [dr, dc] of ACTIONS) {
-        const nr = r + dr, nc = c + dc;
-        if (nr >= 0 && nr < this.rows && nc >= 0 && nc < this.cols &&
-            grid[nr][nc] !== CELL.OBSTACLE && !visited.has(`${nr},${nc}`)) {
-          visited.add(`${nr},${nc}`);
-          queue.push({ r: nr, c: nc });
-        }
-      }
-    }
-    return false;
-  }
+  return <div className="space-y-5">
+    <div className="grid md:grid-cols-2 gap-5">
+      <div><div className="w-full max-w-[360px] p-2 rounded-lg border border-border bg-muted/20"><div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${grid[0].length}, minmax(0, 1fr))` }}>{grid.map((row, r) => row.map((cell, c) => { const onPath = path.some((point) => point.r === r && point.c === c); return <button key={`${r},${c}`} onClick={() => handleCellClick(r, c)} className={`w-full aspect-square min-w-0 rounded border-2 ${CELL_COLORS[cell]} ${onPath ? "ring-2 ring-primary" : ""} flex items-center justify-center text-xs font-medium hover:opacity-80`} aria-label={`第${r + 1}行第${c + 1}列`}>{cell === CELL.START && "起"}{cell === CELL.GOAL && "终"}{cell === CELL.TRAP && "陷"}</button>; }))}</div></div><div className="mt-2 text-xs text-muted-foreground">点击格子编辑地图；高亮路线来自当前 Q 表策略。起点和终点不能被障碍或陷阱覆盖。</div></div>
+      <div className="space-y-4">
+        <div className="flex gap-2 flex-wrap">{[[CELL.OBSTACLE, "障碍"], [CELL.TRAP, "陷阱"], [CELL.START, "起点"], [CELL.GOAL, "终点"]].map(([tool, label]) => <button key={tool} onClick={() => setEditTool(Number(tool))} className={`px-3 py-1.5 rounded text-xs border ${editTool === tool ? "bg-accent border-primary" : "border-border"}`}>{label}</button>)}</div>
+        <div className="flex gap-2"><button onClick={() => loadMap("A")} className="px-3 py-1.5 rounded text-xs border border-border hover:bg-accent">地图 A</button><button onClick={() => loadMap("B")} className="px-3 py-1.5 rounded text-xs border border-border hover:bg-accent">地图 B</button></div>
+        <div className="grid grid-cols-2 gap-3">{[["goalReward", "终点奖励", -100, 100, 1], ["trapPenalty", "陷阱惩罚", -100, 0, 1], ["stepPenalty", "每步惩罚", -100, 0, 0.1], ["epsilon", "探索率 ε", 0, 1, 0.05]].map(([key, label, min, max, step]) => <label key={key} className="text-xs text-muted-foreground">{label}<input type="number" min={min} max={max} step={step} value={settings[key]} onChange={(event) => updateSetting(key, Number(event.target.value))} className="w-full px-2 py-1 rounded border border-border text-sm text-foreground" /></label>)}</div>
+        <div className="rounded-lg border border-border p-3 space-y-1 text-sm"><div className="flex justify-between"><span className="text-muted-foreground">训练轮数</span><span className="font-mono font-semibold">{history.length ? history[history.length - 1].episode : 0}</span></div><div className="flex justify-between"><span className="text-muted-foreground">上一轮步数</span><span className="font-mono">{lastEpisode?.steps ?? "-"}</span></div><div className="flex justify-between"><span className="text-muted-foreground">上一轮奖励</span><span className="font-mono">{lastEpisode?.reward ?? "-"}</span></div><div className="flex justify-between"><span className="text-muted-foreground">结果</span><span className="font-mono">{lastEpisode ? (lastEpisode.reachedGoal ? "到达终点" : lastEpisode.reason === "trap" ? "掉入陷阱" : "未到达") : "-"}</span></div><div className="flex justify-between"><span className="text-muted-foreground">地图可达</span><span className="font-mono">{reachable ? "是" : "否，请调整地图"}</span></div></div>
+        <div className="flex flex-wrap gap-2"><button onClick={toggleRunning} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium">{running ? <><Pause size={16} /> 暂停</> : <><Play size={16} /> 开始训练</>}</button><button onClick={runOne} disabled={running} className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg border border-border text-sm hover:bg-accent disabled:opacity-50"><MapPin size={14} /> 单轮尝试</button><button onClick={() => setSettings((current) => ({ ...current, speed: current.speed === "fast" ? "normal" : "fast" }))} className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg border border-border text-sm hover:bg-accent"><FastForward size={14} /> {settings.speed === "fast" ? "常速" : "快速"}</button><button onClick={() => setSettings((current) => ({ ...current, speed: "slow" }))} className={`px-3.5 py-2.5 rounded-lg border border-border text-sm ${settings.speed === "slow" ? "bg-accent" : "hover:bg-accent"}`}>慢速</button><button onClick={resetLearning} className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg border border-border text-sm hover:bg-accent"><Trash2 size={14} /> 清空学习</button></div>
+      </div>
+    </div>
+    <div className="flex flex-wrap items-center gap-3"><button onClick={() => { stopTraining(); if (agentRef.current) setPath(agentRef.current.greedyPath(grid, findCell(grid, CELL.START), settings.maxSteps)); }} disabled={!history.length} className="rounded-lg border border-border px-4 py-2.5 text-sm hover:bg-accent disabled:opacity-50">策略试走</button>{path.length > 0 && <span role="status" className="text-sm">当前策略经过 {path.length} 个格子，{grid[path[path.length - 1].r][path[path.length - 1].c] === CELL.GOAL ? "到达终点" : "尚未到达终点，请继续训练或调整奖励"}。</span>}</div>
+    {history.length > 1 && <div className="rounded-lg border border-border p-3"><div className="text-sm font-medium mb-2">每轮奖励（纵轴包含负奖励）</div><svg width="100%" height="120" viewBox="0 0 300 120" className="overflow-visible"><polyline fill="none" stroke="#d88b13" strokeWidth="2" points={rewardPoints} /><line x1="0" y1={110 - ((0 - minReward) / Math.max(1, maxReward - minReward)) * 100} x2="300" y2={110 - ((0 - minReward) / Math.max(1, maxReward - minReward)) * 100} stroke="#9ca3af" strokeDasharray="3 3" /></svg></div>}
+    <div className="text-xs text-muted-foreground px-3 py-2 rounded bg-muted/30">机器人通过探索更新每一步的行动价值。到达终点或陷阱，本轮结束。训练后，试走它学到的路线。</div>
+  </div>;
 }

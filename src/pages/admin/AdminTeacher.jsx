@@ -1,71 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { Save, Loader2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Save } from "lucide-react";
+import MediaPicker from "@/components/admin/MediaPicker";
+import { ErrorState, LoadingState, StatusBadge } from "@/components/site/States";
+import { getAdminContent, publishAdminContent, unpublishAdminContent, updateAdminContent } from "@/services/adminService";
+import { inputClass, Field } from "./AdminLayout";
+import { envelopePayload } from "./adminUtils";
 
-export default function AdminSettings() {
-  const [record, setRecord] = useState(null);
-  const [form, setForm] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState("");
-
-  useEffect(() => {
-    base44.entities.SiteSettings.filter({}, "-updated_date", 1).then((list) => {
-      if (list && list.length) { setRecord(list[0]); setForm(list[0]); }
-      else { setForm({ key: "default", site_name: "人工智能科普课程与互动实验室", school_names: ["东华大学", "东华大学附属松江高级中学"], hero_title: "", hero_description: "", project_intro: "", teaching_features: [], about_text: "", contact_email: "", footer_text: "", filing_info: "", section_visibility: {}, featured_experiment_slugs: [], featured_work_slugs: [], status: "published" }); }
-    });
-  }, []);
-
-  const update = (field, value) => setForm((f) => ({ ...f, [field]: value }));
-  const updateArray = (field, value) => setForm((f) => ({ ...f, [field]: value.split("\n").filter(Boolean) }));
-
-  const save = async () => {
-    setSaving(true); setMsg("");
-    try {
-      if (record?.id) {
-        await base44.entities.SiteSettings.update(record.id, form);
-      } else {
-        await base44.entities.SiteSettings.create(form);
-      }
-      setMsg("保存成功");
-    } catch (e) { setMsg("保存失败：" + e.message); }
-    setSaving(false);
-  };
-
-  if (!form) return <div className="text-muted-foreground">加载中…</div>;
-
-  return (
-    <div className="max-w-3xl">
-      <h1 className="text-2xl font-bold text-foreground mb-6">首页与网站设置</h1>
-      <div className="space-y-5">
-        <Field label="网站名称"><input className={inputCls} value={form.site_name || ""} onChange={(e) => update("site_name", e.target.value)} /></Field>
-        <Field label="合作学校（每行一个）"><textarea className={inputCls} rows={2} value={(form.school_names || []).join("\n")} onChange={(e) => updateArray("school_names", e.target.value)} /></Field>
-        <Field label="首页主标题"><input className={inputCls} value={form.hero_title || ""} onChange={(e) => update("hero_title", e.target.value)} /></Field>
-        <Field label="首页介绍"><textarea className={inputCls} rows={3} value={form.hero_description || ""} onChange={(e) => update("hero_description", e.target.value)} /></Field>
-        <Field label="项目简介"><textarea className={inputCls} rows={4} value={form.project_intro || ""} onChange={(e) => update("project_intro", e.target.value)} /></Field>
-        <Field label="教学特色（每行一条）"><textarea className={inputCls} rows={3} value={(form.teaching_features || []).join("\n")} onChange={(e) => updateArray("teaching_features", e.target.value)} /></Field>
-        <Field label="关于项目正文"><textarea className={inputCls} rows={4} value={form.about_text || ""} onChange={(e) => update("about_text", e.target.value)} /></Field>
-        <Field label="联系邮箱"><input className={inputCls} value={form.contact_email || ""} onChange={(e) => update("contact_email", e.target.value)} placeholder="未提供可留空" /></Field>
-        <Field label="页脚文字"><input className={inputCls} value={form.footer_text || ""} onChange={(e) => update("footer_text", e.target.value)} /></Field>
-        <Field label="备案信息"><input className={inputCls} value={form.filing_info || ""} onChange={(e) => update("filing_info", e.target.value)} placeholder="未提供可留空" /></Field>
-        <div className="rounded-lg border border-border p-4">
-          <div className="text-sm font-medium mb-3">首页区块显示</div>
-          {["themes", "teacher", "experiments", "works", "activities"].map((k) => (
-            <label key={k} className="flex items-center gap-2 mb-2 text-sm">
-              <input type="checkbox" checked={form.section_visibility?.[k] !== false} onChange={(e) => update("section_visibility", { ...form.section_visibility, [k]: e.target.checked })} />
-              {k}
-            </label>
-          ))}
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={save} disabled={saving} className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50">
-            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} 保存
-          </button>
-          {msg && <span className={`text-sm ${msg.includes("失败") ? "text-red-600" : "text-green-600"}`}>{msg}</span>}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const inputCls = "w-full px-3 py-2 rounded-lg border border-border bg-card text-sm focus:outline-none focus:border-primary";
-function Field({ label, children }) { return <div><label className="block text-sm font-medium text-foreground mb-1.5">{label}</label>{children}</div>; }
+const EMPTY = { key: "teacher", name: "", photo_asset_id: "", photo_url: "", organization: "", title_or_identity: "", project_role: "", short_bio: "", visible: false };
+export default function AdminTeacher() { const [form, setForm] = useState(EMPTY); const [record, setRecord] = useState(null); const [loading, setLoading] = useState(true); const [error, setError] = useState(null); const [message, setMessage] = useState(""); const [saving, setSaving] = useState(false); const load = async () => { setLoading(true); setError(null); try { const envelope = await getAdminContent("teacher", "teacher"); setRecord(envelope); setForm({ ...EMPTY, ...envelopePayload(envelope) }); } catch (loadError) { setError(loadError); } finally { setLoading(false); } }; useEffect(() => { load(); }, []); const update = (key, value) => setForm((current) => ({ ...current, [key]: value })); const save = async () => { setSaving(true); try { const envelope = await updateAdminContent("teacher", "teacher", form); setRecord(envelope); setForm({ ...EMPTY, ...envelopePayload(envelope) }); setMessage("教师资料已保存为草稿"); } catch (saveError) { setMessage(saveError.message || "保存失败"); } finally { setSaving(false); } }; const publish = async () => { try { await publishAdminContent("teacher", "teacher"); setMessage("教师资料已发布"); await load(); } catch (publishError) { setMessage(publishError.message || "发布失败"); } }; const unpublish = async () => { try { await unpublishAdminContent("teacher", "teacher"); setMessage("教师资料已下架"); await load(); } catch (error) { setMessage(error.message || "下架失败"); } }; if (loading) return <LoadingState label="正在读取教师资料" />; if (error) return <ErrorState error={error} onRetry={load} />; return <div><div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><h1 className="text-3xl font-bold">主讲教师</h1><p className="mt-2 text-sm text-muted-foreground">网站只维护一位主讲教师，共六项资料。空白字段会保持为空。</p></div><StatusBadge status={record?.status || "draft"} /></div><div className="grid gap-6 xl:grid-cols-[1fr_340px]"><section className="rounded-xl border border-border bg-card p-6"><div className="grid gap-5 md:grid-cols-2"><Field label="姓名"><input className={inputClass} value={form.name} onChange={(event) => update("name", event.target.value)} placeholder="待确认" /></Field><Field label="单位或学院"><input className={inputClass} value={form.organization} onChange={(event) => update("organization", event.target.value)} placeholder="待确认" /></Field><Field label="职称或身份"><input className={inputClass} value={form.title_or_identity} onChange={(event) => update("title_or_identity", event.target.value)} placeholder="待确认" /></Field><Field label="项目职责"><input className={inputClass} value={form.project_role} onChange={(event) => update("project_role", event.target.value)} placeholder="待确认" /></Field><div className="md:col-span-2"><MediaPicker label="照片" value={{ asset_id: form.photo_asset_id, url: form.photo_url }} onChange={(value) => setForm((current) => ({ ...current, photo_asset_id: value?.asset_id || "", photo_url: value?.url || "" }))} /></div><Field label="简短介绍"><textarea className={inputClass} rows={6} value={form.short_bio} onChange={(event) => update("short_bio", event.target.value)} placeholder="待确认" /></Field></div></section><aside className="space-y-5"><section className="rounded-xl border border-border bg-card p-6"><h2 className="text-base font-semibold">展示状态</h2><label className="mt-4 flex items-start gap-3 rounded-lg border border-border p-3 text-sm"><input type="checkbox" checked={form.visible} onChange={(event) => update("visible", event.target.checked)} className="mt-0.5 h-4 w-4 accent-primary" /><span><span className="font-medium">在前台展示</span><span className="mt-1 block text-xs text-muted-foreground">只有已发布且开启展示时，首页和关于项目页会显示。</span></span></label></section><div className="flex flex-wrap gap-2"><button onClick={save} disabled={saving} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-60"><Save size={16} />{saving ? "保存中…" : "保存草稿"}</button><button onClick={publish} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium hover:bg-accent">发布</button>{record?.status === "published" && <button onClick={unpublish} className="rounded-lg border border-border px-4 py-2.5 text-sm text-red-700 hover:bg-red-50">下架</button>}</div>{message && <p className="text-sm text-muted-foreground">{message}</p>}</aside></div></div>; }
