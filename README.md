@@ -84,6 +84,8 @@ Transformer 页面下方的完整说明文章、五张图注与术语说明已�
 
 ## 文档
 
+- docs/STUDENT_LEARNING.md 说明学生账号导入、首次改密、资料下载、作业发布与提交。
+
 - docs/ARCHITECTURE.md 说明数据库、API、会话和发布规则。
 - docs/ALGORITHMS.md 说明配置和真实算法。
 - docs/DEPLOY_ALIYUN.md 说明运行、部署与维护。

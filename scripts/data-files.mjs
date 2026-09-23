@@ -28,12 +28,17 @@ export async function assertNewDirectory(directory) {
   catch (error) { if (error.code === 'ENOENT') return; throw error; }
   throw new Error('目标目录已存在，请指定一个新目录；不会覆盖现有数据。');
 }
+function allFiles(db) {
+  const media = db.prepare('SELECT storage_name,size_bytes FROM media_assets').all();
+  const learning = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='learning_files'").get();
+  return learning ? [...media, ...db.prepare('SELECT storage_name,size_bytes FROM learning_files').all()] : media;
+}
 export async function validateData(directory) {
   const db = new Database(path.join(directory, 'site.sqlite'), { readonly: true, fileMustExist: true });
   try {
     if (db.pragma('integrity_check', { simple: true }) !== 'ok') throw new Error('SQLite 完整性检查失败');
     if (db.pragma('foreign_key_check').length) throw new Error('数据库引用不完整');
-    const assets = db.prepare('SELECT storage_name,size_bytes FROM media_assets').all();
+    const assets = allFiles(db);
     for (const asset of assets) {
       if (path.basename(asset.storage_name) !== asset.storage_name) throw new Error('素材清单含非法文件名');
       const entry = await fs.stat(path.join(directory, 'media', asset.storage_name));
@@ -51,7 +56,7 @@ export async function backupData(dataDir, output) {
   const db = new Database(path.join(dataDir, 'site.sqlite'), { readonly: true, fileMustExist: true });
   try {
     await db.backup(path.join(output, 'site.sqlite'));
-    for (const asset of db.prepare('SELECT storage_name FROM media_assets').all()) await fs.copyFile(path.join(dataDir, 'media', asset.storage_name), path.join(output, 'media', asset.storage_name));
+    for (const asset of allFiles(db)) await fs.copyFile(path.join(dataDir, 'media', asset.storage_name), path.join(output, 'media', asset.storage_name));
   } finally { db.close(); }
   const result = await validateData(output);
   await fs.writeFile(path.join(output, 'backup.json'), JSON.stringify({ schemaVersion: 1, createdAt: new Date().toISOString(), ...result }, null, 2), { mode: 0o600 });
@@ -68,8 +73,9 @@ export async function restoreData(backup, target) {
   await fs.copyFile(path.join(backup, 'site.sqlite'), path.join(target, 'site.sqlite'));
   const db = new Database(path.join(target, 'site.sqlite'));
   try {
-    for (const asset of db.prepare('SELECT storage_name FROM media_assets').all()) await fs.copyFile(path.join(backup, 'media', asset.storage_name), path.join(target, 'media', asset.storage_name));
+    for (const asset of allFiles(db)) await fs.copyFile(path.join(backup, 'media', asset.storage_name), path.join(target, 'media', asset.storage_name));
     db.exec('DELETE FROM sessions');
+    if (db.prepare("SELECT 1 FROM sqlite_master WHERE name='student_sessions'").get()) db.exec('DELETE FROM student_sessions');
     db.pragma('wal_checkpoint(TRUNCATE)');
   } finally { db.close(); }
   return validateData(target);

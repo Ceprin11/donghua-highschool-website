@@ -13,6 +13,9 @@ const NAV = [
   { to: "/admin/works", label: "学生作品", icon: Camera },
   { to: "/admin/quizzes", label: "课堂小测", icon: FileQuestion },
   { to: "/admin/media", label: "素材管理", icon: Images },
+  { to: '/admin/students', label: '学生账号', icon: UserRound },
+  { to: '/admin/resources', label: '资料下载', icon: BookOpen },
+  { to: '/admin/assignments', label: '课程作业', icon: FileQuestion },
 ];
 
 export default function AdminLayout() {

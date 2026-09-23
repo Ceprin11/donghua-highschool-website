@@ -33,6 +33,7 @@ import {
   verifyOrigin,
 } from './auth.js';
 import { deleteAsset, listAssets, storeUpload, streamAsset, updateAsset } from './media.js';
+import { mountLearning } from './learning.js';
 
 const loginAttempts = new Map();
 
@@ -133,6 +134,8 @@ export function createApp(options = {}) {
       return next(error);
     }
   }
+
+  mountLearning(app, { db, dataDir, publicOrigin, secureCookies: options.secureCookies, requireAdmin, requireMutation });
 
   app.get('/api/health', async (req, res, next) => {
     const probe = path.join(dataDir, `.health-${crypto.randomUUID()}.tmp`);
@@ -374,8 +377,8 @@ export function createApp(options = {}) {
     app.use(express.static(staticDir, { index: 'index.html', fallthrough: true }));
     app.use((req, res, next) => {
       const clientRoute = req.path === '/'
-        || /^\/(?:courses|labs|works|about|credits|login)(?:\/[^/.]+)?$/u.test(req.path)
-        || /^\/admin(?:\/(?:settings|teacher|courses|experiments|works|quizzes|media|login))?$/u.test(req.path);
+        || /^\/(?:courses|labs|works|about|credits|login|student|downloads|assignments)(?:\/[^/.]+)?$/u.test(req.path)
+        || /^\/admin(?:\/(?:settings|teacher|courses|experiments|works|quizzes|media|login|students|resources|assignments))?$/u.test(req.path);
       if (req.method === 'GET' && (clientRoute || /^\/labs\/cv\/[^/.]+$/u.test(req.path))) {
         return res.sendFile(path.join(staticDir, 'index.html'), (error) => error ? next() : undefined);
       }

@@ -5,6 +5,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import Layout from "./components/site/Layout";
 import AdminLayout from "./pages/admin/AdminLayout";
 import { LoadingState } from "./components/site/States";
+import { StudentGuard, StudentLogin, StudentPassword, StudentAccount, StudentLearning } from './pages/StudentArea';
 
 const Home = lazy(() => import("./pages/Home"));
 const Courses = lazy(() => import("./pages/Courses"));
@@ -27,6 +28,8 @@ const AdminExperiments = lazy(() => import("./pages/admin/AdminExperiments"));
 const AdminWorks = lazy(() => import("./pages/admin/AdminWorks"));
 const AdminQuizzes = lazy(() => import("./pages/admin/AdminQuizzes"));
 const AdminMedia = lazy(() => import("./pages/admin/AdminMedia"));
+const AdminStudents = lazy(() => import('./pages/admin/AdminStudents'));
+const AdminLearning = lazy(() => import('./pages/admin/AdminLearning'));
 
 export default function App() {
   return <Router>
@@ -47,6 +50,13 @@ export default function App() {
           <Route path="/works/:slug" element={<WorkDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/credits" element={<OpenSourceCredits />} />
+          <Route path="/student/login" element={<StudentLogin />} />
+          <Route element={<StudentGuard />}>
+            <Route path="/student/password" element={<StudentPassword />} />
+            <Route path="/student/account" element={<StudentAccount />} />
+            <Route path="/downloads" element={<StudentLearning kind="resource" />} />
+            <Route path="/assignments" element={<StudentLearning kind="assignment" />} />
+          </Route>
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/admin/login" element={<Login />} />
@@ -59,6 +69,9 @@ export default function App() {
           <Route path="works" element={<AdminWorks />} />
           <Route path="quizzes" element={<AdminQuizzes />} />
           <Route path="media" element={<AdminMedia />} />
+          <Route path="students" element={<AdminStudents />} />
+          <Route path="resources" element={<AdminLearning kind="resource" />} />
+          <Route path="assignments" element={<AdminLearning kind="assignment" />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>

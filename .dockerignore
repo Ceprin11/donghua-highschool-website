@@ -3,6 +3,10 @@
 !package-lock.json
 !.npmrc
 !Dockerfile
+!deploy/
+!deploy/Dockerfile.review
+!dist/
+!dist/**
 !index.html
 !vite.config.js
 !tailwind.config.js

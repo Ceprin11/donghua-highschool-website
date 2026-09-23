@@ -36,6 +36,13 @@ jobs:
           npx vite build
           npm test
 
+      - name: Save the verified site build
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-dist-${{ github.sha }}
+          path: dist
+          retention-days: 1
+
   deploy:
     needs: verify
     runs-on: ubuntu-latest
@@ -43,6 +50,12 @@ jobs:
     steps:
       - name: Check out the exact revision
         uses: actions/checkout@v4
+
+      - name: Download the verified site build
+        uses: actions/download-artifact@v4
+        with:
+          name: review-dist-${{ github.sha }}
+          path: dist
 
       - name: Configure deployment key
         env:
@@ -52,18 +65,18 @@ jobs:
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/tencent_review
           chmod 600 ~/.ssh/tencent_review
 
-      - name: Package and upload the source
-        env:
-          DEPLOY_SHA: ${{ github.sha }}
+      - name: Synchronize only changed files
         run: |
-          tar --exclude=.git -czf "$RUNNER_TEMP/site-source.tgz" .
-          scp -i ~/.ssh/tencent_review \
-            -o BatchMode=yes \
-            -o StrictHostKeyChecking=accept-new \
-            -o ServerAliveInterval=30 \
-            -o ServerAliveCountMax=20 \
-            "$RUNNER_TEMP/site-source.tgz" \
-            "ubuntu@118.89.188.169:/tmp/donghua-ai-$DEPLOY_SHA.tgz"
+          ssh_command="ssh -i ~/.ssh/tencent_review -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30 -o ServerAliveCountMax=20"
+          rsync -az --delete \
+            --exclude='/experiments/transformer/model-v2/***' \
+            -e "$ssh_command" \
+            dist/ ubuntu@118.89.188.169:/opt/donghua-ai/dist/
+          rsync -az \
+            -e "$ssh_command" \
+            package.json package-lock.json .npmrc .dockerignore \
+            server shared migrations scripts deploy \
+            ubuntu@118.89.188.169:/opt/donghua-ai/
 
       - name: Deploy the exact commit
         env:
@@ -78,24 +91,20 @@ jobs:
             "bash -s -- '$DEPLOY_SHA'" <<'REMOTE'
           set -euo pipefail
           deploy_root=/opt/donghua-ai
-          repo_dir="$deploy_root/repo"
-          next_dir="$deploy_root/repo-next"
-          archive_path="/tmp/donghua-ai-$1.tgz"
-
-          rm -rf "$next_dir"
-          mkdir -p "$next_dir"
-          tar -xzf "$archive_path" -C "$next_dir"
-          rm -f "$archive_path"
-
-          model_store="$deploy_root/lab-assets/transformer-model-v2"
-          test -f "$model_store/manifest.json"
-          mkdir -p "$next_dir/public/experiments/transformer"
-          cp -a "$model_store" "$next_dir/public/experiments/transformer/model-v2"
-
-          rm -rf "$repo_dir"
-          mv "$next_dir" "$repo_dir"
-          cd "$repo_dir"
-
-          sudo docker compose -f deploy/compose.review.yml up -d --build --wait --wait-timeout 240
+          cd "$deploy_root"
+          test -f dist/experiments/transformer/model-v2/manifest.json
+          sudo docker compose -f deploy/compose.review.yml build app
+          previous_image=$(sudo docker inspect --format '{{.Image}}' donghua-ai-app-1)
+          sudo install -m 700 -d "$deploy_root/backups"
+          backup_name="$1-$(date -u +%Y%m%dT%H%M%SZ)"
+          sudo docker stop --time 30 donghua-ai-app-1
+          if ! sudo docker run --rm --user 0 -e DATA_DIR=/data \
+            -v "$deploy_root/data:/data" -v "$deploy_root/backups:/backups" \
+            "$previous_image" node scripts/backup.mjs --stopped --out "/backups/$backup_name"; then
+            sudo docker start donghua-ai-app-1
+            exit 1
+          fi
+          sudo docker compose -f deploy/compose.review.yml up -d --wait --wait-timeout 240
           curl --fail --silent --show-error http://127.0.0.1/api/health
+          printf '%s\n' "$1" > .deployed-revision
           REMOTE

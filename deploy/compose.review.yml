@@ -4,7 +4,7 @@ services:
   app:
     build:
       context: ..
-      dockerfile: Dockerfile
+      dockerfile: deploy/Dockerfile.review
     restart: unless-stopped
     environment:
       NODE_ENV: development
@@ -14,7 +14,7 @@ services:
     ports:
       - "80:3001"
     volumes:
-      - ../../data:/data
+      - ../data:/data
     logging:
       driver: json-file
       options:
