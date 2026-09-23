@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { ArrowDownToLine, ArrowUpRight, FileText, Image, Upload, Check, ArrowRight, UserRound, FolderOpen, LoaderCircle } from 'lucide-react';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { studentFileUrl, studentRequest, studentSession } from '@/services/studentService';
 import PageHeader from '@/components/site/PageHeader';
@@ -6,6 +7,7 @@ import Reveal from '@/components/site/Reveal';
 import AssignmentBody from '@/components/site/AssignmentBody';
 import { LoadingState } from '@/components/site/States';
 import '@/styles/learning.css';
+import '@/styles/student-learning.css';
 
 const StudentContext = createContext(null);
 function destination(search) {
@@ -78,25 +80,100 @@ export function StudentAccount() {
 }
 export function StudentLearning({ kind }) {
   const [items, setItems] = useState(null), [error, setError] = useState('');
-  const load = () => studentRequest('learning').then(setItems).catch(e => setError(e.message));
+  const load = () => studentRequest('learning').then(value => { setItems(value); setError(''); }).catch(e => setError(e.message));
   useEffect(() => { load(); }, []);
   const assignment = kind === 'assignment';
-  return <div className="inner-page"><PageHeader title={assignment ? '课程作业' : '资料下载'} label={assignment ? '课程作业' : '资料下载'} /><div className="page-width learning-content">
-    <nav className="learning-tabs"><Link aria-current={!assignment ? 'page' : undefined} to="/downloads">资料下载</Link><Link aria-current={assignment ? 'page' : undefined} to="/assignments">课程作业</Link><Link to="/student/account">我的账号</Link></nav>
-    {error ? <p role="alert" className="learning-error">{error}<button onClick={load}>重试</button></p> : !items ? <LoadingState /> : items.filter(item => item.kind === kind).length === 0 ? <p className="learning-empty">{assignment ? '暂无作业' : '暂无资料'}</p> : items.filter(item => item.kind === kind).map(item => <Reveal key={item.id} threshold={0}><article className="learning-card"><h2>{item.title}</h2>{item.description && <p className="learning-description">{item.description}</p>}<AssignmentBody blocks={item.blocks} fileUrl={studentFileUrl} /><div className="learning-files">{item.files.map(file => <FileLink key={file.id} file={file} />)}</div>{assignment && <Submission item={item} onUpdate={load} />}</article></Reveal>)}
-  </div></div>;
+  const visible = items?.filter(item => item.kind === kind) || [];
+  const title = assignment ? '课程作业' : '资料下载';
+  return <div className="inner-page student-learning">
+    <PageHeader title={title} label={title} />
+    <div className="page-width student-content">
+      <nav className="student-nav" aria-label="学生页面">
+        <Link aria-current={!assignment ? 'page' : undefined} to="/downloads">资料下载</Link>
+        <Link aria-current={assignment ? 'page' : undefined} to="/assignments">课程作业</Link>
+        <Link className="student-account" to="/student/account"><UserRound size={16} aria-hidden="true" />我的账号</Link>
+      </nav>
+      {error ? <div role="alert" className="student-notice">{error}<button onClick={load}>重新加载</button></div>
+        : !items ? <LoadingState />
+          : visible.length === 0 ? <Reveal className="student-empty"><FolderOpen size={32} strokeWidth={1.3} aria-hidden="true" /><h2>{assignment ? '暂无作业' : '暂无资料'}</h2></Reveal>
+            : <div className="student-list">{visible.map(item => <Reveal key={item.id} threshold={0}>
+              <article className={assignment ? 'student-assignment' : 'student-resource'} aria-labelledby={`title-${item.id}`}>
+                <div className="student-article">
+                  <header className="student-article-heading">
+                    <h2 id={`title-${item.id}`}>{item.title}</h2>
+                    {!assignment && <span className="student-file-count">{item.files.length} 个文件</span>}
+                  </header>
+                  {item.description && <p className="student-description">{item.description}</p>}
+                  <AssignmentBody blocks={item.blocks} fileUrl={studentFileUrl} />
+                  {assignment && item.files.length > 0 && <div className="student-attachments">
+                    <h3>作业附件</h3><div>{item.files.map(file => <FileLink key={file.id} file={file} />)}</div>
+                  </div>}
+                </div>
+                {assignment ? <Submission item={item} onUpdate={load} />
+                  : <div className="student-resource-files">{item.files.map(file => <FileLink key={file.id} file={file} />)}</div>}
+              </article>
+            </Reveal>)}</div>}
+    </div>
+  </div>;
+}
+function fileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.ceil(bytes / 1024)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 function FileLink({ file }) {
-  return <div className="learning-file"><span>{file.name}<small>{(file.size / 1024 / 1024).toFixed(2)} MB</small></span><div className="learning-actions">{(file.mime === 'application/pdf' || file.mime.startsWith('image/')) && <a target="_blank" rel="noreferrer" href={studentFileUrl(file.id, true)}>查看</a>}<a href={studentFileUrl(file.id)}>下载</a></div></div>;
+  const extension = file.name.split('.').pop().toUpperCase();
+  const isImage = file.mime.startsWith('image/');
+  const previewable = file.mime === 'application/pdf' || isImage;
+  const Icon = isImage ? Image : FileText;
+  return <div className="student-file">
+    <span className="student-file-icon" aria-hidden="true"><Icon size={22} strokeWidth={1.5} /></span>
+    <div className="student-file-info"><span className="student-file-name">{file.name}</span><span className="student-file-meta">{extension} <span aria-hidden="true">·</span> {fileSize(file.size)}</span></div>
+    <div className="student-file-actions">
+      {previewable && <a target="_blank" rel="noreferrer" href={studentFileUrl(file.id, true)}><span>查看</span><ArrowUpRight size={16} aria-hidden="true" /></a>}
+      <a href={studentFileUrl(file.id)}><span>下载</span><ArrowDownToLine size={16} aria-hidden="true" /></a>
+    </div>
+  </div>;
 }
 function Submission({ item, onUpdate }) {
-  const [file, setFile] = useState(null), [busy, setBusy] = useState(false), [message, setMessage] = useState('');
+  const [file, setFile] = useState(null), [busy, setBusy] = useState(false), [message, setMessage] = useState(''), [error, setError] = useState('');
   async function submit(event) {
-    event.preventDefault(); setMessage(''); if (!file) return;
-    if (file.size > 50 * 1024 * 1024) return setMessage('文件不能超过 50 MB。');
+    event.preventDefault(); setMessage(''); setError('');
+    if (!file) return;
+    if (file.size > 50 * 1024 * 1024) return setError('文件不能超过 50 MB。');
     setBusy(true);
-    try { const body = new FormData(); body.append('file', file); await studentRequest(`assignments/${item.id}/submit`, { method: 'POST', body }); setMessage('提交成功'); setFile(null); event.target.reset(); await onUpdate(); }
-    catch (e) { setMessage(e.message); } finally { setBusy(false); }
+    const form = event.currentTarget;
+    try {
+      const body = new FormData(); body.append('file', file);
+      await studentRequest(`assignments/${item.id}/submit`, { method: 'POST', body });
+      setMessage('提交成功'); setFile(null); form.reset(); await onUpdate();
+    } catch (e) { setError(e.message); } finally { setBusy(false); }
   }
-  return <section className="learning-submission"><h3>我的提交</h3>{item.submission ? <><p className="learning-hint">已提交 · {new Date(item.submission.submittedAt).toLocaleString('zh-CN')}</p><FileLink file={item.submission.file} /></> : <p className="learning-hint">尚未提交</p>}<form onSubmit={submit} className="learning-form"><label>作业文件<input type="file" required accept=".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg" onChange={e => setFile(e.target.files[0] || null)} /></label><p className="learning-hint">支持 PDF、Word、PPT、PNG、JPG，单个文件最多 50 MB。重新提交会替换当前提交。</p><button disabled={busy || !file} className="learning-primary">{busy ? '上传中…' : item.submission ? '重新提交' : '提交作业'}</button>{message && <p role="status">{message}</p>}</form></section>;
+  return <aside className="student-submit-column" aria-label="提交作业">
+    <section className="student-submit">
+      <div className="student-submit-heading"><h3>我的提交</h3>
+        <span className={`student-status ${item.submission ? 'is-submitted' : ''}`}>{item.submission && <Check size={13} aria-hidden="true" />}{item.submission ? '已提交' : '待提交'}</span>
+      </div>
+      {item.submission && <div className="student-current-submission">
+        <p className="student-submitted-at">{new Date(item.submission.submittedAt).toLocaleString('zh-CN', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+        <FileLink file={item.submission.file} />
+      </div>}
+      <form onSubmit={submit} className="student-upload-form">
+        <label className={`student-upload ${file ? 'has-file' : ''} ${busy ? 'is-busy' : ''}`}>
+          <input type="file" aria-label="作业文件" required disabled={busy} accept=".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg" onChange={e => { setFile(e.target.files[0] || null); setMessage(''); setError(''); }} />
+          <span className="student-upload-icon" aria-hidden="true">{file ? <FileText size={24} strokeWidth={1.5} /> : <Upload size={24} strokeWidth={1.5} />}</span>
+          <span className="student-upload-name">{file ? file.name : item.submission ? '选择新的作业文件' : '选择作业文件'}</span>
+          <span className="student-upload-note">{file ? `${fileSize(file.size)} · 点击更换` : '点击选择文件'}</span>
+        </label>
+        <p className="student-upload-formats">PDF、Word、PPT、PNG、JPG<br />单个文件不超过 50 MB</p>
+        <button disabled={busy || !file} className="student-submit-button">
+          <span>{busy ? '上传中…' : item.submission ? '重新提交' : '提交作业'}</span>
+          {busy ? <LoaderCircle size={17} className="student-spinner" aria-hidden="true" /> : <ArrowRight size={17} aria-hidden="true" />}
+        </button>
+        {item.submission && <p className="student-replace-note">重新提交会替换上一次的文件。</p>}
+        {message && <p role="status" className="student-feedback"><Check size={16} aria-hidden="true" />{message}</p>}
+        {error && <p role="alert" className="student-upload-error">{error}</p>}
+      </form>
+    </section>
+  </aside>;
 }

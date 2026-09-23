@@ -33,9 +33,10 @@ test('teacher imports students and publishes; student changes password, download
   const downloadWait = page.waitForEvent('download'); await page.getByRole('button', { name: '下载本次账号与初始密码' }).click();
   expect((await downloadWait).suggestedFilename()).toBe('学生账号.csv');
   await page.screenshot({ path: '_project_review/student-system/admin-students.png', fullPage: true });
-  for (const [route, title] of [['resources', '视觉课程资料'], ['assignments', '第一次课程作业']]) {
+  for (const [route, title] of [['resources', '人工智能与社会'], ['resources', '生成式 AI 与智能内容创作'], ['resources', '视觉课程资料'], ['assignments', '第一次课程作业']]) {
     await page.goto(`/admin/${route}`);
     await page.getByLabel('标题', { exact: true }).fill(title);
+    if (route === 'resources') await page.getByLabel('资料说明').fill('课程课件与课堂参考资料。');
     if (route === 'assignments') {
       await page.getByLabel('文字内容 1').fill('观察下图中的网络结构。\n记录每一层的作用，并提交你的说明。');
       await page.getByLabel('添加正文图片', { exact: true }).setInputFiles('public/lab-previews/lenet.png');
@@ -56,7 +57,7 @@ test('teacher imports students and publishes; student changes password, download
     await expect(page.getByRole('link', { name: '课堂资料.pdf', exact: true })).toBeVisible();
     await page.getByRole('button', { name: '保存草稿', exact: true }).click();
     await expect(page.getByRole('status')).toContainText('草稿已保存');
-    await page.getByRole('button', { name: '发布', exact: true }).click();
+    await page.locator('.learning-admin-item').filter({ has: page.getByRole('heading', { name: title, exact: true }) }).getByRole('button', { name: '发布', exact: true }).click();
     await expect(page.getByRole('status')).toHaveText('已发布');
   }
   const studentContext = await browser.newContext();
@@ -76,22 +77,37 @@ test('teacher imports students and publishes; student changes password, download
   await expect(bodyImage).toHaveJSProperty('complete', true);
   expect(await bodyImage.evaluate(image => image.naturalWidth)).toBeGreaterThan(0);
   await expect(student.locator('.assignment-body figcaption')).toHaveText('手写数字与三维网络');
+  await student.getByLabel('作业文件').focus();
+  await expect(student.getByLabel('作业文件')).toBeFocused();
   await student.getByLabel('作业文件').setInputFiles({ name: '张三作业.pdf', mimeType: 'application/pdf', buffer: pdf });
+  await expect(student.locator('.student-upload-name')).toHaveText('张三作业.pdf');
   await student.getByRole('button', { name: '提交作业', exact: true }).click();
   await expect(student.getByRole('status')).toHaveText('提交成功');
   await expect(student.getByRole('button', { name: '重新提交', exact: true })).toBeVisible();
-  await student.screenshot({ path: '_project_review/student-system/student-assignment.png', fullPage: true });
+  await student.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await student.screenshot({ path: '_project_review/student-system/student-assignment.png', fullPage: true, animations: 'disabled' });
   for (const width of [1440, 1024, 768, 360]) {
     await student.setViewportSize({ width, height: 900 });
     expect(await student.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `overflow at ${width}`).toBe(true);
     const imageBox = await bodyImage.boundingBox();
     expect(imageBox.width).toBeLessThanOrEqual(width);
   }
-  await student.screenshot({ path: '_project_review/student-system/student-mobile.png', fullPage: true });
+  await student.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await student.screenshot({ path: '_project_review/student-system/student-mobile.png', fullPage: true, animations: 'disabled' });
   await student.goto('http://127.0.0.1:4173/downloads');
   await expect(student.getByRole('heading', { name: '视觉课程资料' })).toBeVisible();
-  const fileWait = student.waitForEvent('download'); await student.getByRole('link', { name: '下载', exact: true }).click(); expect((await fileWait).suggestedFilename()).toBe('课堂资料.pdf');
+  const fileWait = student.waitForEvent('download'); await student.getByRole('link', { name: '下载', exact: true }).first().click(); expect((await fileWait).suggestedFilename()).toBe('课堂资料.pdf');
   await student.reload(); await expect(student.getByRole('heading', { name: '视觉课程资料' })).toBeVisible();
+  for (const width of [1440, 768, 360]) {
+    await student.setViewportSize({ width, height: 900 });
+    expect(await student.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `downloads overflow at ${width}`).toBe(true);
+    for (const heading of await student.locator('.student-resource h2').all()) {
+      await heading.scrollIntoViewIfNeeded();
+      await expect(heading).toBeVisible();
+    }
+    await student.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+    await student.screenshot({ path: `_project_review/student-system/downloads-${width}.png`, fullPage: true, animations: 'disabled' });
+  }
   await page.getByRole('button', { name: '查看提交', exact: true }).click();
   await expect(page.getByText('已提交 1 / 3 人', { exact: true })).toBeVisible();
   await expect(page.getByText('张三作业.pdf', { exact: true })).toBeVisible();
