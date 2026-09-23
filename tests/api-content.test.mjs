@@ -62,6 +62,7 @@ function updateCookie(response) {
 async function request(route, options = {}) {
   const headers = new Headers(options.headers || {});
   headers.set('Origin', origin);
+  headers.set('Connection', 'close');
   if (cookie) headers.set('Cookie', cookie);
   if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData) && !(options.body instanceof Blob)) {
     headers.set('Content-Type', 'application/json');

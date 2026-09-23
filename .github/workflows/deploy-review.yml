@@ -33,8 +33,8 @@ jobs:
         run: |
           npm run lint
           npm run typecheck
-          npm test
           npx vite build
+          npm test
 
   deploy:
     needs: verify
