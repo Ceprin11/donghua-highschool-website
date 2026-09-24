@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ArrowUp, ArrowDown, Plus, ImagePlus, X, Eye, Pencil } from 'lucide-react';
 import { request } from '@/services/apiClient';
+import { uploadLearningFile } from '@/services/learningUpload';
+import { ADMIN_ATTACHMENT_MB, INLINE_IMAGE_MB } from '../../../shared/learning-upload';
 import AssignmentBody from '@/components/site/AssignmentBody';
 import '@/styles/learning.css';
 
@@ -11,20 +13,27 @@ export default function AdminLearning({ kind }) {
   const [items, setItems] = useState([]), [editing, setEditing] = useState(null), [draft, setDraft] = useState(emptyDraft);
   const [busy, setBusy] = useState(false), [message, setMessage] = useState(''), [submissions, setSubmissions] = useState(null);
   const [preview, setPreview] = useState(false);
+  const [uploadState, setUploadState] = useState(null);
   const assignment = kind === 'assignment';
   const load = () => request('/api/admin/learning').then(setItems);
   useEffect(() => { load().catch(e => setMessage(e.message)); }, []);
-  useEffect(() => { setEditing(null); setDraft(emptyDraft()); setSubmissions(null); setMessage(''); setPreview(false); }, [kind]);
-  async function act(callback) { setBusy(true); setMessage(''); try { await callback(); } catch (e) { setMessage(e.message); } finally { setBusy(false); } }
+  useEffect(() => { setEditing(null); setDraft(emptyDraft()); setSubmissions(null); setMessage(''); setPreview(false); setUploadState(null); }, [kind]);
+  async function act(callback) { setBusy(true); setMessage(''); setUploadState(null); try { await callback(); } catch (e) { setMessage(e.message); } finally { setBusy(false); } }
   async function upload(event, inline = false) {
     const input = event.target, file = input.files[0]; if (!file) return;
-    if (file.size > 50 * 1024 * 1024) { setMessage('文件不能超过 50 MB。'); input.value = ''; return; }
-    await act(async () => {
-      const body = new FormData(); body.append('file', file);
-      const result = await request('/api/admin/learning/files', { method: 'POST', body });
+    const limit = inline ? INLINE_IMAGE_MB : ADMIN_ATTACHMENT_MB;
+    setMessage('');
+    const initial = { name: file.name, inline, progress: 0, error: '', done: false };
+    if (file.size > limit * 1024 * 1024) {
+      setUploadState({ ...initial, error: `文件为 ${(file.size / 1024 / 1024).toFixed(1)} MB，超过 ${limit} MB 上限。` }); input.value = ''; return;
+    }
+    setBusy(true); setUploadState(initial);
+    try {
+      const result = await uploadLearningFile(file, { inline, onProgress: progress => setUploadState(value => ({ ...value, progress })) });
       setDraft(value => inline ? { ...value, blocks: [...value.blocks, { type: 'image', fileId: result.id, caption: '' }] } : { ...value, files: [...value.files, result] });
-    });
-    input.value = '';
+      setUploadState(value => ({ ...value, done: true, progress: 100 }));
+    } catch (error) { setUploadState(value => ({ ...value, error: error.message })); }
+    finally { setBusy(false); input.value = ''; }
   }
   function updateBlock(index, change) {
     setDraft(value => ({ ...value, blocks: value.blocks.map((block, i) => i === index ? { ...block, ...change } : block) }));
@@ -47,7 +56,7 @@ export default function AdminLearning({ kind }) {
     setDraft({ ...item.draft, files: item.files, blocks: [
       ...(assignment && item.draft.description ? [{ type: 'text', text: item.draft.description }] : []), ...(item.draft.blocks || []),
     ] });
-    setPreview(false); setMessage('');
+    setPreview(false); setMessage(''); setUploadState(null);
     window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }
   return <div className="learning-admin">
@@ -57,7 +66,7 @@ export default function AdminLearning({ kind }) {
       <div className="learning-editor-heading">
         <h2>{editing ? '编辑' : '新建'}{assignment ? '作业' : '资料'}</h2>
         <div className="learning-actions">
-          {assignment && <button type="button" className="learning-editor-toggle" aria-pressed={preview} onClick={() => setPreview(!preview)}>
+          {assignment && <button type="button" disabled={busy} className="learning-editor-toggle" aria-pressed={preview} onClick={() => setPreview(!preview)}>
             {preview ? <Pencil size={16} /> : <Eye size={16} />}{preview ? '继续编辑' : '预览作业'}
           </button>}
           {editing && <button disabled={busy} onClick={() => { setEditing(null); setDraft(emptyDraft()); setPreview(false); }}>新建一条</button>}
@@ -88,12 +97,14 @@ export default function AdminLearning({ kind }) {
               <input type="file" aria-label="添加正文图片" disabled={busy || draft.blocks.length >= 40} accept=".png,.jpg,.jpeg" onChange={e => upload(e, true)} />
             </label>
           </div>
-          <p className="learning-hint">文字和图片按排列顺序显示。支持 PNG、JPG，单张最多 50 MB。</p>
+          <p className="learning-hint">文字和图片按排列顺序显示。支持 PNG、JPG，单张最多 {INLINE_IMAGE_MB} MB。</p>
+          {uploadState?.inline && <UploadStatus state={uploadState} />}
         </div> : <label>资料说明<textarea maxLength={20000} value={draft.description} onChange={e => setDraft({ ...draft, description: e.target.value })} /></label>}
         <details className="learning-attachments" open={!assignment || undefined}>
           <summary>{assignment ? '附件（可选）' : '资料文件'}</summary>
           <label>添加附件<input disabled={busy || draft.files.length >= 10} type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg" onChange={e => upload(e)} /></label>
-          <p className="learning-hint">支持 PDF、Word、PPT、PNG、JPG，单文件最多 50 MB，每条最多 10 个附件。</p>
+          <p className="learning-hint">支持 PDF、Word、PPT、PNG、JPG，单文件最多 {ADMIN_ATTACHMENT_MB} MB，每条最多 10 个附件。</p>
+          {uploadState && !uploadState.inline && <UploadStatus state={uploadState} />}
           {draft.files.map(file => <div className="learning-file" key={file.id}><a href={fileUrl(file.id)}>{file.name}</a><button type="button" disabled={busy} onClick={() => setDraft(value => ({ ...value, files: value.files.filter(f => f.id !== file.id) }))}>移除附件</button></div>)}
         </details>
         <button className="learning-primary" disabled={busy}>{busy ? '处理中…' : '保存草稿'}</button>
@@ -124,5 +135,13 @@ export default function AdminLearning({ kind }) {
       </table></div>
       <p className="learning-hint">PDF 和图片可在浏览器中查看。Word 和 PPT 下载后打开。</p>
     </section>}
+  </div>;
+}
+
+function UploadStatus({ state }) {
+  return <div className={`learning-upload-status ${state.error ? 'has-error' : ''}`} role={state.error ? 'alert' : 'status'}>
+    <span>{state.name}</span>
+    <p>{state.error || (state.done ? '上传完成。保存草稿并发布后，学生才可查看。' : state.progress === 100 ? '文件已传送，正在保存…' : `正在上传 ${state.progress}%`)}</p>
+    {!state.error && !state.done && <progress value={state.progress} max="100" aria-label="文件上传进度" />}
   </div>;
 }

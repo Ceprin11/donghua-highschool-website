@@ -57,6 +57,9 @@ test('student import, password gates, private learning files, submissions, reset
     await login(b, 'zhangsan2');
     await api(b, '/api/student/password', 'POST', { currentPassword: 'zhangsan2', newPassword: 'student-password-b' });
     assert.equal((await api(adminClient, '/api/admin/learning/files', 'POST', form('伪装.pdf', Buffer.from('<html>hello</html>')))).status, 400);
+    assert.deepEqual(await fs.readdir(path.join(dataDir, 'uploads')), []);
+    assert.equal((await api(adminClient, '/api/admin/learning/files?inline=1', 'POST', form())).status, 400);
+    assert.deepEqual(await fs.readdir(path.join(dataDir, 'uploads')), []);
     const upload = await api(adminClient, '/api/admin/learning/files', 'POST', form()); assert.equal(upload.status, 201);
     const fileId = upload.body.id;
     const resource = await api(adminClient, '/api/admin/learning', 'POST', { kind: 'resource', title: '课堂资料', fileIds: [fileId] });

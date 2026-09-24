@@ -2,8 +2,9 @@ import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import multer from 'multer';
-import { fileTypeFromBuffer } from 'file-type';
+import { fileTypeFromFile } from 'file-type';
 import { fail, mountStudents, parseNames, previewStudents } from './students.js';
+import { ADMIN_ATTACHMENT_MB, STUDENT_SUBMISSION_MB, INLINE_IMAGE_MB } from '../shared/learning-upload.js';
 
 const TYPES = {
   '.pdf': ['application/pdf', ['pdf']],
@@ -18,26 +19,41 @@ export function mountLearning(app, options) {
   const { db, dataDir, requireAdmin, requireMutation } = options;
   const { requireReady, studentMutation } = mountStudents(app, options);
   const roster = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 2, fieldSize: 100_000 } });
-  const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024, files: 1, fields: 2 } });
+  function diskUpload(maxMB) {
+    const receive = multer({ dest: path.join(dataDir, 'uploads'), limits: { fileSize: maxMB * 1024 * 1024, files: 1, fields: 2 } }).single('file');
+    return (req, res, next) => receive(req, res, error => {
+      if (error?.code === 'LIMIT_FILE_SIZE') return next(Object.assign(new Error(`文件不能超过 ${maxMB} MB。`), { statusCode: 413 }));
+      next(error);
+    });
+  }
+  const adminUpload = diskUpload(ADMIN_ATTACHMENT_MB);
+  const imageUpload = diskUpload(INLINE_IMAGE_MB);
+  const studentUpload = diskUpload(STUDENT_SUBMISSION_MB);
   app.use('/api/admin/students', (_req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
   app.use('/api/admin/learning', (_req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
   app.post('/api/admin/students/preview', requireAdmin, requireMutation, roster.single('file'), async (req, res) => {
     res.json(previewStudents(db, await parseNames(req.body, req.file)));
   });
-  async function saveFile(file, studentId = null) {
-    if (!file?.size) fail('请选择文件。');
-    const name = Buffer.from(file.originalname, 'latin1').toString('utf8');
-    const filename = (name.includes('\uFFFD') ? file.originalname : name).replace(/[\\/\r\n\0]/gu, '_').slice(0, 180);
-    const ext = path.extname(filename).toLowerCase();
-    const detected = await fileTypeFromBuffer(file.buffer).catch(() => null);
-    const type = TYPES[ext];
-    if (!type || !detected || !type[1].includes(detected.ext)) fail('文件格式不支持或文件内容不匹配，请上传 PDF、Word、PPT、PNG 或 JPG。');
-    const id = crypto.randomUUID(), storage = `learning-${id}${ext}`;
-    const target = path.join(dataDir, 'media', storage);
-    await fs.writeFile(target, file.buffer, { flag: 'wx' });
-    try { db.prepare('INSERT INTO learning_files VALUES (?,?,?,?,?,?,?)').run(id, studentId, filename, storage, type[0], file.size, new Date().toISOString()); }
-    catch (error) { await fs.rm(target, { force: true }); throw error; }
-    return db.prepare('SELECT * FROM learning_files WHERE id=?').get(id);
+  async function saveFile(file, studentId = null, imageOnly = false) {
+    if (!file) fail('请选择文件。');
+    try {
+      if (!file.size) fail('请选择非空文件。');
+      const name = Buffer.from(file.originalname, 'latin1').toString('utf8');
+      const filename = (name.includes('\uFFFD') ? file.originalname : name).replace(/[\\/\r\n\0]/gu, '_').slice(0, 180);
+      const ext = path.extname(filename).toLowerCase();
+      const detected = await fileTypeFromFile(file.path).catch(() => null);
+      const type = TYPES[ext];
+      if (!type || !detected || !type[1].includes(detected.ext)) fail('文件格式不支持或文件内容不匹配，请上传 PDF、Word、PPT、PNG 或 JPG。');
+      if (imageOnly && !type[0].startsWith('image/')) fail('正文图片只支持 PNG 或 JPG。');
+      const id = crypto.randomUUID(), storage = `learning-${id}${ext}`;
+      const target = path.join(dataDir, 'media', storage);
+      await fs.rename(file.path, target);
+      try { db.prepare('INSERT INTO learning_files VALUES (?,?,?,?,?,?,?)').run(id, studentId, filename, storage, type[0], file.size, new Date().toISOString()); }
+      catch (error) { await fs.rm(target, { force: true }); throw error; }
+      return db.prepare('SELECT * FROM learning_files WHERE id=?').get(id);
+    } finally {
+      await fs.rm(file.path, { force: true });
+    }
   }
   function item(id) {
     const row = db.prepare('SELECT * FROM learning_items WHERE id=?').get(id);
@@ -74,7 +90,9 @@ export function mountLearning(app, options) {
   }
   function adminItem(row) { return { id: row.id, kind: row.kind, draft: JSON.parse(row.draft_json), published: row.published_json ? JSON.parse(row.published_json) : null, files: files(JSON.parse(row.draft_json).fileIds), updatedAt: row.updated_at }; }
   app.get('/api/admin/learning', requireAdmin, (_req, res) => res.json(db.prepare('SELECT * FROM learning_items ORDER BY created_at DESC').all().map(adminItem)));
-  app.post('/api/admin/learning/files', requireAdmin, requireMutation, upload.single('file'), async (req, res) => res.status(201).json(fileView(await saveFile(req.file))));
+  app.post('/api/admin/learning/files', requireAdmin, requireMutation,
+    (req, res, next) => (req.query.inline === '1' ? imageUpload : adminUpload)(req, res, next),
+    async (req, res) => res.status(201).json(fileView(await saveFile(req.file, null, req.query.inline === '1'))));
   app.post('/api/admin/learning', requireAdmin, requireMutation, (req, res) => {
     if (!['resource', 'assignment'].includes(req.body.kind)) fail('内容类型不正确。');
     const draft = content(req.body), id = crypto.randomUUID(), now = new Date().toISOString();
@@ -110,8 +128,9 @@ export function mountLearning(app, options) {
       return { id: row.id, kind: row.kind, ...value, files: files(value.fileIds), submission: submission ? { submittedAt: submission.submitted_at, file: files([submission.file_id])[0] } : null };
     }));
   });
-  app.post('/api/student/assignments/:id/submit', requireReady, studentMutation, upload.single('file'), async (req, res) => {
-    publicItem(req.params.id, 'assignment');
+  app.post('/api/student/assignments/:id/submit', requireReady, studentMutation,
+    (req, _res, next) => { publicItem(req.params.id, 'assignment'); next(); },
+    studentUpload, async (req, res) => {
     const file = await saveFile(req.file, req.student.id);
     const now = new Date().toISOString();
     // Recheck after upload: an administrator may have unpublished it meanwhile.

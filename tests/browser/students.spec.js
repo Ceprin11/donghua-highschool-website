@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { mkdtemp, rm, mkdir } from 'node:fs/promises';
+import { mkdtemp, rm, mkdir, open, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
@@ -33,6 +33,34 @@ test('teacher imports students and publishes; student changes password, download
   const downloadWait = page.waitForEvent('download'); await page.getByRole('button', { name: '下载本次账号与初始密码' }).click();
   expect((await downloadWait).suggestedFilename()).toBe('学生账号.csv');
   await page.screenshot({ path: '_project_review/student-system/admin-students.png', fullPage: true });
+  // A classroom attachment larger than the old 50 MB limit must upload without leaving the editor.
+  await page.goto('/admin/resources');
+  await page.getByLabel('标题', { exact: true }).fill('大文件上传检查');
+  const largePath = path.join(dataDir, 'large-course.pdf');
+  const largeFile = await open(largePath, 'w');
+  await largeFile.write(pdf); await largeFile.truncate(120000 * 1024); await largeFile.close();
+  const uploaded = page.waitForResponse(response => response.url().endsWith('/api/admin/learning/files') && response.request().method() === 'POST');
+  await page.getByLabel('添加附件').setInputFiles(largePath);
+  const uploadResponse = await uploaded; expect(uploadResponse.status()).toBe(201);
+  const uploadResult = await uploadResponse.json();
+  expect(uploadResult.size).toBe(120000 * 1024);
+  const stored = app.locals.db.prepare('SELECT storage_name FROM learning_files WHERE id=?').get(uploadResult.id);
+  expect((await stat(path.join(dataDir, 'media', stored.storage_name))).size).toBe(120000 * 1024);
+  await expect(page).toHaveURL(/\/admin\/resources$/);
+  await expect(page.getByLabel('标题', { exact: true })).toHaveValue('大文件上传检查');
+  await expect(page.locator('.learning-upload-status')).toContainText('上传完成');
+  expect(await readdir(path.join(dataDir, 'uploads'))).toEqual([]);
+  const oversizedPath = path.join(dataDir, 'oversized.pdf');
+  const oversizedFile = await open(oversizedPath, 'w'); await oversizedFile.write(pdf);
+  await oversizedFile.truncate(501 * 1024 * 1024); await oversizedFile.close();
+  await page.getByLabel('添加附件').setInputFiles(oversizedPath);
+  await expect(page.getByRole('alert')).toContainText('超过 500 MB 上限');
+  await expect(page.getByRole('alert')).toBeInViewport();
+  await expect(page).toHaveURL(/\/admin\/resources$/);
+  await expect(page.getByLabel('标题', { exact: true })).toHaveValue('大文件上传检查');
+  await page.getByLabel('添加附件').setInputFiles({ name: '错误格式.pdf', mimeType: 'application/pdf', buffer: Buffer.from('invalid') });
+  await expect(page.getByRole('alert')).toContainText('文件格式不支持');
+  expect(await readdir(path.join(dataDir, 'uploads'))).toEqual([]);
   for (const [route, title] of [['resources', '人工智能与社会'], ['resources', '生成式 AI 与智能内容创作'], ['resources', '视觉课程资料'], ['assignments', '第一次课程作业']]) {
     await page.goto(`/admin/${route}`);
     await page.getByLabel('标题', { exact: true }).fill(title);
