@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
 
+env:
+  DEPLOY_HOST: 43.142.57.7
+
 concurrency:
   group: tencent-review
   cancel-in-progress: false
@@ -71,12 +74,12 @@ jobs:
           rsync -az --delete \
             --exclude='/experiments/transformer/model-v2/***' \
             -e "$ssh_command" \
-            dist/ ubuntu@118.89.188.169:/opt/donghua-ai/dist/
+            dist/ ubuntu@${DEPLOY_HOST}:/opt/donghua-ai/dist/
           rsync -az \
             -e "$ssh_command" \
             package.json package-lock.json .npmrc .dockerignore \
             server shared migrations scripts deploy \
-            ubuntu@118.89.188.169:/opt/donghua-ai/
+            ubuntu@${DEPLOY_HOST}:/opt/donghua-ai/
 
       - name: Deploy the exact commit
         env:
@@ -87,7 +90,7 @@ jobs:
             -o StrictHostKeyChecking=accept-new \
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=20 \
-            ubuntu@118.89.188.169 \
+            ubuntu@${DEPLOY_HOST} \
             "bash -s -- '$DEPLOY_SHA'" <<'REMOTE'
           set -euo pipefail
           deploy_root=/opt/donghua-ai
@@ -112,6 +115,6 @@ jobs:
         env:
           DEPLOY_SHA: ${{ github.sha }}
         run: |
-          deployed_sha=$(ssh -n -i ~/.ssh/tencent_review -o BatchMode=yes -o StrictHostKeyChecking=accept-new ubuntu@118.89.188.169 'cat /opt/donghua-ai/.deployed-revision')
+          deployed_sha=$(ssh -n -i ~/.ssh/tencent_review -o BatchMode=yes -o StrictHostKeyChecking=accept-new ubuntu@${DEPLOY_HOST} 'cat /opt/donghua-ai/.deployed-revision')
           test "$deployed_sha" = "$DEPLOY_SHA"
-          curl --fail --silent --show-error --retry 3 --retry-delay 3 http://118.89.188.169/api/health
+          curl --fail --silent --show-error --retry 3 --retry-delay 3 http://${DEPLOY_HOST}/api/health

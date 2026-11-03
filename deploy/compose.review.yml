@@ -10,7 +10,7 @@ services:
       NODE_ENV: development
       PORT: 3001
       DATA_DIR: /data
-      PUBLIC_ORIGIN: http://118.89.188.169
+      PUBLIC_ORIGIN: http://ideailab.com
     ports:
       - "80:3001"
     volumes:
