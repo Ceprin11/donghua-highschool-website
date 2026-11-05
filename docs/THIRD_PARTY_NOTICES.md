@@ -36,10 +36,6 @@ Q-learning 保留本地原有算法。旧独立温度和像素实验已退役。
 
 神经网络点集、迷宫地图、挑战和小测保留。新增观察任务与小测对应实际实验。CNN 图片保留上游来源，具体素材许可核对状态见 UPSTREAM_LABS.md。教师照片、学生作品和活动照片由管理员提供和确认来源。
 
-页眉校徽于 2026-09-23 按用户指定从学校官网取得，作为学校身份标识使用，归属原学校，不随本项目代码授予开源许可。
 
-- 东华大学校徽来自 [大学官网](https://www.dhu.edu.cn/)，[原始图片](https://www.dhu.edu.cn/_upload/tpl/0b/3f/2879/template2879/image/logo.png) 保存为 `public/brand/dhu-emblem.png`，保持原色与比例。
-- 东华大学附属实验学校校徽来自 [学校官网](https://dhfx.sjedu.cn/)，[原始页眉图片](https://cdn.sjedu.cn/webeditor/uploadfile/picture/2020/08/05/20200805183222307001.png) 左侧 68×68 像素的圆形校徽保存为 `public/brand/dhfx-emblem.png`。白色图形配官网页眉红色 `#c45657` 背景，未重绘标识。
-- 原图与本地校名修改前记录保存在非公开 `_project_review/20260923-school-logos`。
 
 首页的网络示意图是说明性图形，不是实时训练结果。AI 文字 favicon 是本站的简单文字标记，不是学校校徽。

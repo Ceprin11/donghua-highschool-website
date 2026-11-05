@@ -109,7 +109,6 @@ body { margin: 0; -webkit-font-smoothing: antialiased; }
 .wordmark-name > span { display: block; font-size: 9px; color: #777b80; font-weight: 400; letter-spacing: .08em; }
 .school-logos { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .school-logos img { display: block; width: 44px; height: 44px; object-fit: contain; }
-.school-logo-affiliated { background: #c45657; border-radius: 50%; }
 .desktop-nav { display: flex; gap: 30px; margin-left: auto; margin-right: auto; }
 .desktop-nav a { display: flex; align-items: center; position: relative; height: 78px; font-size: 13px; font-weight: 500; white-space: nowrap; transition: color .2s; }
 .desktop-nav a:hover { color: #996000; }

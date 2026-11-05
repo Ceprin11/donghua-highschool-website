@@ -70,7 +70,7 @@ test('student import, password gates, private learning files, submissions, reset
     assert.match(download.headers.get('cache-control'), /no-store/u);
     await api(adminClient, `/api/admin/learning/${resource.body.id}`, 'PUT', { title: '尚未发布的修改', fileIds: [] });
     assert.equal((await api(a, '/api/student/learning')).body[0].title, '课堂资料');
-    const png = await fs.readFile('public/brand/dhu-emblem.png');
+    const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
     const illustration = await api(adminClient, '/api/admin/learning/files', 'POST', form('配图.png', png));
     assert.equal(illustration.status, 201);
     const imageId = illustration.body.id;

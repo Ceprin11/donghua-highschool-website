@@ -17,7 +17,7 @@ import { arrayToLines, envelopePayload, linesToArray } from "./adminUtils";
 const DEFAULT_SETTINGS = {
   key: "site",
   site_name: "人工智能科普课程与互动实验室",
-  school_names: ["东华大学", "东华大学附属实验学校"],
+  school_names: [],
   hero_title: "人工智能课程，互动实验室",
   hero_description: "",
   project_intro: "",

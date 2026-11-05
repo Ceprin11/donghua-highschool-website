@@ -54,10 +54,10 @@ async function upsertAndPublish(db, kind, payload, { publish = true } = {}) {
 export async function seedInitialContent(db) {
   const result = { created: 0, skipped: 0 };
   const settings = await upsertAndPublish(db, 'settings', {
-    slug: 'site', key: 'site', site_name: '人工智能科普课程与互动实验室', school_names: ['东华大学', '东华大学附属实验学校'],
+    slug: 'site', key: 'site', site_name: '人工智能科普课程与互动实验室', school_names: [],
     hero_title: '人工智能课程，互动实验室', hero_description: '',
     project_intro: '面向初高中学生的人工智能科普课程与互动实验。', teaching_features: ['课程讲解', '浏览器实验', '课堂小测'],
-    about_text: '项目由东华大学与东华大学附属实验学校合作开展。', section_visibility: { themes: true, teacher: true, experiments: true, works: true, activities: true },
+    about_text: '', section_visibility: { themes: true, teacher: true, experiments: true, works: true, activities: true },
     featured_experiment_slugs: SEED_EXPERIMENTS.filter(item => item.featured).map((item) => item.slug), featured_work_slugs: [], footer_text: '人工智能科普课程与互动实验室',
   });
   result[settings.skipped ? 'skipped' : 'created'] += 1;
